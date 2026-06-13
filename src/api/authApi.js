@@ -1,8 +1,5 @@
 import api from "./axios";
 
-
-export function loginRequest(data){
-
+export function loginRequest(data) {
     return api.post("/login", data);
-
 }

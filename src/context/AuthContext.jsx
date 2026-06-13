@@ -7,12 +7,16 @@ export function AuthProvider({children}) {
     const [token, setToken] = useState(
         localStorage.getItem("token")
     );
-    const [user, setUser] = useState(
-        localStorage.getItem("user")
+    const [user, setUser] = useState(() => {
+            const storedUser = localStorage.getItem("user");
+            return storedUser ? JSON.parse(storedUser) : null;
+        }
     );
     useEffect(() => {
         const checkToken = () => {
             setToken(localStorage.getItem("token"));
+            const storedUser = localStorage.getItem("user");
+            setUser(storedUser ? JSON.parse(storedUser) : null);
         };
         window.addEventListener(
             "storage",
