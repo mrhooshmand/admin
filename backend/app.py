@@ -1,23 +1,84 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import jwt
 import secrets
 from datetime import datetime, timedelta
 from functools import wraps
+import sqlite3
+from contextlib import contextmanager
 
 app = Flask(__name__)
-CORS(app)
+
+# ============ تنظیمات CORS ============
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:5173", "http://localhost:3000"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
+
+# همچنین این middleware را اضافه کنید
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
 
 SECRET_KEY = "your-secret-key"
 tokens_db = {}
 
-# کاربران
-users = {
-    "admin": {"password": "1234", "email": "admin@example.com", "full_name": "Admin User"},
-    "user": {"password": "1234", "email": "user@example.com", "full_name": "Regular User"}
-}
+# ============ دیتابیس ============
+DATABASE_NAME = "users.db"
 
+@contextmanager
+def get_db():
+    conn = sqlite3.connect(DATABASE_NAME)
+    conn.row_factory = sqlite3.Row
+    try:
+        yield conn
+    finally:
+        conn.close()
 
+def init_db():
+    """ایجاد جدول کاربران در اولین اجرا"""
+    with get_db() as conn:
+        conn.execute('''
+                     CREATE TABLE IF NOT EXISTS users (
+                                                          id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                          username TEXT UNIQUE NOT NULL,
+                                                          password TEXT NOT NULL,
+                                                          email TEXT,
+                                                          full_name TEXT,
+                                                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                     )
+                     ''')
+
+        cursor = conn.execute("SELECT COUNT(*) FROM users")
+        if cursor.fetchone()[0] == 0:
+            conn.execute('''
+                         INSERT INTO users (username, password, email, full_name)
+                         VALUES (?, ?, ?, ?)
+                         ''', ("admin", "1234", "admin@example.com", "Admin User"))
+
+            conn.execute('''
+                         INSERT INTO users (username, password, email, full_name)
+                         VALUES (?, ?, ?, ?)
+                         ''', ("user", "1234", "user@example.com", "Regular User"))
+
+            conn.execute('''
+                         INSERT INTO users (username, password, email, full_name)
+                         VALUES (?, ?, ?, ?)
+                         ''', ("public", "1234", "public@example.com", "Public User"))
+
+            conn.commit()
+            print("✅ Users table created with default users")
+
+init_db()
+
+# ============ توابع کمکی ============
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -30,14 +91,56 @@ def token_required(f):
             return jsonify({"error": "Invalid token"}), 401
 
         return f(*args, **kwargs)
-
     return decorated
 
+# ============ API Endpoints ============
 
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({"status": "ok"})
 
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    email = data.get('email', '')
+    full_name = data.get('full_name', '')
+
+    if not username or not password:
+        return jsonify({"error": "Username and password required"}), 400
+
+    if len(password) < 4:
+        return jsonify({"error": "Password must be at least 4 characters"}), 400
+
+    try:
+        with get_db() as conn:
+            cursor = conn.execute("SELECT id FROM users WHERE username = ?", (username,))
+            if cursor.fetchone():
+                return jsonify({"error": "Username already exists"}), 400
+
+            conn.execute('''
+                         INSERT INTO users (username, password, email, full_name)
+                         VALUES (?, ?, ?, ?)
+                         ''', (username, password, email, full_name))
+            conn.commit()
+
+            token = secrets.token_urlsafe(32)
+            tokens_db[token] = {
+                "username": username,
+                "expires": datetime.now() + timedelta(hours=24)
+            }
+
+            user_info = {
+                "username": username,
+                "email": email,
+                "full_name": full_name
+            }
+
+            return jsonify({"token": token, "user": user_info}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -45,42 +148,67 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    if username in users and users[username]["password"] == password:
-        token = secrets.token_urlsafe(32)
-        tokens_db[token] = {
-            "username": username,
-            "expires": datetime.now() + timedelta(hours=24)
-        }
+    try:
+        with get_db() as conn:
+            cursor = conn.execute(
+                "SELECT username, password, email, full_name FROM users WHERE username = ?",
+                (username,)
+            )
+            user = cursor.fetchone()
 
-        user_info = {
-            "username": username,
-            "email": users[username]["email"],
-            "full_name": users[username]["full_name"]
-        }
+            if user and user['password'] == password:
+                token = secrets.token_urlsafe(32)
+                tokens_db[token] = {
+                    "username": username,
+                    "expires": datetime.now() + timedelta(hours=24)
+                }
 
-        return jsonify({"token": token, "user": user_info})
+                user_info = {
+                    "username": user['username'],
+                    "email": user['email'],
+                    "full_name": user['full_name']
+                }
 
-    return jsonify({"error": "Invalid credentials"}), 401
+                return jsonify({"token": token, "user": user_info})
 
+            return jsonify({"error": "Invalid credentials"}), 401
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/me', methods=['GET'])
 @token_required
 def get_me():
     token = request.headers.get('Authorization').split(' ')[1]
     username = tokens_db[token]["username"]
-    user_info = {
-        "username": username,
-        "email": users[username]["email"],
-        "full_name": users[username]["full_name"]
-    }
-    return jsonify(user_info)
 
+    try:
+        with get_db() as conn:
+            cursor = conn.execute(
+                "SELECT username, email, full_name, created_at FROM users WHERE username = ?",
+                (username,)
+            )
+            user = dict(cursor.fetchone())
+            return jsonify(user)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/users', methods=['GET'])
+def get_users():
+    try:
+        with get_db() as conn:
+            cursor = conn.execute('''
+                                  SELECT username, email, full_name, created_at
+                                  FROM users
+                                  ORDER BY username
+                                  ''')
+            users_list = [dict(row) for row in cursor.fetchall()]
+            return jsonify(users_list)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    print("🚀 Flask server starting...")
+    print("🚀 Flask server starting with SQLite database...")
     print("📍 http://localhost:8000")
     print("🔐 Test users: admin/1234 or user/1234")
     app.run(host='0.0.0.0', port=8000, debug=True)
-
-# 1:cmd: pip install flask flask-cors pyjwt
-# 2:cmd: python app.py

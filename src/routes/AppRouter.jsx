@@ -5,12 +5,14 @@ import Users from "../pages/Users.jsx";
 import ProtectedRoute from "./ProtectedRoute";
 import Login from "../pages/Login.jsx";
 import Profile from "../pages/Profile.jsx";
+import Register from "../pages/Register.jsx";
 
 export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/login" element={<Login/>}/>
+                <Route path="/register" element={<Register />} />
                 <Route
                     path="/"
                     element={
