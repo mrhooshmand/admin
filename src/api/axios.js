@@ -32,7 +32,6 @@ api.interceptors.response.use(
         if (shouldLogout) {
             localStorage.removeItem(TOKEN_KEY);
             localStorage.removeItem("user");
-            window.location.href = "/login";
         }
 
         return Promise.reject(error);

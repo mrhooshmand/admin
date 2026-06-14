@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import {getUsers} from "../api/userApi";
 import {useLoading} from "../context/LoadingContext";
+import {showAlert} from "../utils/errorHandler";
 
 export default function Users() {
     const [users, setUsers] = useState([]);
@@ -18,8 +19,7 @@ export default function Users() {
             setUsers(response.data);
             setError("");
         } catch (err) {
-            console.error("Error fetching users:", err);
-            setError(err.response?.data?.error || "خطا در دریافت لیست کاربران");
+            showAlert("error", err);
         } finally {
             hideLoading();
         }
@@ -29,13 +29,13 @@ export default function Users() {
         return (
             <div style={styles.container}>
                 <div style={styles.error}>{error}</div>
-                <button onClick={fetchUsers} style={styles.button}>تلاش مجدد</button>
+                <button onClick={fetchUsers} style={styles.button}>Retry</button>
             </div>
         );
     }
     return (
         <div style={styles.container}>
-            <h2>لیست کاربران</h2>
+            <h2>User List</h2>
             <div style={styles.userList}>
                 {users.map((user) => (
                     <div key={user.id || user.username} style={styles.userCard}>
@@ -43,9 +43,9 @@ export default function Users() {
                             {user.full_name?.charAt(0) || user.username?.charAt(0)}
                         </div>
                         <div style={styles.userInfo}>
-                            <div><strong>نام کاربری:</strong> {user.username}</div>
-                            <div><strong>نام کامل:</strong> {user.full_name || "—"}</div>
-                            <div><strong>ایمیل:</strong> {user.email || "—"}</div>
+                            <div><strong>Username </strong> {user.username}</div>
+                            <div><strong>Name </strong> {user.full_name || "—"}</div>
+                            <div><strong>Email </strong> {user.email || "—"}</div>
                         </div>
                     </div>
                 ))}

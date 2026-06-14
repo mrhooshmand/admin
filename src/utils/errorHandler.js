@@ -1,50 +1,194 @@
 import {ERROR_CODES} from '../constants/api';
 import {toast} from 'sonner';
 
+/**
+ * Handle API errors and regular errors
+ */
 export const handleApiError = (error) => {
-    if (!error.response) {
+    // Check for empty or undefined error
+    if (!error) {
         return {
-            message: 'Error Connecting Server !',
+            message: 'An unknown error occurred',
             shouldLogout: false
         };
     }
 
-    const {status, data} = error.response;
-
-    switch (status) {
-        case ERROR_CODES.UNAUTHORIZED:
+    // If input is a string
+    if (typeof error === 'string') {
+        const trimmedError = error.trim();
+        if (trimmedError === '') {
             return {
-                message: data?.error || 'Session Expired . Sign in Again',
-                shouldLogout: true
-            };
-
-        case ERROR_CODES.FORBIDDEN:
-            return {
-                message: 'Access Denied',
+                message: 'An unknown error occurred',
                 shouldLogout: false
             };
+        }
+        return {
+            message: trimmedError,
+            shouldLogout: false
+        };
+    }
 
-        case ERROR_CODES.NOT_FOUND:
-            return {
-                message: 'Information Not Found',
-                shouldLogout: false
-            };
+    // ✅ مهم: اول error.response را بررسی کن (Axios error)
+    if (error.response) {
+        const {status, data} = error.response;
 
-        case ERROR_CODES.SERVER_ERROR:
-            return {
-                message: 'Server Error',
-                shouldLogout: false
-            };
+        // استخراج پیام از ساختارهای مختلف
+        let errorMessage = '';
 
+        // اگر data یک string باشد
+        if (typeof data === 'string') {
+            errorMessage = data;
+        }
+        // اگر data یک object باشد
+        else if (typeof data === 'object' && data !== null) {
+            errorMessage = data?.error || data?.message || data?.detail || '';
+        }
+
+        // اگر پیام خالی بود، از status text استفاده کن
+        if (!errorMessage) {
+            switch (status) {
+                case 400:
+                    errorMessage = 'Bad request';
+                    break;
+                case 401:
+                    errorMessage = 'Invalid credentials';
+                    break;
+                case 403:
+                    errorMessage = 'Access denied';
+                    break;
+                case 404:
+                    errorMessage = 'Not found';
+                    break;
+                case 500:
+                    errorMessage = 'Internal server error';
+                    break;
+                default:
+                    errorMessage = `Error ${status}`;
+            }
+        }
+
+        switch (status) {
+            case ERROR_CODES.UNAUTHORIZED:
+                return {
+                    message: errorMessage || 'Session expired. Please sign in again',
+                    shouldLogout: true
+                };
+            case ERROR_CODES.FORBIDDEN:
+                return {
+                    message: errorMessage || 'Access denied',
+                    shouldLogout: false
+                };
+            case ERROR_CODES.NOT_FOUND:
+                return {
+                    message: errorMessage || 'Information not found',
+                    shouldLogout: false
+                };
+            case ERROR_CODES.SERVER_ERROR:
+                return {
+                    message: errorMessage || 'Server error',
+                    shouldLogout: false
+                };
+            default:
+                return {
+                    message: errorMessage || `Error with code ${status}`,
+                    shouldLogout: false
+                };
+        }
+    }
+
+    // If error has request (request sent but no response)
+    if (error.request) {
+        return {
+            message: 'Cannot connect to server. Please check your internet connection',
+            shouldLogout: false
+        };
+    }
+
+    // سپس اگر error یک Error object بود (و Axios نبود)
+    if (error instanceof Error) {
+        return {
+            message: error.message?.trim() || 'An unknown error occurred',
+            shouldLogout: false
+        };
+    }
+
+    // Default
+    return {
+        message: 'An unknown error occurred',
+        shouldLogout: false
+    };
+};
+
+/**
+ * Main function to show all types of alerts
+ */
+export const showAlert = (type, message, options = {}) => {
+    let finalMessage = message;
+
+    // اگر message خطای Axios یا Error باشد
+    if (message instanceof Error || message?.response) {
+        const handled = handleApiError(message);
+        finalMessage = handled.message;
+        console.log('Extracted message:', finalMessage); // برای دیباگ
+    }
+
+    if (typeof message === 'string' && message.trim() === '') {
+        finalMessage = type === 'success' ? 'Operation completed successfully' : 'An error occurred';
+    }
+
+    if (!finalMessage || (typeof finalMessage === 'string' && finalMessage.trim() === '')) {
+        finalMessage = type === 'success' ? 'Success' : 'Error';
+    }
+
+    switch (type) {
+        case 'success':
+            toast.success(finalMessage, options);
+            break;
+        case 'error':
+            toast.error(finalMessage, options);
+            break;
+        case 'warning':
+            toast.warning(finalMessage, options);
+            break;
+        case 'info':
+            toast.info(finalMessage, options);
+            break;
         default:
-            return {
-                message: data?.error || 'Error!',
-                shouldLogout: false
-            };
+            toast(finalMessage, options);
     }
 };
 
-export const showError = (error) => {
-    const {message} = handleApiError(error);
-    toast.error(message);
+// Helper functions
+export const showSuccess = (message, options) => showAlert('success', message, options);
+export const showError = (error, options) => showAlert('error', error, options);
+export const showWarning = (message, options) => showAlert('warning', message, options);
+export const showInfo = (message, options) => showAlert('info', message, options);
+
+export const showValidationErrors = (errors) => {
+    if (!errors) return;
+
+    if (typeof errors === 'object') {
+        const firstError = Object.values(errors)[0];
+        if (firstError) {
+            showAlert('error', firstError);
+        }
+    } else if (typeof errors === 'string') {
+        showAlert('error', errors);
+    }
+};
+
+export const logError = (error, context = '') => {
+    if (process.env.NODE_ENV === 'development') {
+        const prefix = context ? `[${context}]` : '';
+        console.error(`${prefix} Error:`, error);
+        if (error.response) {
+            console.error(`${prefix} Response data:`, error.response.data);
+            console.error(`${prefix} Response status:`, error.response.status);
+        }
+    }
+};
+
+export const handleError = (error, context = '', options = {}) => {
+    logError(error, context);
+    return showAlert('error', error, options);
 };

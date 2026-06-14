@@ -3,18 +3,25 @@ import {useNavigate} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
 import FullPageLoading from "../components/FullPageLoading";
 import {useLoading} from "../context/LoadingContext";
+import {useEffect} from "react";
+import {ROUTES} from "../constants/routes";
 
 export default function MainLayout() {
     const navigate = useNavigate();
-    const { isLoading, message } = useLoading();
-    const {logout} = useAuth()
+    const {isLoading, message} = useLoading();
+    const {logout, token} = useAuth()
     const handleLogout = () => {
         logout();
         navigate("/login");
     };
+    useEffect(() => {
+        if (!token) {
+            navigate(ROUTES.LOGIN);
+        }
+    }, [token, navigate]);
     return (
         <div style={{display: "flex", height: "100vh"}}>
-            {isLoading && <FullPageLoading message={message} />}
+            {isLoading && <FullPageLoading message={message}/>}
 
             {/* Sidebar */}
             <div id="sidebar" style={{width: 200, padding: 20}}>

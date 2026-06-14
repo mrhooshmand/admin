@@ -3,47 +3,37 @@ import {Link, useNavigate} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
 import {loginRequest} from "../api/authApi";
 import {ROUTES} from "../constants/routes";
-import {showError} from "../utils/errorHandler";
 import {useLoading} from "../context/LoadingContext.jsx";
-import {toast} from 'sonner';
+import {showAlert} from "../utils/errorHandler";
 
 export default function Login() {
     const {login} = useAuth();
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const {showLoading, hideLoading, isLoading} = useLoading();
+    const {isLoading} = useLoading();
     const loginEvent = async () => {
         if (!username.trim() || !password.trim()) {
-            setError("Please fill username and password");
+            showAlert("error", "Please fill username and password");
             return;
         }
 
-        showLoading("Logging in ...");
-        setError("");
 
         try {
             const response = await loginRequest({
                 username,
                 password
             });
-            toast.success('Success login');
             login(response.data);
             navigate(ROUTES.DASHBOARD);
         } catch (error) {
-            console.error("Login failed:", error);
-            const errorMsg = error.response?.data?.error || "Username or Password is incorrect";
-            setError(errorMsg);
-            showError(error);
-        } finally {
-            hideLoading();
+            showAlert('error',error);
         }
     };
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <h2 style={styles.title}>Sign to your account</h2>
+                <h2 style={styles.title}>Sign in to your account</h2>
                 <input
                     type="text"
                     placeholder="Username"
