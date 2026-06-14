@@ -7,10 +7,10 @@ import {LoadingProvider} from "./context/LoadingContext.jsx";
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-        <LoadingProvider>
-            <AuthProvider>
+        <AuthProvider>
+            <LoadingProvider>
                 <App/>
-            </AuthProvider>
-        </LoadingProvider>
+            </LoadingProvider>
+        </AuthProvider>
     </StrictMode>,
 )
