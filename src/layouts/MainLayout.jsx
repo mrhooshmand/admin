@@ -13,9 +13,8 @@ export default function MainLayout() {
         <div style={{display: "flex", height: "100vh"}}>
 
             {/* Sidebar */}
-            <div style={{width: 200, background: "#005daa", color: "#fff", padding: 20}}>
+            <div id="sidebar" style={{width: 200, padding: 20}}>
                 <h3 style={{marginBottom: "3rem"}}>Admin Panel</h3>
-
                 <nav>
                     <ul style={{listStyle: "none", padding: 0, textAlign: "left"}}>
                         <li style={{marginBottom: "1rem"}}><Link to="/dashboard"
@@ -23,19 +22,9 @@ export default function MainLayout() {
                         <li style={{marginBottom: "1rem"}}><Link to="/users" style={{color: "#fff"}}>Users</Link></li>
                         <li style={{marginBottom: "1rem"}}><Link to="/profile" style={{color: "#fff"}}>Profile</Link>
                         </li>
-                        <hr/>
-                        <li>
-                            <button style={{
-                                backgroundColor: "transparent",
-                                outline: "none",
-                                border: "none",
-                                color: "#fff",
-                                padding: "0"
-                            }} onClick={handleLogout}>Sign out
-                            </button>
-                        </li>
                     </ul>
                 </nav>
+                <button className="btn-grad" onClick={handleLogout}>Sign out</button>
             </div>
 
             {/* Main Content */}

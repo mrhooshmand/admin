@@ -1,46 +1,57 @@
 import {createContext, useContext, useState, useEffect} from "react";
+import {TOKEN_KEY, USER_KEY} from "../constants/api";
 
 const AuthContext = createContext();
 
 export function AuthProvider({children}) {
-
-    const [token, setToken] = useState(
-        localStorage.getItem("token")
-    );
+    const [token, setToken] = useState(localStorage.getItem(TOKEN_KEY));
     const [user, setUser] = useState(() => {
-            const storedUser = localStorage.getItem("user");
-            return storedUser ? JSON.parse(storedUser) : null;
-        }
-    );
+        const storedUser = localStorage.getItem(USER_KEY);
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        const checkToken = () => {
-            setToken(localStorage.getItem("token"));
-            const storedUser = localStorage.getItem("user");
-            setUser(storedUser ? JSON.parse(storedUser) : null);
+        const checkAuth = () => {
+            const storedToken = localStorage.getItem(TOKEN_KEY);
+            const storedUser = localStorage.getItem(USER_KEY);
+
+            if (storedToken && storedUser) {
+                setToken(storedToken);
+                setUser(JSON.parse(storedUser));
+            }
+            setLoading(false);
         };
-        window.addEventListener(
-            "storage",
-            checkToken
-        );
-        return () => {
-            window.removeEventListener(
-                "storage",
-                checkToken
-            );
+
+        checkAuth();
+
+        const handleStorageChange = (e) => {
+            if (e.key === TOKEN_KEY) {
+                setToken(e.newValue);
+                if (!e.newValue) {
+                    setUser(null);
+                }
+            }
+            if (e.key === USER_KEY) {
+                setUser(e.newValue ? JSON.parse(e.newValue) : null);
+            }
         };
+
+        window.addEventListener("storage", handleStorageChange);
+        return () => window.removeEventListener("storage", handleStorageChange);
     }, []);
 
     const login = (data) => {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem(TOKEN_KEY, data.token);
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
         setToken(data.token);
         setUser(data.user);
     };
 
 
     const logout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
         setToken(null);
         setUser(null);
     };
@@ -52,7 +63,9 @@ export function AuthProvider({children}) {
                 user,
                 token,
                 login,
-                logout
+                logout,
+                isAuthenticated: !!token,
+                loading
             }}
         >
             {children}

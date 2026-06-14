@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loginRequest } from "../api/authApi";
+import { ROUTES } from "../constants/routes";
+import { showError } from "../utils/errorHandler";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Login() {
     const { login } = useAuth();
@@ -26,14 +29,18 @@ export default function Login() {
                 password
             });
             login(response.data);
-            navigate('/dashboard');
+            navigate(ROUTES.DASHBOARD);
         } catch (error) {
             console.error("Login failed:", error);
-            setError("نام کاربری یا رمز عبور اشتباه است");
+            const errorMsg = error.response?.data?.error || "نام کاربری یا رمز عبور اشتباه است";
+            setError(errorMsg);
+            showError(error);
         } finally {
             setLoading(false);
         }
     };
+
+    if (loading) return <LoadingSpinner />;
 
     return (
         <div style={styles.container}>
@@ -48,6 +55,7 @@ export default function Login() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     style={styles.input}
+                    disabled={loading}
                     onKeyPress={(e) => e.key === "Enter" && loginEvent()}
                 />
 
@@ -57,6 +65,7 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     style={styles.input}
+                    disabled={loading}
                     onKeyPress={(e) => e.key === "Enter" && loginEvent()}
                 />
 
@@ -69,7 +78,7 @@ export default function Login() {
                 </button>
 
                 <p style={styles.footer}>
-                    حساب کاربری ندارید؟ <Link to="/register" style={styles.link}>ثبت نام</Link>
+                    حساب کاربری ندارید؟ <Link to={ROUTES.REGISTER} style={styles.link}>ثبت نام</Link>
                 </p>
             </div>
         </div>
@@ -106,8 +115,7 @@ const styles = {
         border: "1px solid #ddd",
         borderRadius: "6px",
         fontSize: "16px",
-        boxSizing: "border-box",
-        transition: "border-color 0.3s"
+        boxSizing: "border-box"
     },
     button: {
         width: "100%",
@@ -118,8 +126,7 @@ const styles = {
         borderRadius: "6px",
         fontSize: "16px",
         cursor: "pointer",
-        marginTop: "10px",
-        transition: "background-color 0.3s"
+        marginTop: "10px"
     },
     error: {
         backgroundColor: "#f8d7da",
@@ -127,18 +134,15 @@ const styles = {
         padding: "10px",
         borderRadius: "6px",
         marginBottom: "20px",
-        textAlign: "center",
-        fontSize: "14px"
+        textAlign: "center"
     },
     footer: {
         textAlign: "center",
         marginTop: "20px",
-        color: "#666",
-        fontSize: "14px"
+        color: "#666"
     },
     link: {
         color: "#007bff",
-        textDecoration: "none",
-        fontWeight: "bold"
+        textDecoration: "none"
     }
 };

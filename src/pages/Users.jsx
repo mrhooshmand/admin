@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getUsers } from "../api/userApi";
 import { useAuth } from "../context/AuthContext";
+import LoadingSpinner from "../components/LoadingSpinner.jsx";
 
 export default function Users() {
     const { token } = useAuth();
@@ -27,7 +28,7 @@ export default function Users() {
     };
 
     if (loading) {
-        return <div style={styles.container}>در حال بارگذاری...</div>;
+        return <LoadingSpinner/>;
     }
 
     if (error) {
