@@ -8,10 +8,6 @@ export default function Users() {
     const {showLoading, hideLoading} = useLoading();
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
     const fetchUsers = async () => {
         showLoading();
         try {
@@ -24,7 +20,9 @@ export default function Users() {
             hideLoading();
         }
     };
-
+    useEffect(() => {
+        fetchUsers();
+    }, []);
     if (error) {
         return (
             <div style={styles.container}>
@@ -33,23 +31,40 @@ export default function Users() {
             </div>
         );
     }
+
+    const handleEditUser = (user) => {
+        console.log(user)
+    }
+
     return (
         <div style={styles.container}>
-            <h2>User List</h2>
-            <div style={styles.userList}>
-                {users.map((user) => (
-                    <div key={user.id || user.username} style={styles.userCard}>
-                        <div style={styles.avatar}>
-                            {user.full_name?.charAt(0) || user.username?.charAt(0)}
-                        </div>
-                        <div style={styles.userInfo}>
-                            <div><strong>Username </strong> {user.username}</div>
-                            <div><strong>Name </strong> {user.full_name || "—"}</div>
-                            <div><strong>Email </strong> {user.email || "—"}</div>
-                        </div>
-                    </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {users.map((user, index = 1) => (
+                    <tr key={user.id || user.username}>
+                        <td>{index + 1}</td>
+                        <td>{user.username}</td>
+                        <td>{user.full_name}</td>
+                        <td>{user.email}</td>
+                        <td style={{whiteSpace: 'nowrap'}}>
+                            {user.username !== 'admin' &&
+                                <button style={{marginRight: '0.25rem'}}
+                                        onClick={() => handleEditUser(user)}>✏️</button>}
+                            <button>🗑️</button>
+                        </td>
+                    </tr>
                 ))}
-            </div>
+                </tbody>
+            </table>
         </div>
     );
 }
