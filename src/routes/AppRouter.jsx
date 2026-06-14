@@ -1,18 +1,18 @@
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
-import MainLayout from "../layouts/MainLayout.jsx";
-import Users from "../pages/Users.jsx";
+import MainLayout from "../layouts/MainLayout";
+import Users from "../pages/Users";
 import ProtectedRoute from "./ProtectedRoute";
-import Login from "../pages/Login.jsx";
-import Profile from "../pages/Profile.jsx";
-import Register from "../pages/Register.jsx";
+import Login from "../pages/Login";
+import Profile from "../pages/Profile";
+import Register from "../pages/Register";
 
 export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/login" element={<Login/>}/>
-                <Route path="/register" element={<Register />} />
+                <Route path="/register" element={<Register/>}/>
                 <Route
                     path="/"
                     element={

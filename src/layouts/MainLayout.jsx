@@ -1,9 +1,12 @@
 import {Outlet, Link} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
+import FullPageLoading from "../components/FullPageLoading";
+import {useLoading} from "../context/LoadingContext";
 
 export default function MainLayout() {
     const navigate = useNavigate();
+    const { isLoading, message } = useLoading();
     const {logout} = useAuth()
     const handleLogout = () => {
         logout();
@@ -11,6 +14,7 @@ export default function MainLayout() {
     };
     return (
         <div style={{display: "flex", height: "100vh"}}>
+            {isLoading && <FullPageLoading message={message} />}
 
             {/* Sidebar */}
             <div id="sidebar" style={{width: 200, padding: 20}}>

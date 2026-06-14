@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { loginRequest } from "../api/authApi";
 import { ROUTES } from "../constants/routes";
 import { showError } from "../utils/errorHandler";
-import LoadingSpinner from "../components/LoadingSpinner";
+import {useLoading} from "../context/LoadingContext.jsx";
 
 export default function Login() {
     const { login } = useAuth();
@@ -12,15 +12,14 @@ export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
-
+    const { showLoading, hideLoading } = useLoading();
     const loginEvent = async () => {
         if (!username.trim() || !password.trim()) {
             setError("لطفاً نام کاربری و رمز عبور را وارد کنید");
             return;
         }
 
-        setLoading(true);
+        showLoading("در حال ورود به حساب کاربری...");
         setError("");
 
         try {
@@ -36,12 +35,9 @@ export default function Login() {
             setError(errorMsg);
             showError(error);
         } finally {
-            setLoading(false);
+            hideLoading();
         }
     };
-
-    if (loading) return <LoadingSpinner />;
-
     return (
         <div style={styles.container}>
             <div style={styles.card}>

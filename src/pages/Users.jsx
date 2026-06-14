@@ -1,12 +1,10 @@
-import { useState, useEffect } from "react";
-import { getUsers } from "../api/userApi";
-import { useAuth } from "../context/AuthContext";
-import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import {useState, useEffect} from "react";
+import {getUsers} from "../api/userApi";
+import {useLoading} from "../context/LoadingContext";
 
 export default function Users() {
-    const { token } = useAuth();
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const {showLoading, hideLoading} = useLoading();
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -14,8 +12,8 @@ export default function Users() {
     }, []);
 
     const fetchUsers = async () => {
+        showLoading();
         try {
-            setLoading(true);
             const response = await getUsers();
             setUsers(response.data);
             setError("");
@@ -23,13 +21,9 @@ export default function Users() {
             console.error("Error fetching users:", err);
             setError(err.response?.data?.error || "خطا در دریافت لیست کاربران");
         } finally {
-            setLoading(false);
+            hideLoading();
         }
     };
-
-    if (loading) {
-        return <LoadingSpinner/>;
-    }
 
     if (error) {
         return (
@@ -39,7 +33,6 @@ export default function Users() {
             </div>
         );
     }
-
     return (
         <div style={styles.container}>
             <h2>لیست کاربران</h2>
