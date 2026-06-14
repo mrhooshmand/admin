@@ -1,50 +1,50 @@
-
-import { ERROR_CODES } from '../constants/api';
+import {ERROR_CODES} from '../constants/api';
+import {toast} from 'sonner';
 
 export const handleApiError = (error) => {
     if (!error.response) {
         return {
-            message: 'ارتباط با سرور برقرار نیست. لطفاً دوباره تلاش کنید.',
+            message: 'Error Connecting Server !',
             shouldLogout: false
         };
     }
 
-    const { status, data } = error.response;
+    const {status, data} = error.response;
 
     switch (status) {
         case ERROR_CODES.UNAUTHORIZED:
             return {
-                message: data?.error || 'نشست شما منقضی شده است. لطفاً دوباره وارد شوید.',
+                message: data?.error || 'Session Expired . Sign in Again',
                 shouldLogout: true
             };
 
         case ERROR_CODES.FORBIDDEN:
             return {
-                message: 'شما دسترسی به این بخش را ندارید.',
+                message: 'Access Denied',
                 shouldLogout: false
             };
 
         case ERROR_CODES.NOT_FOUND:
             return {
-                message: 'اطلاعات درخواستی یافت نشد.',
+                message: 'Information Not Found',
                 shouldLogout: false
             };
 
         case ERROR_CODES.SERVER_ERROR:
             return {
-                message: 'خطایی در سرور رخ داده است. لطفاً دقایقی دیگر تلاش کنید.',
+                message: 'Server Error',
                 shouldLogout: false
             };
 
         default:
             return {
-                message: data?.error || 'خطایی رخ داده است. لطفاً دوباره تلاش کنید.',
+                message: data?.error || 'Error!',
                 shouldLogout: false
             };
     }
 };
 
 export const showError = (error) => {
-    const { message } = handleApiError(error);
-    alert(message);
+    const {message} = handleApiError(error);
+    toast.error(message);
 };

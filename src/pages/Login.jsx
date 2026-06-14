@@ -1,25 +1,26 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { loginRequest } from "../api/authApi";
-import { ROUTES } from "../constants/routes";
-import { showError } from "../utils/errorHandler";
+import {useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import {useAuth} from "../context/AuthContext";
+import {loginRequest} from "../api/authApi";
+import {ROUTES} from "../constants/routes";
+import {showError} from "../utils/errorHandler";
 import {useLoading} from "../context/LoadingContext.jsx";
+import {toast} from 'sonner';
 
 export default function Login() {
-    const { login } = useAuth();
+    const {login} = useAuth();
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const { showLoading, hideLoading } = useLoading();
+    const {showLoading, hideLoading, isLoading} = useLoading();
     const loginEvent = async () => {
         if (!username.trim() || !password.trim()) {
-            setError("لطفاً نام کاربری و رمز عبور را وارد کنید");
+            setError("Please fill username and password");
             return;
         }
 
-        showLoading("در حال ورود به حساب کاربری...");
+        showLoading("Logging in ...");
         setError("");
 
         try {
@@ -27,11 +28,12 @@ export default function Login() {
                 username,
                 password
             });
+            toast.success('Success login');
             login(response.data);
             navigate(ROUTES.DASHBOARD);
         } catch (error) {
             console.error("Login failed:", error);
-            const errorMsg = error.response?.data?.error || "نام کاربری یا رمز عبور اشتباه است";
+            const errorMsg = error.response?.data?.error || "Username or Password is incorrect";
             setError(errorMsg);
             showError(error);
         } finally {
@@ -41,40 +43,37 @@ export default function Login() {
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <h2 style={styles.title}>ورود به حساب کاربری</h2>
-
-                {error && <div style={styles.error}>{error}</div>}
-
+                <h2 style={styles.title}>Sign to your account</h2>
                 <input
                     type="text"
-                    placeholder="نام کاربری"
+                    placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     style={styles.input}
-                    disabled={loading}
+                    disabled={isLoading}
                     onKeyPress={(e) => e.key === "Enter" && loginEvent()}
                 />
 
                 <input
                     type="password"
-                    placeholder="رمز عبور"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     style={styles.input}
-                    disabled={loading}
+                    disabled={isLoading}
                     onKeyPress={(e) => e.key === "Enter" && loginEvent()}
                 />
 
                 <button
                     onClick={loginEvent}
-                    disabled={loading}
+                    disabled={isLoading}
                     style={styles.button}
                 >
-                    {loading ? "در حال ورود..." : "ورود"}
+                    {isLoading ? "Logging in ..." : "Login"}
                 </button>
 
                 <p style={styles.footer}>
-                    حساب کاربری ندارید؟ <Link to={ROUTES.REGISTER} style={styles.link}>ثبت نام</Link>
+                    Dont have Account? <Link to={ROUTES.REGISTER} style={styles.link}>Sign up</Link>
                 </p>
             </div>
         </div>

@@ -75,7 +75,7 @@ export default function Register() {
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <h2 style={styles.title}>ثبت نام کاربری</h2>
+                <h2 style={styles.title}>Sign up </h2>
 
                 {error && <div style={styles.error}>{error}</div>}
 
@@ -83,7 +83,7 @@ export default function Register() {
                     <input
                         type="text"
                         name="username"
-                        placeholder="نام کاربری *"
+                        placeholder="User name"
                         value={formData.username}
                         onChange={handleChange}
                         style={styles.input}
@@ -93,7 +93,7 @@ export default function Register() {
                     <input
                         type="email"
                         name="email"
-                        placeholder="ایمیل"
+                        placeholder="Email"
                         value={formData.email}
                         onChange={handleChange}
                         style={styles.input}
@@ -102,7 +102,7 @@ export default function Register() {
                     <input
                         type="text"
                         name="full_name"
-                        placeholder="نام کامل"
+                        placeholder="Full name"
                         value={formData.full_name}
                         onChange={handleChange}
                         style={styles.input}
@@ -111,7 +111,7 @@ export default function Register() {
                     <input
                         type="password"
                         name="password"
-                        placeholder="رمز عبور *"
+                        placeholder="Password"
                         value={formData.password}
                         onChange={handleChange}
                         style={styles.input}
@@ -121,7 +121,7 @@ export default function Register() {
                     <input
                         type="password"
                         name="confirmPassword"
-                        placeholder="تکرار رمز عبور *"
+                        placeholder="Password confirm"
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         style={styles.input}
@@ -133,12 +133,12 @@ export default function Register() {
                         style={styles.button}
                         disabled={loading}
                     >
-                        {loading ? "در حال ثبت نام..." : "ثبت نام"}
+                        {loading ? "Signing in ..." : "Sign in"}
                     </button>
                 </form>
 
                 <p style={styles.footer}>
-                    قبلاً ثبت نام کرده‌اید؟ <Link to="/login" style={styles.link}>ورود</Link>
+                    Have an account? <Link to="/login" style={styles.link}>Sign in</Link>
                 </p>
             </div>
         </div>
