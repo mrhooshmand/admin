@@ -28,23 +28,18 @@ export const handleApiError = (error) => {
         };
     }
 
-    // ✅ مهم: اول error.response را بررسی کن (Axios error)
+    // ✅ First check for response (Axios error)
     if (error.response) {
         const {status, data} = error.response;
 
-        // استخراج پیام از ساختارهای مختلف
         let errorMessage = '';
 
-        // اگر data یک string باشد
         if (typeof data === 'string') {
             errorMessage = data;
-        }
-        // اگر data یک object باشد
-        else if (typeof data === 'object' && data !== null) {
+        } else if (typeof data === 'object' && data !== null) {
             errorMessage = data?.error || data?.message || data?.detail || '';
         }
 
-        // اگر پیام خالی بود، از status text استفاده کن
         if (!errorMessage) {
             switch (status) {
                 case 400:
@@ -96,15 +91,15 @@ export const handleApiError = (error) => {
         }
     }
 
-    // If error has request (request sent but no response)
+    // Check for request (no response)
     if (error.request) {
         return {
-            message: 'Cannot connect to server. Please check your internet connection',
+            message: 'Cannot connect to server',
             shouldLogout: false
         };
     }
 
-    // سپس اگر error یک Error object بود (و Axios نبود)
+    // Then check for Error object
     if (error instanceof Error) {
         return {
             message: error.message?.trim() || 'An unknown error occurred',
@@ -120,16 +115,14 @@ export const handleApiError = (error) => {
 };
 
 /**
- * Main function to show all types of alerts
+ * Main alert function
  */
 export const showAlert = (type, message, options = {}) => {
     let finalMessage = message;
 
-    // اگر message خطای Axios یا Error باشد
     if (message instanceof Error || message?.response) {
         const handled = handleApiError(message);
         finalMessage = handled.message;
-        console.log('Extracted message:', finalMessage); // برای دیباگ
     }
 
     if (typeof message === 'string' && message.trim() === '') {
