@@ -1,48 +1,152 @@
-import {Outlet, Link} from "react-router-dom";
+import {Outlet, Link, useLocation} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
 import FullPageLoading from "../components/FullPageLoading";
 import {useLoading} from "../context/LoadingContext";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {ROUTES} from "../constants/routes";
+
+// shadcn/ui components
+import {Button} from "@/components/ui/button";
+import {
+    LayoutDashboard,
+    Users,
+    UserCircle,
+    LogOut,
+    Menu,
+    X,
+} from "lucide-react";
 
 export default function MainLayout() {
     const navigate = useNavigate();
+    const location = useLocation();
     const {isLoading, message} = useLoading();
-    const {logout, token} = useAuth()
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-    };
+    const {logout, token, user} = useAuth();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkScreen = () => {
+            setIsMobile(window.innerWidth < 768);
+            if (window.innerWidth < 768) {
+                setIsSidebarOpen(false);
+            } else {
+                setIsSidebarOpen(true);
+            }
+        };
+        checkScreen();
+        window.addEventListener("resize", checkScreen);
+        return () => window.removeEventListener("resize", checkScreen);
+    }, []);
     useEffect(() => {
         if (!token) {
             navigate(ROUTES.LOGIN);
         }
     }, [token, navigate]);
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
+
+    const menuItems = [
+        {path: "/dashboard", name: "Dashboard", icon: LayoutDashboard},
+        {path: "/users", name: "Users", icon: Users},
+        {path: "/profile", name: "Profile", icon: UserCircle},
+    ];
+
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
+
     return (
-        <div style={{display: "flex", height: "100vh"}}>
-            {isLoading && <FullPageLoading message={message}/>}
-
-            {/* Sidebar */}
-            <div id="sidebar" style={{width: 200, padding: 20}}>
-                <h3 style={{marginBottom: "3rem"}}>Admin Panel</h3>
-                <nav>
-                    <ul style={{listStyle: "none", padding: 0, textAlign: "left"}}>
-                        <li style={{marginBottom: "1rem"}}><Link to="/dashboard"
-                                                                 style={{color: "#fff"}}>Dashboard</Link></li>
-                        <li style={{marginBottom: "1rem"}}><Link to="/users" style={{color: "#fff"}}>Users</Link></li>
-                        <li style={{marginBottom: "1rem"}}><Link to="/profile" style={{color: "#fff"}}>Profile</Link>
-                        </li>
-                    </ul>
-                </nav>
-                <button className="btn-grad" onClick={handleLogout}>Sign out</button>
-            </div>
-
-            {/* Main Content */}
-            <div style={{flex: 1, padding: 20, backgroundColor: 'rgba(238,238,238,0.39)'}}>
-                <Outlet/>
-            </div>
-
+        <div className="flex h-screen bg-gray-100">
+            {isMobile && !isSidebarOpen && (
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="fixed top-4 left-4 z-50 bg-white shadow-lg"
+                    onClick={toggleSidebar}
+                >
+                    <Menu className="h-5 w-5"/>
+                </Button>
+            )}
+            <aside
+                className={`
+          bg-slate-900 text-white transition-all duration-300 ease-in-out
+          ${isSidebarOpen ? "w-64" : "w-0 overflow-hidden"}
+          ${isMobile ? "fixed left-0 top-0 z-40 h-full" : "relative"}
+        `}
+            >
+                <div className="flex flex-col h-full">
+                    <div className="flex items-center justify-between p-5 border-b border-slate-700">
+                        <h2 className="text-xl font-bold text-white hover:text-white hover:bg-slate-800">{user.full_name}</h2>
+                        {isMobile && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-white hover:text-white hover:bg-slate-800"
+                                onClick={toggleSidebar}
+                            >
+                                <X className="h-5 w-5"/>
+                            </Button>
+                        )}
+                    </div>
+                    <nav className="flex-1 p-4">
+                        <ul className="space-y-2">
+                            {menuItems.map((item) => {
+                                const Icon = item.icon;
+                                const isActive = location.pathname === item.path;
+                                return (
+                                    <li key={item.path}>
+                                        <Link
+                                            to={item.path}
+                                            onClick={() => isMobile && setIsSidebarOpen(false)}
+                                            className={`
+                        flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                        ${
+                                                isActive
+                                                    ? "bg-blue-600 text-white"
+                                                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                                            }
+                      `}
+                                        >
+                                            <Icon className="h-5 w-5"/>
+                                            <span>{item.name}</span>
+                                        </Link>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </nav>
+                    <div className="p-4 border-t border-slate-700">
+                        <Button
+                            variant="ghost"
+                            className="w-full justify-start gap-3 text-slate-300 hover:text-white hover:bg-slate-800"
+                            onClick={handleLogout}
+                        >
+                            <LogOut className="h-5 w-5"/>
+                            <span>Sign out</span>
+                        </Button>
+                    </div>
+                </div>
+            </aside>
+            <main
+                className={`
+          flex-1 overflow-auto transition-all duration-300
+          ${isMobile && isSidebarOpen ? "blur-sm" : ""}
+        `}
+            >
+                {/* هدر برای صفحه موبایل */}
+                {isMobile && isSidebarOpen && (
+                    <div
+                        className="fixed inset-0 bg-black/50 z-30"
+                        onClick={toggleSidebar}
+                    />
+                )}
+                <div className={`p-6 relative min-h-full ${isLoading ? 'overflow-hidden h-screen' : ''}`}>
+                    {isLoading && <FullPageLoading message={message}/>}
+                    <Outlet/>
+                </div>
+            </main>
         </div>
     );
 }

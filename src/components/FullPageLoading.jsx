@@ -1,4 +1,4 @@
-export default function FullPageLoading({ message = "Please Wait ..." }) {
+export default function FullPageLoading({message = "Please Wait ..."}) {
     return (
         <div style={styles.overlay}>
             <div style={styles.content}>
@@ -11,18 +11,21 @@ export default function FullPageLoading({ message = "Please Wait ..." }) {
 
 const styles = {
     overlay: {
-        position: "fixed",
-        top: 0,
-        left: 0,
+        position: "absolute",
+        top: "50%",
+        left: "50%",
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(255, 255, 255, 0.85)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
+        backgroundColor: "rgba(158,158,158,0.85)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         zIndex: 9999,
+        transform: "translate(-50%,-50%)",
+        width: "100%",
+        height: "100vh",
     },
     content: {
         textAlign: "center",

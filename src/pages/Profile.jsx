@@ -1,4 +1,5 @@
 import {useAuth} from "../context/AuthContext";
+import { Button } from "@/components/ui/button";
 
 export default function Profile() {
     const {user, logout} = useAuth();
@@ -7,10 +8,7 @@ export default function Profile() {
         <div style={styles.container}>
             <div style={styles.profileCard}>
                 <div style={styles.header}>
-                    <h2>پروفایل کاربری</h2>
-                    <button onClick={logout} style={styles.logoutButton}>
-                        خروج
-                    </button>
+                    <h2>User Profile</h2>
                 </div>
 
                 <div style={styles.avatar}>
@@ -21,27 +19,23 @@ export default function Profile() {
 
                 <div style={styles.info}>
                     <div style={styles.infoRow}>
-                        <span style={styles.label}>نام کاربری:</span>
+                        <span style={styles.label}>Username</span>
                         <span style={styles.value}>{user?.username}</span>
                     </div>
 
                     <div style={styles.infoRow}>
-                        <span style={styles.label}>نام کامل:</span>
+                        <span style={styles.label}>Name</span>
                         <span style={styles.value}>{user?.full_name || "—"}</span>
                     </div>
 
                     <div style={styles.infoRow}>
-                        <span style={styles.label}>ایمیل:</span>
+                        <span style={styles.label}>Email</span>
                         <span style={styles.value}>{user?.email || "—"}</span>
                     </div>
                 </div>
-
-                <button
-                    onClick={() => window.location.href = "/dashboard"}
-                    style={styles.dashboardButton}
-                >
-                    بازگشت به داشبورد
-                </button>
+                <Button className="w-full" onClick={() => window.location.href = "/dashboard"}>
+                    Dashboard
+                </Button>
             </div>
         </div>
     );

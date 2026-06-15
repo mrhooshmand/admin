@@ -198,14 +198,128 @@ def get_users():
     try:
         with get_db() as conn:
             cursor = conn.execute('''
-                                  SELECT username, email, full_name, created_at
+                                  SELECT id,username, email, full_name, created_at
                                   FROM users
-                                  ORDER BY username
+                                  ORDER BY created_at DESC
                                   ''')
             users_list = [dict(row) for row in cursor.fetchall()]
             return jsonify(users_list)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    try:
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        email = data.get('email', '')
+        full_name = data.get('full_name', '')
+
+        if not username or not password:
+            return jsonify({"error": "Username and password required"}), 400
+
+        if len(password) < 4:
+            return jsonify({"error": "Password must be at least 4 characters"}), 400
+
+        with get_db() as conn:
+            # بررسی وجود کاربر
+            cursor = conn.execute("SELECT id FROM users WHERE username = ?", (username,))
+            if cursor.fetchone():
+                return jsonify({"error": "Username already exists"}), 400
+
+            # ایجاد کاربر جدید
+            conn.execute('''
+                         INSERT INTO users (username, password, email, full_name)
+                         VALUES (?, ?, ?, ?)
+                         ''', (username, password, email, full_name))
+            conn.commit()
+
+            # دریافت کاربر ایجاد شده
+            cursor = conn.execute('SELECT id, username, email, full_name, created_at FROM users WHERE username = ?', (username,))
+            new_user = dict(cursor.fetchone())
+
+            return jsonify(new_user), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/users/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    try:
+        data = request.json
+        email = data.get('email', '')
+        full_name = data.get('full_name', '')
+        password = data.get('password')  # اختیاری
+
+        with get_db() as conn:
+            # بررسی وجود کاربر
+            cursor = conn.execute("SELECT username FROM users WHERE id = ?", (user_id,))
+            user = cursor.fetchone()
+            if not user:
+                return jsonify({"error": "User not found"}), 404
+
+            # جلوگیری از تغییر نام کاربری ادمین اصلی توسط غیر ادمین
+            token = request.headers.get('Authorization').split(' ')[1]
+            current_username = tokens_db[token]["username"]
+
+            if user['username'] == 'admin' and current_username != 'admin':
+                return jsonify({"error": "Cannot modify admin user"}), 403
+
+            # به روز رسانی
+            if password:
+                conn.execute('''
+                             UPDATE users SET email = ?, full_name = ?, password = ?
+                             WHERE id = ?
+                             ''', (email, full_name, password, user_id))
+            else:
+                conn.execute('''
+                             UPDATE users SET email = ?, full_name = ?
+                             WHERE id = ?
+                             ''', (email, full_name, user_id))
+
+            conn.commit()
+
+            # دریافت کاربر به روز شده
+            cursor = conn.execute('SELECT id, username, email, full_name, created_at FROM users WHERE id = ?', (user_id,))
+            updated_user = dict(cursor.fetchone())
+
+            return jsonify(updated_user)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        with get_db() as conn:
+            # بررسی وجود کاربر
+            cursor = conn.execute("SELECT username FROM users WHERE id = ?", (user_id,))
+            user = cursor.fetchone()
+            if not user:
+                return jsonify({"error": "User not found"}), 404
+
+            # جلوگیری از حذف ادمین اصلی
+            if user['username'] == 'admin':
+                return jsonify({"error": "Cannot delete admin user"}), 403
+
+            # جلوگیری از حذف خود کاربر توسط خودش
+            token = request.headers.get('Authorization').split(' ')[1]
+            current_username = tokens_db[token]["username"]
+
+            cursor = conn.execute("SELECT username FROM users WHERE id = ?", (user_id,))
+            target_user = cursor.fetchone()
+
+            if target_user and target_user['username'] == current_username:
+                return jsonify({"error": "Cannot delete your own account"}), 403
+
+            # حذف کاربر
+            conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+            conn.commit()
+
+            return jsonify({"message": "User deleted successfully"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     print("🚀 Flask server starting with SQLite database...")

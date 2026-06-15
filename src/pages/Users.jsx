@@ -1,12 +1,53 @@
 import {useState, useEffect} from "react";
-import {getUsers} from "../api/userApi";
+import {getUsers, updateUser, createUser, deleteUser} from "../api/userApi";
 import {useLoading} from "../context/LoadingContext";
 import {showAlert} from "../utils/errorHandler";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Plus, Edit, Trash2} from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Users() {
     const [users, setUsers] = useState([]);
     const {showLoading, hideLoading} = useLoading();
     const [error, setError] = useState("");
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState({});
+    const [editingUser, setEditingUser] = useState(false);
+    const [formData, setFormData] = useState({
+        username: "",
+        password: "",
+        confirmPassword: "",
+        email: "",
+        full_name: ""
+    });
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchUsers = async () => {
         showLoading();
@@ -20,99 +61,260 @@ export default function Users() {
             hideLoading();
         }
     };
+    const updateUserApi = async (id, userData) => {
+        showLoading();
+        try {
+            const response = await updateUser(id, userData);
+            setError("");
+        } catch (err) {
+            showAlert("error", err);
+        } finally {
+            hideLoading();
+        }
+    };
+    const createUserApi = async (userData) => {
+        showLoading();
+        try {
+            const response = await createUser(userData);
+        } catch (err) {
+            showAlert("error", err);
+        } finally {
+            hideLoading();
+        }
+    };
+    const deleteUserApi = async (id) => {
+        showLoading();
+        try {
+            const response = await deleteUser(id);
+            setError("");
+        } catch (err) {
+            showAlert("error", err);
+        } finally {
+            hideLoading();
+        }
+    };
     useEffect(() => {
         fetchUsers();
     }, []);
     if (error) {
         return (
-            <div style={styles.container}>
-                <div style={styles.error}>{error}</div>
-                <button onClick={fetchUsers} style={styles.button}>Retry</button>
+            <div>
+                <div>{error}</div>
+                <button onClick={fetchUsers}>Retry</button>
             </div>
         );
     }
 
-    const handleEditUser = (user) => {
-        console.log(user)
+    const handleEditDialog = (user) => {
+        setEditingUser(user);
+        setFormData({
+            username: user?.username || "",
+            password: "",
+            confirmPassword: "",
+            email: user?.email || "",
+            full_name: user?.full_name || ""
+        });
+        setIsModalOpen(true);
+    }
+    const handleAddDialog = () => {
+        setEditingUser(null);
+        setFormData({
+            username: "",
+            password: "",
+            confirmPassword: "",
+            email: "",
+            full_name: ""
+        });
+        setIsModalOpen(true);
+    }
+    const validateForm = () => {
+        if (!editingUser && !formData.username.trim()) {
+            showAlert("Username is required");
+            return false;
+        }
+        if (!editingUser && !formData.password) {
+            showAlert("Password is required");
+            return false;
+        }
+        if (formData.password && formData.password !== formData.confirmPassword) {
+            showAlert("Passwords do not match");
+            return false;
+        }
+        if (formData.password && formData.password.length < 4) {
+            showAlert("Password must be at least 4 characters");
+            return false;
+        }
+        return true;
+    };
+    const handleSaveUser = async () => {
+        if (!validateForm()) return;
+        try {
+            const userData = {
+                username: formData.username,
+                email: formData.email,
+                full_name: formData.full_name
+            };
+
+            if (formData.password) {
+                userData.password = formData.password;
+            }
+
+            if (editingUser) {
+                await updateUserApi(editingUser.id, userData);
+                fetchUsers()
+            } else {
+                await createUserApi(userData);
+                fetchUsers()
+            }
+            setIsModalOpen(false);
+        } catch (error) {
+            showAlert("error", error);
+        } finally {
+            hideLoading();
+        }
+    }
+    const handleDeleteDialog = (user) => {
+        setSelectedUser(user)
+        setIsDeleteDialogOpen(true);
+    }
+
+    const handleDelete = async () => {
+        await deleteUserApi(selectedUser.id)
+        setIsDeleteDialogOpen(false);
+        fetchUsers()
     }
 
     return (
-        <div style={styles.container}>
-            <table>
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Username</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {users.map((user, index = 1) => (
-                    <tr key={user.id || user.username}>
-                        <td>{index + 1}</td>
-                        <td>{user.username}</td>
-                        <td>{user.full_name}</td>
-                        <td>{user.email}</td>
-                        <td style={{whiteSpace: 'nowrap'}}>
-                            {user.username !== 'admin' &&
-                                <button style={{marginRight: '0.25rem'}}
-                                        onClick={() => handleEditUser(user)}>✏️</button>}
-                            <button>🗑️</button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+        <div>
+            <Button className="float-end" variant="outline" size="icon" aria-label="Submit"
+                    onClick={handleAddDialog}>
+                <Plus/>
+            </Button>
+            <Table className="mt-5">
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-[100px]">#</TableHead>
+                        <TableHead>Username</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead className="text-right">OP</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {users.map((user, index) => (
+                        <TableRow key={index++}>
+                            <TableCell className="font-medium">{index + 1}</TableCell>
+                            <TableCell className="font-medium">{user.username}</TableCell>
+                            <TableCell>{user.full_name}</TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell className="text-right">
+                                {user.username !== 'admin' &&
+                                    <>
+                                        <Button className="mx-3" variant="ghost" size="md"
+                                                disabled={user.username === 'admin'}
+                                                onClick={() => handleEditDialog(user)}><Edit/>
+                                        </Button>
+                                        <Button variant="ghost" disabled={user.username === 'admin'}
+                                                onClick={() => handleDeleteDialog(user)}><Trash2/>
+                                        </Button>
+                                    </>
+                                }
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>{editingUser ? "Edit User" : "Add New User"}</DialogTitle>
+                        <DialogDescription>
+                            {editingUser
+                                ? "Edit the user information below."
+                                : "Fill in the user information below."}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="username">Username</Label>
+                            <Input
+                                id="username"
+                                placeholder="Enter username"
+                                value={formData.username}
+                                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="full_name">Full Name</Label>
+                            <Input
+                                id="full_name"
+                                placeholder="Enter full name"
+                                value={formData.full_name}
+                                onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="Enter email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="password">
+                                {editingUser ? "New Password (optional)" : "Password"}
+                            </Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder={editingUser ? "Leave empty to keep current" : "Enter password"}
+                                value={formData.password}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                            />
+                        </div>
+                        {formData.password && (
+                            <div className="grid gap-2">
+                                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                <Input
+                                    id="confirmPassword"
+                                    type="password"
+                                    placeholder="Confirm password"
+                                    value={formData.confirmPassword}
+                                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSaveUser}>
+                            {editingUser ? "Update" : "Create"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the user
+                            "{selectedUser?.username}" from the system.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
-
-const styles = {
-    container: {
-        padding: "50px",
-        maxWidth: "800px",
-        margin: "0 auto",
-    },
-    userList: {
-        marginTop: "20px",
-    },
-    userCard: {
-        display: "flex",
-        alignItems: "center",
-        padding: "15px",
-        marginBottom: "10px",
-        backgroundColor: "white",
-        borderRadius: "8px",
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-        gap: "20px",
-    },
-    avatar: {
-        width: "50px",
-        height: "50px",
-        borderRadius: "50%",
-        backgroundColor: "#4CAF50",
-        color: "white",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "20px",
-        fontWeight: "bold",
-    },
-    userInfo: {
-        flex: 1,
-    },
-    error: {
-        color: "red",
-        marginBottom: "20px",
-    },
-    button: {
-        padding: "10px 20px",
-        backgroundColor: "#007bff",
-        color: "white",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-    },
-};
