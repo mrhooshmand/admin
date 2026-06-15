@@ -166,7 +166,6 @@ export default function Users() {
                 await createUserApi(userData);
                 fetchUsers()
             }
-            setIsModalOpen(false);
         } catch (error) {
             showAlert("error", error);
         } finally {
