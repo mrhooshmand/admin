@@ -12,7 +12,7 @@ const Users = lazy(() => import("../pages/Users"))
 const Profile = lazy(() => import("../pages/Profile"))
 
 
-export function AppRouter() {
+export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
