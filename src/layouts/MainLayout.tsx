@@ -1,7 +1,7 @@
 import {Outlet, Link, useLocation} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
-import FullPageLoading from "../components/FullPageLoading";
+import Loading from "../components/Loading";
 import {useLoading} from "../context/LoadingContext";
 import {useEffect, useState} from "react";
 import {ROUTES} from "../constants/routes";
@@ -16,6 +16,7 @@ import {
     Menu,
     X,
 } from "lucide-react";
+import ProtectedRoute from "@/routes/ProtectedRoute.tsx";
 
 export default function MainLayout() {
     const navigate = useNavigate();
@@ -58,95 +59,97 @@ export default function MainLayout() {
     };
 
     return (
-        <div className="flex h-screen bg-gray-100">
-            {isMobile && !isSidebarOpen && (
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="fixed top-4 left-4 z-50 bg-white shadow-lg"
-                    onClick={toggleSidebar}
-                >
-                    <Menu className="h-5 w-5"/>
-                </Button>
-            )}
-            <aside
-                className={`
+        <ProtectedRoute>
+            <div className="flex h-screen bg-gray-100">
+                {isMobile && !isSidebarOpen && (
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="fixed top-4 left-4 z-50 bg-white shadow-lg"
+                        onClick={toggleSidebar}
+                    >
+                        <Menu className="h-5 w-5"/>
+                    </Button>
+                )}
+                <aside
+                    className={`
           bg-slate-900 text-white transition-all duration-300 ease-in-out
           ${isSidebarOpen ? "w-64" : "w-0 overflow-hidden"}
           ${isMobile ? "fixed left-0 top-0 z-40 h-full" : "relative"}
         `}
-            >
-                <div className="flex flex-col h-full">
-                    <div className="flex items-center justify-between p-5 border-b border-slate-700">
-                        <h2 className="text-xl font-bold text-white hover:text-white hover:bg-slate-800">{user.full_name}</h2>
-                        {isMobile && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-white hover:text-white hover:bg-slate-800"
-                                onClick={toggleSidebar}
-                            >
-                                <X className="h-5 w-5"/>
-                            </Button>
-                        )}
-                    </div>
-                    <nav className="flex-1 p-4">
-                        <ul className="space-y-2">
-                            {menuItems.map((item) => {
-                                const Icon = item.icon;
-                                const isActive = location.pathname === item.path;
-                                return (
-                                    <li key={item.path}>
-                                        <Link
-                                            to={item.path}
-                                            onClick={() => isMobile && setIsSidebarOpen(false)}
-                                            className={`
+                >
+                    <div className="flex flex-col h-full">
+                        <div className="flex items-center justify-between p-5 border-b border-slate-700">
+                            <h2 className="text-xl font-bold text-white hover:text-white hover:bg-slate-800">{user.full_name}</h2>
+                            {isMobile && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-white hover:text-white hover:bg-slate-800"
+                                    onClick={toggleSidebar}
+                                >
+                                    <X className="h-5 w-5"/>
+                                </Button>
+                            )}
+                        </div>
+                        <nav className="flex-1 p-4">
+                            <ul className="space-y-2">
+                                {menuItems.map((item) => {
+                                    const Icon = item.icon;
+                                    const isActive = location.pathname === item.path;
+                                    return (
+                                        <li key={item.path}>
+                                            <Link
+                                                to={item.path}
+                                                onClick={() => isMobile && setIsSidebarOpen(false)}
+                                                className={`
                         flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
                         ${
-                                                isActive
-                                                    ? "bg-blue-600 text-white"
-                                                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                                            }
+                                                    isActive
+                                                        ? "bg-blue-600 text-white"
+                                                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                                                }
                       `}
-                                        >
-                                            <Icon className="h-5 w-5"/>
-                                            <span>{item.name}</span>
-                                        </Link>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </nav>
-                    <div className="p-4 border-t border-slate-700">
-                        <Button
-                            variant="ghost"
-                            className="w-full justify-start gap-3 text-slate-300 hover:text-white hover:bg-slate-800"
-                            onClick={handleLogout}
-                        >
-                            <LogOut className="h-5 w-5"/>
-                            <span>Sign out</span>
-                        </Button>
+                                            >
+                                                <Icon className="h-5 w-5"/>
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </nav>
+                        <div className="p-4 border-t border-slate-700">
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 text-slate-300 hover:text-white hover:bg-slate-800"
+                                onClick={handleLogout}
+                            >
+                                <LogOut className="h-5 w-5"/>
+                                <span>Sign out</span>
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </aside>
-            <main
-                className={`
+                </aside>
+                <main
+                    className={`
           flex-1 overflow-auto transition-all duration-300
           ${isMobile && isSidebarOpen ? "blur-sm" : ""}
         `}
-            >
-                {/* هدر برای صفحه موبایل */}
-                {isMobile && isSidebarOpen && (
-                    <div
-                        className="fixed inset-0 bg-black/50 z-30"
-                        onClick={toggleSidebar}
-                    />
-                )}
-                <div className={`p-6 relative min-h-full ${isLoading ? 'overflow-hidden h-screen' : ''}`}>
-                    {isLoading && <FullPageLoading message={message}/>}
-                    <Outlet/>
-                </div>
-            </main>
-        </div>
+                >
+                    {/* هدر برای صفحه موبایل */}
+                    {isMobile && isSidebarOpen && (
+                        <div
+                            className="fixed inset-0 bg-black/50 z-30"
+                            onClick={toggleSidebar}
+                        />
+                    )}
+                    <div className={`p-6 relative min-h-full ${isLoading ? 'overflow-hidden h-screen' : ''}`}>
+                        {isLoading && <Loading message={message}/>}
+                        <Outlet/>
+                    </div>
+                </main>
+            </div>
+        </ProtectedRoute>
     );
 }

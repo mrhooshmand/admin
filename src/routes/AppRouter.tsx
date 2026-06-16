@@ -1,13 +1,18 @@
 import {BrowserRouter, Routes, Route} from "react-router-dom";
-import Dashboard from "../pages/Dashboard";
-import MainLayout from "../layouts/MainLayout";
-import Users from "../pages/Users";
-import ProtectedRoute from "./ProtectedRoute";
-import Login from "../pages/Login";
-import Profile from "../pages/Profile";
-import Register from "../pages/Register";
 
-export default function AppRouter() {
+import MainLayout from "../layouts/MainLayout";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import {lazy, Suspense} from "react";
+import Loading from "@/components/Loading.tsx";
+import PageNotFound from "@/pages/PageNotFound.tsx";
+
+const Dashboard = lazy(() => import("../pages/Dashboard"))
+const Users = lazy(() => import("../pages/Users"))
+const Profile = lazy(() => import("../pages/Profile"))
+
+
+export function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
@@ -15,17 +20,16 @@ export default function AppRouter() {
                 <Route path="/register" element={<Register/>}/>
                 <Route
                     path="/"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout/>
-                        </ProtectedRoute>
-                    }
+                    element={<MainLayout/>}
                 >
-                    <Route path="/" element={<Dashboard/>}/>
-                    <Route path="dashboard" element={<Dashboard/>}/>
-                    <Route path="users" element={<Users/>}/>
-                    <Route path="profile" element={<Profile/>}/>
+                    <Route index element={<Suspense fallback={() => <Loading/>}><Dashboard/></Suspense>}/>
+                    <Route path="dashboard"
+                           element={<Suspense fallback={() => <Loading/>}><Dashboard/></Suspense>}/>
+                    <Route path="users" element={<Suspense fallback={() => <Loading/>}><Users/></Suspense>}/>
+                    <Route path="profile"
+                           element={<Suspense fallback={() => <Loading/>}><Profile/></Suspense>}/>
                 </Route>
+                <Route path={"*"} element={<PageNotFound/>}/>
             </Routes>
         </BrowserRouter>
     );

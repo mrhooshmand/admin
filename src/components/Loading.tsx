@@ -1,4 +1,4 @@
-export default function FullPageLoading({message = "Please Wait ..."}) {
+export default function Loading({message = "Please Wait ..."}) {
     return (
         <div style={styles.overlay}>
             <div style={styles.content}>
