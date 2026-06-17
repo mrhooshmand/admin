@@ -1,6 +1,6 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from "axios";
+import axios, {AxiosInstance, InternalAxiosRequestConfig, AxiosError} from "axios";
 import {API_BASE_URL, TOKEN_KEY} from "../constants/api";
-import {handleApiError} from "../utils/errorHandler";
+import {handleApiError, showAlert} from "../utils/errorHandler";
 
 const api: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -28,8 +28,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-        const {shouldLogout} = handleApiError(error);
-
+        const {message, shouldLogout} = handleApiError(error);
+        showAlert('error', message);
         if (shouldLogout) {
             localStorage.removeItem(TOKEN_KEY);
             localStorage.removeItem("user");

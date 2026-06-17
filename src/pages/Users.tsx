@@ -129,19 +129,19 @@ export default function Users() {
     }
     const validateForm = () => {
         if (!editingUser && !formData.username.trim()) {
-            showAlert("Username is required");
+            showAlert("error", "Username is required");
             return false;
         }
         if (!editingUser && !formData.password) {
-            showAlert("Password is required");
+            showAlert("error", "Password is required");
             return false;
         }
         if (formData.password && formData.password !== formData.confirmPassword) {
-            showAlert("Passwords do not match");
+            showAlert("error", "Passwords do not match");
             return false;
         }
         if (formData.password && formData.password.length < 4) {
-            showAlert("Password must be at least 4 characters");
+            showAlert("error", "Password must be at least 4 characters");
             return false;
         }
         return true;

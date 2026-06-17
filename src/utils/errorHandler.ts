@@ -117,7 +117,7 @@ export const handleApiError = (error) => {
 /**
  * Main alert function
  */
-export const showAlert = (type, message, options = {}) => {
+export const showAlert = (type:string, message, options = {}) => {
     let finalMessage = message;
 
     if (message instanceof Error || message?.response) {

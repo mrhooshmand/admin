@@ -1,54 +1,63 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import {useState} from "react";
+import {useNavigate, Link} from "react-router-dom";
+import {useAuth} from "../context/AuthContext";
+import {showAlert} from "../utils/errorHandler";
+import {useLoading} from "../context/LoadingContext";
+import {ROUTES} from "../constants/routes";
 import api from "../api/axios";
 
+interface FormData {
+    username: string;
+    password: string;
+    confirmPassword: string;
+    email: string;
+    full_name: string;
+}
+
 export default function Register() {
-    const { login } = useAuth();
+    const {login} = useAuth();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
+    const {showLoading, hideLoading} = useLoading();
+
+    const [formData, setFormData] = useState<FormData>({
         username: "",
         password: "",
         confirmPassword: "",
         email: "",
         full_name: ""
     });
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
-        if (error) setError("");
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!formData.username.trim()) {
-            setError("نام کاربری الزامی است");
+            showAlert("error", "Username is required");
             return;
         }
 
         if (formData.password.length < 4) {
-            setError("رمز عبور باید حداقل 4 کاراکتر باشد");
+            showAlert("error", "Password must be at least 4 characters");
             return;
         }
 
         if (formData.password !== formData.confirmPassword) {
-            setError("رمز عبور و تکرار آن مطابقت ندارد");
+            showAlert("error", "Passwords do not match");
             return;
         }
 
         if (formData.email && !formData.email.includes('@')) {
-            setError("ایمیل معتبر نیست");
+            showAlert("error", "Invalid email address");
             return;
         }
 
-        setLoading(true);
-        setError("");
+        showLoading("Creating account...");
 
         try {
             const response = await api.post("/register", {
@@ -59,115 +68,85 @@ export default function Register() {
             });
 
             login(response.data);
-            navigate("/dashboard");
-        } catch (err) {
+            showAlert("success", "Account created successfully! 🎉");
+            navigate(ROUTES.DASHBOARD);
+        } catch (err: any) {
             console.error("Registration error:", err);
-            if (err.response?.data?.error) {
-                setError(err.response.data.error);
-            } else {
-                setError("خطا در ثبت نام. لطفاً دوباره تلاش کنید.");
-            }
+            const errorMsg = err.response?.data?.error || "Registration failed. Please try again.";
+            showAlert("error", errorMsg);
         } finally {
-            setLoading(false);
+            hideLoading();
         }
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.card}>
-                <h2 style={styles.title}>Sign up </h2>
+        <>
+            {formData.error && (
+                <div style={styles.error}>{formData.error}</div>
+            )}
 
-                {error && <div style={styles.error}>{error}</div>}
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Username *"
+                    value={formData.username}
+                    onChange={handleChange}
+                    style={styles.input}
+                    required
+                />
 
-                <form onSubmit={handleSubmit}>
-                    <input
-                        type="text"
-                        name="username"
-                        placeholder="User name"
-                        value={formData.username}
-                        onChange={handleChange}
-                        style={styles.input}
-                        required
-                    />
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    style={styles.input}
+                />
 
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        style={styles.input}
-                    />
+                <input
+                    type="text"
+                    name="full_name"
+                    placeholder="Full Name"
+                    value={formData.full_name}
+                    onChange={handleChange}
+                    style={styles.input}
+                />
 
-                    <input
-                        type="text"
-                        name="full_name"
-                        placeholder="Full name"
-                        value={formData.full_name}
-                        onChange={handleChange}
-                        style={styles.input}
-                    />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password *"
+                    value={formData.password}
+                    onChange={handleChange}
+                    style={styles.input}
+                    required
+                />
 
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        style={styles.input}
-                        required
-                    />
+                <input
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Confirm Password *"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    style={styles.input}
+                    required
+                />
 
-                    <input
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="Password confirm"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        style={styles.input}
-                        required
-                    />
+                <button type="submit" style={styles.button}>
+                    Sign up
+                </button>
+            </form>
 
-                    <button
-                        type="submit"
-                        style={styles.button}
-                        disabled={loading}
-                    >
-                        {loading ? "Signing in ..." : "Sign in"}
-                    </button>
-                </form>
-
-                <p style={styles.footer}>
-                    Have an account? <Link to="/login" style={styles.link}>Sign in</Link>
-                </p>
-            </div>
-        </div>
+            <p style={styles.footer}>
+                Already have an account? <Link to={ROUTES.LOGIN} style={styles.link}>Sign in</Link>
+            </p>
+        </>
     );
 }
 
-const styles = {
-    container: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
-        padding: "20px"
-    },
-    card: {
-        backgroundColor: "white",
-        padding: "40px",
-        borderRadius: "12px",
-        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-        width: "100%",
-        maxWidth: "400px"
-    },
-    title: {
-        textAlign: "center",
-        marginBottom: "30px",
-        color: "#333",
-        fontSize: "28px"
-    },
+const styles: { [key: string]: React.CSSProperties } = {
     input: {
         width: "100%",
         padding: "12px",
@@ -176,7 +155,6 @@ const styles = {
         borderRadius: "6px",
         fontSize: "16px",
         boxSizing: "border-box",
-        transition: "border-color 0.3s"
     },
     button: {
         width: "100%",
@@ -188,7 +166,6 @@ const styles = {
         fontSize: "16px",
         cursor: "pointer",
         marginTop: "10px",
-        transition: "background-color 0.3s"
     },
     error: {
         backgroundColor: "#f8d7da",
@@ -197,17 +174,17 @@ const styles = {
         borderRadius: "6px",
         marginBottom: "20px",
         textAlign: "center",
-        fontSize: "14px"
+        fontSize: "14px",
     },
     footer: {
         textAlign: "center",
         marginTop: "20px",
         color: "#666",
-        fontSize: "14px"
+        fontSize: "14px",
     },
     link: {
         color: "#007bff",
         textDecoration: "none",
-        fontWeight: "bold"
-    }
+        fontWeight: "bold",
+    },
 };
