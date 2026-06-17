@@ -136,7 +136,6 @@ export default function MainLayout() {
           ${isMobile && isSidebarOpen ? "blur-sm" : ""}
         `}
                 >
-                    {/* هدر برای صفحه موبایل */}
                     {isMobile && isSidebarOpen && (
                         <div
                             className="fixed inset-0 bg-black/50 z-30"

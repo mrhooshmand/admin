@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { Outlet } from "react-router-dom";
+import {ReactNode} from "react";
+import {Outlet} from "react-router-dom";
 
 interface AuthLayoutProps {
     children?: ReactNode;
@@ -7,20 +7,17 @@ interface AuthLayoutProps {
     subtitle?: string;
 }
 
-export default function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
+export default function AuthLayout({children, title, subtitle}: AuthLayoutProps) {
     const content = (
         <div style={styles.card}>
-            {/* اشکال تزئینی */}
-            <div style={styles.shapeCircle1} />
-            <div style={styles.shapeCircle2} />
-            <div style={styles.shapeBlob} />
 
             <div style={styles.logoContainer}>
                 <div style={styles.logo}>
                     <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                        <rect x="2" y="2" width="28" height="28" rx="8" stroke="#5b7a9a" strokeWidth="1.5" />
-                        <path d="M10 16L14 20L22 12" stroke="#5b7a9a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <circle cx="23" cy="9" r="2" fill="#3d5a73" opacity="0.4" />
+                        <rect x="2" y="2" width="28" height="28" rx="8" stroke="#5b7a9a" strokeWidth="1.5"/>
+                        <path d="M10 16L14 20L22 12" stroke="#5b7a9a" strokeWidth="1.5" strokeLinecap="round"
+                              strokeLinejoin="round"/>
+                        <circle cx="23" cy="9" r="2" fill="#3d5a73" opacity="0.4"/>
                     </svg>
                     <span style={styles.logoText}>Panel</span>
                 </div>
@@ -39,16 +36,16 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <div style={styles.shapeCircle1} />
-                <div style={styles.shapeCircle2} />
-                <div style={styles.shapeBlob} />
+                <div style={styles.shapeCircle1}/>
+                <div style={styles.shapeCircle2}/>
+                <div style={styles.shapeBlob}/>
 
                 <div style={styles.logoContainer}>
                     <div style={styles.logo}>
                         <span style={styles.logoText}>Admin Panel</span>
                     </div>
                 </div>
-                <Outlet />
+                <Outlet/>
             </div>
         </div>
     );
@@ -79,7 +76,6 @@ const styles: { [key: string]: React.CSSProperties } = {
         position: "relative",
         overflow: "hidden",
     },
-    // اشکال تزئینی
     shapeCircle1: {
         position: "absolute",
         top: "-60px",
@@ -152,7 +148,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
 };
 
-// اضافه کردن انیمیشن به document
 const styleSheet = document.createElement("style");
 styleSheet.textContent = `
     @keyframes pulse {
