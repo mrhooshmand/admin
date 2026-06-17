@@ -12,6 +12,7 @@ interface FormData {
     confirmPassword: string;
     email: string;
     full_name: string;
+    error: boolean;
 }
 
 export default function Register() {
@@ -24,7 +25,8 @@ export default function Register() {
         password: "",
         confirmPassword: "",
         email: "",
-        full_name: ""
+        full_name: "",
+        error: false,
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +83,7 @@ export default function Register() {
 
     return (
         <>
-            {formData.error && (
+            {formData?.error && (
                 <div style={styles.error}>{formData.error}</div>
             )}
 

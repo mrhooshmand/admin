@@ -1,12 +1,23 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import {createContext, useContext, useState, useCallback, ReactNode} from "react";
 
-const LoadingContext = createContext();
+interface LoadingContextType {
+    isLoading: boolean;
+    message: string;
+    showLoading: (loadingMessage?: string) => void;
+    hideLoading: () => void;
+}
 
-export function LoadingProvider({ children }) {
+interface LoadingProviderProps {
+    children: ReactNode;
+}
+
+const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
+
+export function LoadingProvider({children}: LoadingProviderProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState("");
 
-    const showLoading = useCallback((loadingMessage = "Please Wait ...") => {
+    const showLoading = useCallback((loadingMessage: string = "Please Wait ...") => {
         setMessage(loadingMessage);
         setIsLoading(true);
     }, []);
@@ -17,7 +28,7 @@ export function LoadingProvider({ children }) {
     }, []);
 
     return (
-        <LoadingContext.Provider value={{ isLoading, message, showLoading, hideLoading }}>
+        <LoadingContext.Provider value={{isLoading, message, showLoading, hideLoading}}>
             {children}
         </LoadingContext.Provider>
     );

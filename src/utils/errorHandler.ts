@@ -1,10 +1,18 @@
 import {ERROR_CODES} from '../constants/api';
 import {toast} from 'sonner';
 
+
+interface ErrorResponse {
+    message: string;
+    shouldLogout: boolean;
+}
+
+type AlertType = 'success' | 'error' | 'warning' | 'info';
+
 /**
  * Handle API errors and regular errors
  */
-export const handleApiError = (error) => {
+export const handleApiError = (error: any): ErrorResponse => {
     // Check for empty or undefined error
     if (!error) {
         return {
@@ -32,7 +40,7 @@ export const handleApiError = (error) => {
     if (error.response) {
         const {status, data} = error.response;
 
-        let errorMessage = '';
+        let errorMessage: string = '';
 
         if (typeof data === 'string') {
             errorMessage = data;
@@ -117,8 +125,8 @@ export const handleApiError = (error) => {
 /**
  * Main alert function
  */
-export const showAlert = (type:string, message, options = {}) => {
-    let finalMessage = message;
+export const showAlert = (type: AlertType, message: any, options: any = {}): void => {
+    let finalMessage: string = message;
 
     if (message instanceof Error || message?.response) {
         const handled = handleApiError(message);
@@ -151,37 +159,16 @@ export const showAlert = (type:string, message, options = {}) => {
     }
 };
 
-// Helper functions
-export const showSuccess = (message, options) => showAlert('success', message, options);
-export const showError = (error, options) => showAlert('error', error, options);
-export const showWarning = (message, options) => showAlert('warning', message, options);
-export const showInfo = (message, options) => showAlert('info', message, options);
+// ============ Helper functions ============
 
-export const showValidationErrors = (errors) => {
-    if (!errors) return;
+export const showSuccess = (message: string, options?: any): void =>
+    showAlert('success', message, options);
 
-    if (typeof errors === 'object') {
-        const firstError = Object.values(errors)[0];
-        if (firstError) {
-            showAlert('error', firstError);
-        }
-    } else if (typeof errors === 'string') {
-        showAlert('error', errors);
-    }
-};
+export const showError = (error: any, options?: any): void =>
+    showAlert('error', error, options);
 
-export const logError = (error, context = '') => {
-    if (process.env.NODE_ENV === 'development') {
-        const prefix = context ? `[${context}]` : '';
-        console.error(`${prefix} Error:`, error);
-        if (error.response) {
-            console.error(`${prefix} Response data:`, error.response.data);
-            console.error(`${prefix} Response status:`, error.response.status);
-        }
-    }
-};
+export const showWarning = (message: string, options?: any): void =>
+    showAlert('warning', message, options);
 
-export const handleError = (error, context = '', options = {}) => {
-    logError(error, context);
-    return showAlert('error', error, options);
-};
+export const showInfo = (message: string, options?: any): void =>
+    showAlert('info', message, options);

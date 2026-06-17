@@ -32,24 +32,33 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {User} from "@/types";
+
+interface UserFormData {
+    username: string;
+    password: string;
+    confirmPassword: string;
+    email: string;
+    full_name: string;
+}
 
 export default function Users() {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState<User[]>([]);
     const {showLoading, hideLoading} = useLoading();
-    const [error, setError] = useState("");
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState({});
-    const [editingUser, setEditingUser] = useState(false);
-    const [formData, setFormData] = useState({
+    const [error, setError] = useState<string>("");
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [formData, setFormData] = useState<UserFormData>({
         username: "",
         password: "",
         confirmPassword: "",
         email: "",
         full_name: ""
     });
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (): Promise<void> => {
         showLoading();
         try {
             const response = await getUsers();
@@ -61,32 +70,33 @@ export default function Users() {
             hideLoading();
         }
     };
-    const updateUserApi = async (id, userData) => {
+
+    const updateUserApi = async (id: number, userData: Partial<User>): Promise<void> => {
         showLoading();
         try {
-            const response = await updateUser(id, userData);
-            setError("");
+            await updateUser(id, userData);
         } catch (err) {
             showAlert("error", err);
         } finally {
             hideLoading();
         }
     };
-    const createUserApi = async (userData) => {
+
+    const createUserApi = async (userData: Partial<User> & { password: string }): Promise<void> => {
         showLoading();
         try {
-            const response = await createUser(userData);
+            await createUser(userData);
         } catch (err) {
             showAlert("error", err);
         } finally {
             hideLoading();
         }
     };
-    const deleteUserApi = async (id) => {
+
+    const deleteUserApi = async (id: number): Promise<void> => {
         showLoading();
         try {
-            const response = await deleteUser(id);
-            setError("");
+            await deleteUser(id);
         } catch (err) {
             showAlert("error", err);
         } finally {
@@ -105,7 +115,7 @@ export default function Users() {
         );
     }
 
-    const handleEditDialog = (user) => {
+    const handleEditDialog = (user: User): void => {
         setEditingUser(user);
         setFormData({
             username: user?.username || "",
@@ -115,8 +125,9 @@ export default function Users() {
             full_name: user?.full_name || ""
         });
         setIsModalOpen(true);
-    }
-    const handleAddDialog = () => {
+    };
+
+    const handleAddDialog = (): void => {
         setEditingUser(null);
         setFormData({
             username: "",
@@ -126,8 +137,9 @@ export default function Users() {
             full_name: ""
         });
         setIsModalOpen(true);
-    }
-    const validateForm = () => {
+    };
+
+    const validateForm = (): boolean => {
         if (!editingUser && !formData.username.trim()) {
             showAlert("error", "Username is required");
             return false;
@@ -146,10 +158,11 @@ export default function Users() {
         }
         return true;
     };
-    const handleSaveUser = async () => {
+
+    const handleSaveUser = async (): Promise<void> => {
         if (!validateForm()) return;
         try {
-            const userData = {
+            const userData: Partial<User> & { password?: string } = {
                 username: formData.username,
                 email: formData.email,
                 full_name: formData.full_name
@@ -171,22 +184,39 @@ export default function Users() {
         } finally {
             hideLoading();
         }
-    }
-    const handleDeleteDialog = (user) => {
-        setSelectedUser(user)
-        setIsDeleteDialogOpen(true);
-    }
+    };
 
-    const handleDelete = async () => {
-        await deleteUserApi(selectedUser.id)
+    const handleDeleteDialog = (user: User): void => {
+        setSelectedUser(user);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleDelete = async (): Promise<void> => {
+        if (!selectedUser) return;
+        await deleteUserApi(selectedUser.id);
         setIsDeleteDialogOpen(false);
-        fetchUsers()
+        await fetchUsers();
+    };
+
+    // ============ Render ============
+    if (error) {
+        return (
+            <div className="p-6 text-center">
+                <div className="text-red-500 mb-4">{error}</div>
+                <button onClick={fetchUsers} className="px-4 py-2 bg-blue-500 text-white rounded">
+                    Retry
+                </button>
+            </div>
+        );
     }
 
     return (
-        <div>
-            <Button className="float-end" variant="outline" size="icon" aria-label="Submit"
-                    onClick={handleAddDialog}>
+        <div className="p-6">
+            <Button
+                className="float-end"
+                variant="outline"
+                size="icon"
+                onClick={handleAddDialog}>
                 <Plus/>
             </Button>
             <Table className="mt-5">
@@ -196,28 +226,37 @@ export default function Users() {
                         <TableHead>Username</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
-                        <TableHead className="text-right">OP</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {users.map((user, index) => (
-                        <TableRow key={index++}>
+                        <TableRow key={user.id}>
                             <TableCell className="font-medium">{index + 1}</TableCell>
                             <TableCell className="font-medium">{user.username}</TableCell>
-                            <TableCell>{user.full_name}</TableCell>
-                            <TableCell>{user.email}</TableCell>
+                            <TableCell>{user.full_name || "—"}</TableCell>
+                            <TableCell>{user.email || "—"}</TableCell>
                             <TableCell className="text-right">
-                                {user.username !== 'admin' &&
+                                {user.username !== 'admin' && (
                                     <>
-                                        <Button className="mx-3" variant="ghost" size="md"
-                                                disabled={user.username === 'admin'}
-                                                onClick={() => handleEditDialog(user)}><Edit/>
+                                        <Button
+                                            className="mx-3"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleEditDialog(user)}
+                                        >
+                                            <Edit className="h-4 w-4"/>
                                         </Button>
-                                        <Button variant="ghost" disabled={user.username === 'admin'}
-                                                onClick={() => handleDeleteDialog(user)}><Trash2/>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleDeleteDialog(user)}
+                                            className="text-red-500 hover:text-red-700"
+                                        >
+                                            <Trash2 className="h-4 w-4"/>
                                         </Button>
                                     </>
-                                }
+                                )}
                             </TableCell>
                         </TableRow>
                     ))}
@@ -241,6 +280,7 @@ export default function Users() {
                                 placeholder="Enter username"
                                 value={formData.username}
                                 onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                disabled={!!editingUser}
                             />
                         </div>
                         <div className="grid gap-2">

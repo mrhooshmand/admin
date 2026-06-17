@@ -6,4 +6,6 @@ export const ROUTES = {
     DASHBOARD: '/dashboard',
     PROFILE: '/profile',
     USERS: '/users',
-};
+} as const;
+
+export type RoutePath = typeof ROUTES[keyof typeof ROUTES];
