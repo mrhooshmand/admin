@@ -1,10 +1,10 @@
-import axios from "axios";
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from "axios";
 import {API_BASE_URL, TOKEN_KEY} from "../constants/api";
 import {handleApiError} from "../utils/errorHandler";
 
-const api = axios.create({
+const api: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 10000, // 10 ثانیه timeout
+    timeout: 10000,
     headers: {
         "Content-Type": "application/json",
     },
@@ -12,21 +12,22 @@ const api = axios.create({
 
 // Interceptor برای اضافه کردن توکن
 api.interceptors.request.use(
-    (config) => {
+    (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem(TOKEN_KEY);
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
-    (error) => {
+    (error: AxiosError) => {
         return Promise.reject(error);
     }
 );
 
+// Interceptor برای مدیریت خطاها
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
+    (error: AxiosError) => {
         const {shouldLogout} = handleApiError(error);
 
         if (shouldLogout) {
