@@ -81,18 +81,17 @@ export default function Users() {
             hideLoading();
         }
     };
-
     const createUserApi = async (userData: Partial<User> & { password: string }): Promise<void> => {
         showLoading();
         try {
             await createUser(userData);
+            showAlert("success", "User created successfully");
         } catch (err) {
             showAlert("error", err);
         } finally {
             hideLoading();
         }
     };
-
     const deleteUserApi = async (id: number): Promise<void> => {
         showLoading();
         try {
@@ -161,6 +160,7 @@ export default function Users() {
 
     const handleSaveUser = async (): Promise<void> => {
         if (!validateForm()) return;
+
         try {
             const userData: Partial<User> & { password?: string } = {
                 username: formData.username,
@@ -174,18 +174,19 @@ export default function Users() {
 
             if (editingUser) {
                 await updateUserApi(editingUser.id, userData);
-                fetchUsers()
             } else {
-                await createUserApi(userData);
-                fetchUsers()
+                if (!userData.password) {
+                    showAlert("error", "Password is required");
+                    return;
+                }
+                await createUserApi(userData as Partial<User> & { password: string });
             }
+            setIsModalOpen(false);
+            await fetchUsers();
         } catch (error) {
             showAlert("error", error);
-        } finally {
-            hideLoading();
         }
     };
-
     const handleDeleteDialog = (user: User): void => {
         setSelectedUser(user);
         setIsDeleteDialogOpen(true);
