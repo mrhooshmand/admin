@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
 import {getUsers, updateUser, createUser, deleteUser} from "../api/userApi";
-import {useLoading} from "../context/LoadingContext";
-import {showAlert} from "../utils/errorHandler";
+import {useLoading} from "@/shared/context/LoadingContext";
+import {showAlert} from "@/shared/utils/errorHandler";
 import {
     Table,
     TableBody,
@@ -9,10 +9,10 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
+} from "@/shared/ui/table"
+import {Button} from "@/shared/ui/button";
+import {Input} from "@/shared/ui/input";
+import {Label} from "@/shared/ui/label";
 import {Plus, Edit, Trash2} from 'lucide-react';
 import {
     Dialog,
@@ -21,7 +21,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/shared/ui/dialog";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -31,8 +31,8 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {User} from "@/types";
+} from "@/shared/ui/alert-dialog";
+import {User} from "../types";
 
 interface UserFormData {
     username: string;

@@ -1,10 +1,10 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
-import {useAuth} from "../context/AuthContext";
+import {useAuth} from "@/features/auth/context/AuthContext";
 import {loginRequest} from "../api/authApi";
-import {ROUTES} from "../constants/routes";
-import {useLoading} from "../context/LoadingContext";
-import {showAlert} from "../utils/errorHandler";
+import {ROUTES} from "@/shared/constants/routes";
+import {useLoading} from "@/shared/context/LoadingContext";
+import {showAlert} from "@/shared/utils/errorHandler";
 
 export default function Login() {
     const {login} = useAuth();

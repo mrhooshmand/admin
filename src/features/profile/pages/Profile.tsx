@@ -1,8 +1,8 @@
-import {useAuth} from "../context/AuthContext";
-import { Button } from "@/components/ui/button";
+import {useAuth} from "@/features/auth/context/AuthContext";
+import {Button} from "@/shared/ui/button";
 
 export default function Profile() {
-    const {user, logout} = useAuth();
+    const {user} = useAuth();
 
     return (
         <div style={styles.container}>

@@ -1,5 +1,5 @@
 import {createContext, useContext, useState, useEffect, ReactNode} from "react";
-import {TOKEN_KEY, USER_KEY} from "../constants/api";
+import {TOKEN_KEY, USER_KEY} from "@/shared/constants/api";
 import {User, LoginResponse} from "../types";
 
 interface AuthContextType {

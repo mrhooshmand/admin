@@ -1,4 +1,4 @@
-import {ERROR_CODES} from '../constants/api';
+import {ERROR_CODES} from '@/shared/constants/api';
 import {toast} from 'sonner';
 
 

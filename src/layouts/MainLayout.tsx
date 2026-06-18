@@ -1,12 +1,12 @@
 import {Outlet, Link, useLocation} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
-import {useAuth} from "../context/AuthContext";
-import Loading from "../components/Loading";
-import {useLoading} from "../context/LoadingContext";
+import {useAuth} from "@/features/auth/context/AuthContext";
+import Loading from "@/shared/components/Loading";
+import {useLoading} from "@/shared/context/LoadingContext";
 import {useEffect, useState} from "react";
-import {ROUTES} from "../constants/routes";
+import {ROUTES} from "@/shared/constants/routes";
 
-import {Button} from "@/components/ui/button";
+import {Button} from "@/shared/ui/button";
 import {
     LayoutDashboard,
     Users,
@@ -15,7 +15,7 @@ import {
     Menu,
     X,
 } from "lucide-react";
-import ProtectedRoute from "@/routes/ProtectedRoute.tsx";
+import ProtectedRoute from "@/app/router/ProtectedRoute";
 
 export default function MainLayout() {
     const navigate = useNavigate();

@@ -2,14 +2,14 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import {lazy, Suspense} from "react";
 import MainLayout from "@/layouts/MainLayout";
 import AuthLayout from "@/layouts/AuthLayout";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import Loading from "@/components/Loading";
-import PageNotFound from "@/pages/PageNotFound";
+import Login from "@/features/auth/pages/Login";
+import Register from "@/features/auth/pages/Register";
+import Loading from "@/shared/components/Loading";
+import PageNotFound from "@/shared/components/PageNotFound";
 
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Users = lazy(() => import("@/pages/Users"));
-const Profile = lazy(() => import("@/pages/Profile"));
+const Dashboard = lazy(() => import("@/features/dashboard/pages/Dashboard"));
+const Users = lazy(() => import("@/features/users/pages/Users"));
+const Profile = lazy(() => import("@/features/profile/pages/Profile"));
 
 const PageLoader = () => <Loading/>;
 

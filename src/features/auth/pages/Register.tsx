@@ -1,10 +1,10 @@
 import {useState} from "react";
 import {useNavigate, Link} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
-import {showAlert} from "../utils/errorHandler";
-import {useLoading} from "../context/LoadingContext";
-import {ROUTES} from "../constants/routes";
-import api from "../api/axios";
+import {showAlert} from "@/shared/utils/errorHandler";
+import {useLoading} from "@/shared/context/LoadingContext";
+import {ROUTES} from "@/shared/constants/routes";
+import api from "@/shared/utils/axios";
 
 interface FormData {
     username: string;
