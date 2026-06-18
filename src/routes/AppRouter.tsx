@@ -16,49 +16,21 @@ const PageLoader = () => <Loading/>;
 export default function AppRouter() {
     return (
         <BrowserRouter>
-            <Routes>
-                <Route element={<AuthLayout/>}>
-                    <Route path="/login" element={<Login/>}/>
-                    <Route path="/register" element={<Register/>}/>
-                </Route>
-
-                <Route element={<MainLayout/>}>
-                    <Route
-                        index
-                        element={
-                            <Suspense fallback={<PageLoader/>}>
-                                <Dashboard/>
-                            </Suspense>
-                        }
-                    />
-                    <Route
-                        path="dashboard"
-                        element={
-                            <Suspense fallback={<PageLoader/>}>
-                                <Dashboard/>
-                            </Suspense>
-                        }
-                    />
-                    <Route
-                        path="users"
-                        element={
-                            <Suspense fallback={<PageLoader/>}>
-                                <Users/>
-                            </Suspense>
-                        }
-                    />
-                    <Route
-                        path="profile"
-                        element={
-                            <Suspense fallback={<PageLoader/>}>
-                                <Profile/>
-                            </Suspense>
-                        }
-                    />
-                </Route>
-
-                <Route path="*" element={<PageNotFound/>}/>
-            </Routes>
+            <Suspense fallback={<PageLoader/>}>
+                <Routes>
+                    <Route element={<AuthLayout/>}>
+                        <Route path="/login" element={<Login/>}/>
+                        <Route path="/register" element={<Register/>}/>
+                    </Route>
+                    <Route element={<MainLayout/>}>
+                        <Route index element={<Dashboard/>}/>
+                        <Route path="dashboard" element={<Dashboard/>}/>
+                        <Route path="users" element={<Users/>}/>
+                        <Route path="profile" element={<Profile/>}/>
+                    </Route>
+                    <Route path="*" element={<PageNotFound/>}/>
+                </Routes>
+            </Suspense>
         </BrowserRouter>
     );
 }

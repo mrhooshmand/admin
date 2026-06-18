@@ -41,7 +41,6 @@ interface UserFormData {
     email: string;
     full_name: string;
 }
-
 export default function Users() {
     const [users, setUsers] = useState<User[]>([]);
     const {showLoading, hideLoading} = useLoading();
