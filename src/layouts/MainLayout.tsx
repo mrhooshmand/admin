@@ -1,8 +1,8 @@
 import {Outlet, Link, useLocation} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
-import {useAuth} from "@/features/auth/context/AuthContext";
+import {useAuth} from "@/app/providers/AuthProvider";
 import Loading from "@/shared/components/Loading";
-import {useLoading} from "@/shared/context/LoadingContext";
+import {useLoading} from "@/app/providers/LoadingProvider";
 import {useEffect, useState} from "react";
 import {ROUTES} from "@/shared/constants/routes";
 

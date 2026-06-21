@@ -1,6 +1,6 @@
 import {useState, useEffect} from "react";
 import {getUsers, updateUser, createUser, deleteUser} from "../api/userApi";
-import {useLoading} from "@/shared/context/LoadingContext";
+import {useLoading} from "@/app/providers/LoadingProvider";
 import {showAlert} from "@/shared/utils/errorHandler";
 import {
     Table,

@@ -1,4 +1,4 @@
-import {useAuth} from "@/features/auth/context/AuthContext";
+import {useAuth} from "@/app/providers/AuthProvider";
 import {Button} from "@/shared/ui/button";
 
 export default function Profile() {

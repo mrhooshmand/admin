@@ -1,6 +1,6 @@
 import {createContext, useContext, useState, useEffect, ReactNode} from "react";
 import {TOKEN_KEY, USER_KEY} from "@/shared/constants/api";
-import {User, LoginResponse} from "../types";
+import {User, LoginResponse} from "../../features/auth/types";
 
 interface AuthContextType {
     user: User | null;

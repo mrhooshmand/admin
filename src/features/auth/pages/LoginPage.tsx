@@ -1,9 +1,9 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
-import {useAuth} from "@/features/auth/context/AuthContext";
+import {useAuth} from "@/app/providers/AuthProvider";
 import {loginRequest} from "../api/authApi";
 import {ROUTES} from "@/shared/constants/routes";
-import {useLoading} from "@/shared/context/LoadingContext";
+import {useLoading} from "@/app/providers/LoadingProvider";
 import {showAlert} from "@/shared/utils/errorHandler";
 
 export default function Login() {

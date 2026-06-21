@@ -11,7 +11,7 @@ const PageNotFound = () => {
         <div
             className='mx-auto flex min-h-dvh max-w-7xl flex-col items-center justify-center gap-8 p-8 md:gap-12 md:p-16'>
             <img
-                src='public/placeholder.svg'
+                src='placeholder.svg'
                 alt='placeholder image'
                 className='aspect-video w-full max-w-7xl rounded-xl object-cover dark:brightness-[0.95] dark:invert'
             />

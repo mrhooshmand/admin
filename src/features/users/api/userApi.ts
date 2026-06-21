@@ -1,4 +1,4 @@
-import api from "@/shared/utils/axios";
+import api from "@/shared/utils/api";
 
 export const getUsers = async () => {
     return await api.get("/users");
