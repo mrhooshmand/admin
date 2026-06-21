@@ -1,9 +1,10 @@
 import api from "@/shared/utils/api";
+import { User } from '../types'
 
-export const getUsers = async () => {
-    return await api.get("/users");
-};
-
+export const getUsers = async (): Promise<User[]> => {
+  const response = await api.get('/users')
+  return response.data
+}
 export const getUserById = async (id: number) => {
     return await api.get(`/users/${id}`);
 };

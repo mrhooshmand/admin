@@ -1,7 +1,6 @@
-import {useState, useEffect} from "react";
-import {getUsers, updateUser, createUser, deleteUser} from "../api/userApi";
-import {useLoading} from "@/app/providers/LoadingProvider";
-import {showAlert} from "@/shared/utils/errorHandler";
+import { useState } from "react";
+import { getUsers, updateUser, createUser, deleteUser } from "../api/userApi";
+import { showAlert } from "@/shared/utils/errorHandler";
 import {
     Table,
     TableBody,
@@ -10,10 +9,10 @@ import {
     TableHeader,
     TableRow,
 } from "@/shared/ui/table"
-import {Button} from "@/shared/ui/button";
-import {Input} from "@/shared/ui/input";
-import {Label} from "@/shared/ui/label";
-import {Plus, Edit, Trash2} from 'lucide-react';
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Plus, Edit, Trash2 } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -32,8 +31,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/shared/ui/alert-dialog";
-import {User} from "../types";
-
+import { User } from "../types";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 interface UserFormData {
     username: string;
     password: string;
@@ -42,9 +41,6 @@ interface UserFormData {
     full_name: string;
 }
 export default function Users() {
-    const [users, setUsers] = useState<User[]>([]);
-    const {showLoading, hideLoading} = useLoading();
-    const [error, setError] = useState<string>("");
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -56,63 +52,43 @@ export default function Users() {
         full_name: ""
     });
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const { data: users = [], error, refetch } = useQuery({
+        queryKey: ['users'],
+        queryFn: getUsers,
+    })
+    const queryClient = useQueryClient()
+    const refreshUsers = () => queryClient.invalidateQueries({ queryKey: ['users'] })
 
-    const fetchUsers = async (): Promise<void> => {
-        showLoading();
-        try {
-            const response = await getUsers();
-            setUsers(response.data);
-            setError("");
-        } catch (err) {
-            showAlert("error", err);
-        } finally {
-            hideLoading();
-        }
-    };
+    const { mutate: deleteUserMutate, isPending: isDeleting } = useMutation({
+        mutationFn: deleteUser,
+        onSuccess: () => {
+            refreshUsers();
+            showAlert("success", "User deleted successfully");
+            setIsDeleteDialogOpen(false);
+        },
+        onError: (err) => showAlert("error", err),
+    });
+    const { mutate: createUserMutate, isPending: isCreating } = useMutation({
+        mutationFn: createUser,
+        onSuccess: () => {
+            refreshUsers();
+            showAlert("success", "User created  successfully");
+            setIsModalOpen(false);
+        },
+        onError: (err) => showAlert("error", err),
+    });
 
-    const updateUserApi = async (id: number, userData: Partial<User>): Promise<void> => {
-        showLoading();
-        try {
-            await updateUser(id, userData);
-        } catch (err) {
-            showAlert("error", err);
-        } finally {
-            hideLoading();
-        }
-    };
-    const createUserApi = async (userData: Partial<User> & { password: string }): Promise<void> => {
-        showLoading();
-        try {
-            await createUser(userData);
-            showAlert("success", "User created successfully");
-        } catch (err) {
-            showAlert("error", err);
-        } finally {
-            hideLoading();
-        }
-    };
-    const deleteUserApi = async (id: number): Promise<void> => {
-        showLoading();
-        try {
-            await deleteUser(id);
-        } catch (err) {
-            showAlert("error", err);
-        } finally {
-            hideLoading();
-        }
-    };
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-    if (error) {
-        return (
-            <div>
-                <div>{error}</div>
-                <button onClick={fetchUsers}>Retry</button>
-            </div>
-        );
-    }
-
+    const { mutate: updateUserMutate, isPending: isUpdating } = useMutation({
+        mutationFn: ({ id, data }: { id: number; data: Partial<User> }) =>
+            updateUser(id, data),
+        onSuccess: () => {
+            refreshUsers();
+            showAlert("success", "User updated successfully");
+            setIsModalOpen(false);
+        },
+        onError: (err) => showAlert("error", err),
+    });
+    const isMutating = isDeleting || isCreating || isUpdating;
     const handleEditDialog = (user: User): void => {
         setEditingUser(user);
         setFormData({
@@ -157,9 +133,8 @@ export default function Users() {
         return true;
     };
 
-    const handleSaveUser = async (): Promise<void> => {
+    const handleSaveUser = (): void => {
         if (!validateForm()) return;
-
         try {
             const userData: Partial<User> & { password?: string } = {
                 username: formData.username,
@@ -172,16 +147,15 @@ export default function Users() {
             }
 
             if (editingUser) {
-                await updateUserApi(editingUser.id, userData);
+                updateUserMutate({ id: editingUser.id, data: userData });
             } else {
                 if (!userData.password) {
                     showAlert("error", "Password is required");
                     return;
                 }
-                await createUserApi(userData as Partial<User> & { password: string });
+                createUserMutate(userData as Partial<User> & { password: string });
             }
             setIsModalOpen(false);
-            await fetchUsers();
         } catch (error) {
             showAlert("error", error);
         }
@@ -193,17 +167,16 @@ export default function Users() {
 
     const handleDelete = async (): Promise<void> => {
         if (!selectedUser) return;
-        await deleteUserApi(selectedUser.id);
-        setIsDeleteDialogOpen(false);
-        await fetchUsers();
+        deleteUserMutate(selectedUser.id);
     };
-
-    // ============ Render ============
     if (error) {
         return (
             <div className="p-6 text-center">
-                <div className="text-red-500 mb-4">{error}</div>
-                <button onClick={fetchUsers} className="px-4 py-2 bg-blue-500 text-white rounded">
+                <div className="text-red-500 mb-4">{error.message}</div>
+                <button
+                    onClick={() => refetch()}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
                     Retry
                 </button>
             </div>
@@ -217,7 +190,7 @@ export default function Users() {
                 variant="outline"
                 size="icon"
                 onClick={handleAddDialog}>
-                <Plus/>
+                <Plus />
             </Button>
             <Table className="mt-5">
                 <TableHeader>
@@ -243,17 +216,19 @@ export default function Users() {
                                             className="mx-3"
                                             variant="ghost"
                                             size="sm"
+                                            disabled={isMutating}
                                             onClick={() => handleEditDialog(user)}
                                         >
-                                            <Edit className="h-4 w-4"/>
+                                            <Edit className="h-4 w-4" />
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="sm"
+                                            disabled={isMutating}
                                             onClick={() => handleDeleteDialog(user)}
                                             className="text-red-500 hover:text-red-700"
                                         >
-                                            <Trash2 className="h-4 w-4"/>
+                                            <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </>
                                 )}
@@ -279,7 +254,7 @@ export default function Users() {
                                 id="username"
                                 placeholder="Enter username"
                                 value={formData.username}
-                                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                 disabled={!!editingUser}
                             />
                         </div>
@@ -289,7 +264,7 @@ export default function Users() {
                                 id="full_name"
                                 placeholder="Enter full name"
                                 value={formData.full_name}
-                                onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                             />
                         </div>
                         <div className="grid gap-2">
@@ -299,7 +274,7 @@ export default function Users() {
                                 type="email"
                                 placeholder="Enter email"
                                 value={formData.email}
-                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
                         </div>
                         <div className="grid gap-2">
@@ -311,7 +286,7 @@ export default function Users() {
                                 type="password"
                                 placeholder={editingUser ? "Leave empty to keep current" : "Enter password"}
                                 value={formData.password}
-                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             />
                         </div>
                         {formData.password && (
@@ -322,7 +297,7 @@ export default function Users() {
                                     type="password"
                                     placeholder="Confirm password"
                                     value={formData.confirmPassword}
-                                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                                 />
                             </div>
                         )}
