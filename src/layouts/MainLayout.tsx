@@ -1,12 +1,12 @@
-import {Outlet, Link, useLocation} from "react-router-dom";
-import {useNavigate} from "react-router-dom";
-import {useAuth} from "@/app/providers/AuthProvider";
+import { Outlet, Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/app/providers/AuthProvider";
 import Loading from "@/shared/components/Loading";
-import {useLoading} from "@/app/providers/LoadingProvider";
-import {useEffect, useState} from "react";
-import {ROUTES} from "@/shared/constants/routes";
+import { useLoading } from "@/app/providers/LoadingProvider";
+import { useEffect, useState } from "react";
+import { ROUTES } from "@/shared/constants/routes";
 
-import {Button} from "@/shared/ui/button";
+import { Button } from "@/shared/ui/button";
 import {
     LayoutDashboard,
     Users,
@@ -16,12 +16,13 @@ import {
     X,
 } from "lucide-react";
 import ProtectedRoute from "@/app/router/ProtectedRoute";
+import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 
 export default function MainLayout() {
     const navigate = useNavigate();
     const location = useLocation();
-    const {isLoading, message} = useLoading();
-    const {logout, token, user} = useAuth();
+    const { isLoading, message } = useLoading();
+    const { logout, token, user } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
     useEffect(() => {
@@ -48,9 +49,9 @@ export default function MainLayout() {
     };
 
     const menuItems = [
-        {path: "/dashboard", name: "Dashboard", icon: LayoutDashboard},
-        {path: "/users", name: "Users", icon: Users},
-        {path: "/profile", name: "Profile", icon: UserCircle},
+        { path: "/dashboard", name: "Dashboard", icon: LayoutDashboard },
+        { path: "/users", name: "Users", icon: Users },
+        { path: "/profile", name: "Profile", icon: UserCircle },
     ];
 
     const toggleSidebar = () => {
@@ -67,7 +68,7 @@ export default function MainLayout() {
                         className="fixed top-4 left-4 z-50 bg-white shadow-lg"
                         onClick={toggleSidebar}
                     >
-                        <Menu className="h-5 w-5"/>
+                        <Menu className="h-5 w-5" />
                     </Button>
                 )}
                 <aside
@@ -87,7 +88,7 @@ export default function MainLayout() {
                                     className="text-white hover:text-white hover:bg-slate-800"
                                     onClick={toggleSidebar}
                                 >
-                                    <X className="h-5 w-5"/>
+                                    <X className="h-5 w-5" />
                                 </Button>
                             )}
                         </div>
@@ -103,14 +104,13 @@ export default function MainLayout() {
                                                 onClick={() => isMobile && setIsSidebarOpen(false)}
                                                 className={`
                         flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-                        ${
-                                                    isActive
+                        ${isActive
                                                         ? "bg-blue-600 text-white"
                                                         : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                                                }
+                                                    }
                       `}
                                             >
-                                                <Icon className="h-5 w-5"/>
+                                                <Icon className="h-5 w-5" />
                                                 <span>{item.name}</span>
                                             </Link>
                                         </li>
@@ -124,7 +124,7 @@ export default function MainLayout() {
                                 className="w-full justify-start gap-3 text-slate-300 hover:text-white hover:bg-slate-800"
                                 onClick={handleLogout}
                             >
-                                <LogOut className="h-5 w-5"/>
+                                <LogOut className="h-5 w-5" />
                                 <span>Sign out</span>
                             </Button>
                         </div>
@@ -143,10 +143,11 @@ export default function MainLayout() {
                         />
                     )}
                     <div className={`p-6 relative min-h-full ${isLoading ? 'overflow-hidden h-screen' : ''}`}>
-                        {isLoading && <Loading message={message}/>}
-                        <Outlet/>
+                        {isLoading && <Loading message={message} />}
+                        <Outlet />
                     </div>
                 </main>
+                <ConfirmDialog />
             </div>
         </ProtectedRoute>
     );

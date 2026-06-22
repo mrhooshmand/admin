@@ -21,18 +21,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/shared/ui/dialog";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/shared/ui/alert-dialog";
+
 import { User } from "../types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useConfirmStore } from "@/app/store/confirmStore";
 interface UserFormData {
     username: string;
     password: string;
@@ -41,8 +33,6 @@ interface UserFormData {
     full_name: string;
 }
 export default function Users() {
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [formData, setFormData] = useState<UserFormData>({
         username: "",
@@ -51,6 +41,7 @@ export default function Users() {
         email: "",
         full_name: ""
     });
+    const showConfirm = useConfirmStore((state) => state.showConfirm);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const { data: users = [], error, refetch } = useQuery({
         queryKey: ['users'],
@@ -64,7 +55,6 @@ export default function Users() {
         onSuccess: () => {
             refreshUsers();
             showAlert("success", "User deleted successfully");
-            setIsDeleteDialogOpen(false);
         },
         onError: (err) => showAlert("error", err),
     });
@@ -160,15 +150,17 @@ export default function Users() {
             showAlert("error", error);
         }
     };
-    const handleDeleteDialog = (user: User): void => {
-        setSelectedUser(user);
-        setIsDeleteDialogOpen(true);
+    const handleDelete = (user: User): void => {
+        showConfirm({
+            title: "Delete User?",
+            description: `Are you sure you want to delete "${user.username}"?`,
+            confirmText: "Delete",
+            cancelText: "Cancel",
+            confirmVariant: "destructive",
+            onConfirm: () => deleteUserMutate(user.id),
+        });
     };
 
-    const handleDelete = async (): Promise<void> => {
-        if (!selectedUser) return;
-        deleteUserMutate(selectedUser.id);
-    };
     if (error) {
         return (
             <div className="p-6 text-center">
@@ -225,7 +217,7 @@ export default function Users() {
                                             variant="ghost"
                                             size="sm"
                                             disabled={isMutating}
-                                            onClick={() => handleDeleteDialog(user)}
+                                            onClick={() => handleDelete(user)}
                                             className="text-red-500 hover:text-red-700"
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -312,23 +304,6 @@ export default function Users() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the user
-                            "{selectedUser?.username}" from the system.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </div>
     );
 }
