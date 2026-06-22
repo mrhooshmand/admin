@@ -10,46 +10,29 @@ import {
     TableRow,
 } from "@/shared/ui/table"
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
-import { Plus, Edit, Trash2 } from 'lucide-react';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/shared/ui/dialog";
-
+import { Plus, Edit, Trash2, InfoIcon } from 'lucide-react';
 import { User } from "../types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useConfirmStore } from "@/app/store/confirmStore";
-interface UserFormData {
-    username: string;
-    password: string;
-    confirmPassword: string;
-    email: string;
-    full_name: string;
-}
+import { useModalStore } from "@/app/store/modalStore";
+import { UserForm } from '@/features/users/components/UserForm';
+import { UserFormData } from "../schemas";
+
 export default function Users() {
     const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [formData, setFormData] = useState<UserFormData>({
-        username: "",
-        password: "",
-        confirmPassword: "",
-        email: "",
-        full_name: ""
-    });
     const showConfirm = useConfirmStore((state) => state.showConfirm);
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const openModal = useModalStore((state) => state.openModal);
+    const closeModal = useModalStore((state) => state.closeModal);
+
     const { data: users = [], error, refetch } = useQuery({
         queryKey: ['users'],
         queryFn: getUsers,
-    })
-    const queryClient = useQueryClient()
-    const refreshUsers = () => queryClient.invalidateQueries({ queryKey: ['users'] })
+    });
 
+    const queryClient = useQueryClient();
+    const refreshUsers = () => queryClient.invalidateQueries({ queryKey: ['users'] });
+
+    // ============ Mutations ============
     const { mutate: deleteUserMutate, isPending: isDeleting } = useMutation({
         mutationFn: deleteUser,
         onSuccess: () => {
@@ -58,12 +41,13 @@ export default function Users() {
         },
         onError: (err) => showAlert("error", err),
     });
+
     const { mutate: createUserMutate, isPending: isCreating } = useMutation({
         mutationFn: createUser,
         onSuccess: () => {
             refreshUsers();
-            showAlert("success", "User created  successfully");
-            setIsModalOpen(false);
+            showAlert("success", "User created successfully");
+            closeModal();
         },
         onError: (err) => showAlert("error", err),
     });
@@ -74,82 +58,81 @@ export default function Users() {
         onSuccess: () => {
             refreshUsers();
             showAlert("success", "User updated successfully");
-            setIsModalOpen(false);
+            closeModal();
         },
         onError: (err) => showAlert("error", err),
     });
-    const isMutating = isDeleting || isCreating || isUpdating;
-    const handleEditDialog = (user: User): void => {
-        setEditingUser(user);
-        setFormData({
-            username: user?.username || "",
-            password: "",
-            confirmPassword: "",
-            email: user?.email || "",
-            full_name: user?.full_name || ""
-        });
-        setIsModalOpen(true);
-    };
 
+    const isMutating = isDeleting || isCreating || isUpdating;
+
+    // ============ Handlers ============
     const handleAddDialog = (): void => {
         setEditingUser(null);
-        setFormData({
-            username: "",
-            password: "",
-            confirmPassword: "",
-            email: "",
-            full_name: ""
+        openModal({
+            title: "Add New User",
+            size: "lg",
+            content: (
+                <UserForm
+                    editingUser={null}
+                    onSave={handleSaveUser}
+                    onCancel={closeModal}
+                    isMutating={isMutating}
+                />
+            ),
         });
-        setIsModalOpen(true);
     };
 
-    const validateForm = (): boolean => {
-        if (!editingUser && !formData.username.trim()) {
-            showAlert("error", "Username is required");
-            return false;
-        }
-        if (!editingUser && !formData.password) {
-            showAlert("error", "Password is required");
-            return false;
-        }
-        if (formData.password && formData.password !== formData.confirmPassword) {
-            showAlert("error", "Passwords do not match");
-            return false;
-        }
-        if (formData.password && formData.password.length < 4) {
-            showAlert("error", "Password must be at least 4 characters");
-            return false;
-        }
-        return true;
+    const handleEditDialog = (user: User) => {
+        setEditingUser(user);
+        openModal({
+            title: `Edit User: ${user.username}`,
+            size: "lg",
+            content: (
+                <UserForm
+                    editingUser={user}
+                    onSave={handleSaveUser}
+                    onCancel={closeModal}
+                    isMutating={isMutating}
+                />
+            ),
+        });
     };
 
-    const handleSaveUser = (): void => {
-        if (!validateForm()) return;
-        try {
-            const userData: Partial<User> & { password?: string } = {
-                username: formData.username,
-                email: formData.email,
-                full_name: formData.full_name
-            };
-
-            if (formData.password) {
-                userData.password = formData.password;
-            }
-
-            if (editingUser) {
-                updateUserMutate({ id: editingUser.id, data: userData });
-            } else {
-                if (!userData.password) {
-                    showAlert("error", "Password is required");
-                    return;
-                }
-                createUserMutate(userData as Partial<User> & { password: string });
-            }
-            setIsModalOpen(false);
-        } catch (error) {
-            showAlert("error", error);
-        }
+    const handleViewDialog = (user: User) => {
+        openModal({
+            title: `User Details: ${user.username}`,
+            description: `Information about ${user.username}`,
+            size: "lg",
+            content: (
+                <div className="space-y-4 py-4">
+                    <div className="grid grid-cols-3 gap-2">
+                        <span className="text-sm font-medium text-gray-500">Username</span>
+                        <span className="col-span-2 text-sm">{user.username}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                        <span className="text-sm font-medium text-gray-500">Full Name</span>
+                        <span className="col-span-2 text-sm">{user.full_name || "—"}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                        <span className="text-sm font-medium text-gray-500">Email</span>
+                        <span className="col-span-2 text-sm">{user.email || "—"}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                        <span className="text-sm font-medium text-gray-500">Created At</span>
+                        <span className="col-span-2 text-sm">
+                            {user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}
+                        </span>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                        <Button variant="outline" onClick={closeModal}>
+                            Close
+                        </Button>
+                    </div>
+                </div>
+            ),
+        });
     };
+
     const handleDelete = (user: User): void => {
         showConfirm({
             title: "Delete User?",
@@ -161,6 +144,29 @@ export default function Users() {
         });
     };
 
+    const handleSaveUser = (data: UserFormData): void => {
+        const userData: Partial<User> & { password?: string } = {
+            username: data.username,
+            email: data.email || "",
+            full_name: data.full_name || "",
+        };
+
+        if (data.password) {
+            userData.password = data.password;
+        }
+
+        if (editingUser) {
+            updateUserMutate({ id: editingUser.id, data: userData });
+        } else {
+            if (!userData.password) {
+                showAlert("error", "Password is required");
+                return;
+            }
+            createUserMutate(userData as Partial<User> & { password: string });
+        }
+    };
+
+    // ============ Render ============
     if (error) {
         return (
             <div className="p-6 text-center">
@@ -181,129 +187,65 @@ export default function Users() {
                 className="float-end"
                 variant="outline"
                 size="icon"
-                onClick={handleAddDialog}>
+                onClick={handleAddDialog}
+                disabled={isMutating}
+            >
                 <Plus />
             </Button>
+
             <Table className="mt-5">
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-[100px]">#</TableHead>
-                        <TableHead>Username</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead className="text-center w-[50px]">#</TableHead>
+                        <TableHead className="text-center">Username</TableHead>
+                        <TableHead className="text-center">Name</TableHead>
+                        <TableHead className="text-center">Email</TableHead>
+                        <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {users.map((user, index) => (
                         <TableRow key={user.id}>
-                            <TableCell className="font-medium">{index + 1}</TableCell>
-                            <TableCell className="font-medium">{user.username}</TableCell>
-                            <TableCell>{user.full_name || "—"}</TableCell>
-                            <TableCell>{user.email || "—"}</TableCell>
+                            <TableCell className="text-center font-medium">{index + 1}</TableCell>
+                            <TableCell className="text-center font-medium">{user.username}</TableCell>
+                            <TableCell className="text-center">{user.full_name || "—"}</TableCell>
+                            <TableCell className="text-center">{user.email || "—"}</TableCell>
                             <TableCell className="text-right">
                                 {user.username !== 'admin' && (
-                                    <>
+                                    <div className="flex items-center justify-end gap-1">
                                         <Button
-                                            className="mx-3"
                                             variant="ghost"
                                             size="sm"
                                             disabled={isMutating}
                                             onClick={() => handleEditDialog(user)}
+                                            className="h-8 w-8 p-0 hover:text-blue-700"
                                         >
                                             <Edit className="h-4 w-4" />
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="sm"
+                                            onClick={() => handleViewDialog(user)}
+                                            className="h-8 w-8 p-0 hover:text-blue-700"
+                                        >
+                                            <InfoIcon className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             disabled={isMutating}
                                             onClick={() => handleDelete(user)}
-                                            className="text-red-500 hover:text-red-700"
+                                            className="h-8 w-8 p-0 hover:text-red-700"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
-                                    </>
+                                    </div>
                                 )}
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>{editingUser ? "Edit User" : "Add New User"}</DialogTitle>
-                        <DialogDescription>
-                            {editingUser
-                                ? "Edit the user information below."
-                                : "Fill in the user information below."}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="username">Username</Label>
-                            <Input
-                                id="username"
-                                placeholder="Enter username"
-                                value={formData.username}
-                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                disabled={!!editingUser}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="full_name">Full Name</Label>
-                            <Input
-                                id="full_name"
-                                placeholder="Enter full name"
-                                value={formData.full_name}
-                                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="Enter email"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">
-                                {editingUser ? "New Password (optional)" : "Password"}
-                            </Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder={editingUser ? "Leave empty to keep current" : "Enter password"}
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            />
-                        </div>
-                        {formData.password && (
-                            <div className="grid gap-2">
-                                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                                <Input
-                                    id="confirmPassword"
-                                    type="password"
-                                    placeholder="Confirm password"
-                                    value={formData.confirmPassword}
-                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSaveUser}>
-                            {editingUser ? "Update" : "Create"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

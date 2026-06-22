@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import ProtectedRoute from "@/app/router/ProtectedRoute";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
+import { GlobalModal } from "@/shared/components/GlobalModal";
 
 export default function MainLayout() {
     const navigate = useNavigate();
@@ -148,6 +149,7 @@ export default function MainLayout() {
                     </div>
                 </main>
                 <ConfirmDialog />
+                <GlobalModal/>
             </div>
         </ProtectedRoute>
     );
