@@ -13,8 +13,6 @@ import { UserFormData } from "../schemas";
 import UserTable from "../components/UserTable";
 
 export default function Users() {
-    const [
-        editingUser, setEditingUser] = useState<User | null>(null);
     const showConfirm = useConfirmStore((state) => state.showConfirm);
     const openModal = useModalStore((state) => state.openModal);
     const closeModal = useModalStore((state) => state.closeModal);
@@ -62,7 +60,6 @@ export default function Users() {
 
     // ============ Handlers ============
     const handleAddDialog = (): void => {
-        setEditingUser(null);
         openModal({
             title: "Add New User",
             size: "lg",
@@ -91,7 +88,6 @@ export default function Users() {
     };
 
     const handleEditDialog = (user: User) => {
-        setEditingUser(user);
         openModal({
             title: `Edit User: ${user.username}`,
             size: "lg",
