@@ -101,7 +101,7 @@ export default function Users() {
                     onCancel={closeModal}
                     isMutating={isMutating}
                     onSave={(data: UserFormData) => {
-                        const userData: Partial<User> & { password: string } = {
+                        const userData: Partial<User> & { password?: string } = {
                             username: data.username,
                             email: data.email || "",
                             full_name: data.full_name || ""
