@@ -1,25 +1,20 @@
 import { useState } from "react";
 import { getUsers, updateUser, createUser, deleteUser } from "../api/userApi";
 import { showAlert } from "@/shared/utils/errorHandler";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/shared/ui/table"
+
 import { Button } from "@/shared/ui/button";
-import { Plus, Edit, Trash2, InfoIcon } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { User } from "../types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useConfirmStore } from "@/app/store/confirmStore";
 import { useModalStore } from "@/app/store/modalStore";
 import { UserForm } from '@/features/users/components/UserForm';
 import { UserFormData } from "../schemas";
+import UserTable from "../components/UserTable";
 
 export default function Users() {
-    const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [
+        editingUser, setEditingUser] = useState<User | null>(null);
     const showConfirm = useConfirmStore((state) => state.showConfirm);
     const openModal = useModalStore((state) => state.openModal);
     const closeModal = useModalStore((state) => state.closeModal);
@@ -155,6 +150,8 @@ export default function Users() {
             userData.password = data.password;
         }
 
+        console.log(editingUser);
+
         if (editingUser) {
             updateUserMutate({ id: editingUser.id, data: userData });
         } else {
@@ -192,60 +189,7 @@ export default function Users() {
             >
                 <Plus />
             </Button>
-
-            <Table className="mt-5">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="text-center w-[50px]">#</TableHead>
-                        <TableHead className="text-center">Username</TableHead>
-                        <TableHead className="text-center">Name</TableHead>
-                        <TableHead className="text-center">Email</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {users.map((user, index) => (
-                        <TableRow key={user.id}>
-                            <TableCell className="text-center font-medium">{index + 1}</TableCell>
-                            <TableCell className="text-center font-medium">{user.username}</TableCell>
-                            <TableCell className="text-center">{user.full_name || "—"}</TableCell>
-                            <TableCell className="text-center">{user.email || "—"}</TableCell>
-                            <TableCell className="text-right">
-                                {user.username !== 'admin' && (
-                                    <div className="flex items-center justify-end gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            disabled={isMutating}
-                                            onClick={() => handleEditDialog(user)}
-                                            className="h-8 w-8 p-0 hover:text-blue-700"
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleViewDialog(user)}
-                                            className="h-8 w-8 p-0 hover:text-blue-700"
-                                        >
-                                            <InfoIcon className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            disabled={isMutating}
-                                            onClick={() => handleDelete(user)}
-                                            className="h-8 w-8 p-0 hover:text-red-700"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                )}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            <UserTable users={users} isMutating={isMutating} onDelete={handleDelete} onEdit={handleEditDialog} onView={handleViewDialog} />
         </div>
     );
 }
