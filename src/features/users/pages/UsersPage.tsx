@@ -69,9 +69,22 @@ export default function Users() {
             content: (
                 <UserForm
                     editingUser={null}
-                    onSave={handleSaveUser}
                     onCancel={closeModal}
                     isMutating={isMutating}
+                    onSave={(data: UserFormData) => {
+                        const userData: Partial<User> & { password: string } = {
+                            username: data.username,
+                            email: data.email || "",
+                            full_name: data.full_name || "",
+                            password: data.password || "",
+                        };
+
+                        if (!userData.password) {
+                            showAlert("error", "Password is required");
+                            return;
+                        }
+                        createUserMutate(userData);
+                    }}
                 />
             ),
         });
@@ -85,9 +98,20 @@ export default function Users() {
             content: (
                 <UserForm
                     editingUser={user}
-                    onSave={handleSaveUser}
                     onCancel={closeModal}
                     isMutating={isMutating}
+                    onSave={(data: UserFormData) => {
+                        const userData: Partial<User> & { password: string } = {
+                            username: data.username,
+                            email: data.email || "",
+                            full_name: data.full_name || ""
+                        };
+
+                        if (data.password) {
+                            userData.password = data.password;
+                        }
+                        updateUserMutate({ id: user.id, data: userData });
+                    }}
                 />
             ),
         });
@@ -137,30 +161,6 @@ export default function Users() {
             confirmVariant: "destructive",
             onConfirm: () => deleteUserMutate(user.id),
         });
-    };
-
-    const handleSaveUser = (data: UserFormData): void => {
-        const userData: Partial<User> & { password?: string } = {
-            username: data.username,
-            email: data.email || "",
-            full_name: data.full_name || "",
-        };
-
-        if (data.password) {
-            userData.password = data.password;
-        }
-
-        console.log(editingUser);
-
-        if (editingUser) {
-            updateUserMutate({ id: editingUser.id, data: userData });
-        } else {
-            if (!userData.password) {
-                showAlert("error", "Password is required");
-                return;
-            }
-            createUserMutate(userData as Partial<User> & { password: string });
-        }
     };
 
     // ============ Render ============

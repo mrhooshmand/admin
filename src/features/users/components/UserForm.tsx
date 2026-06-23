@@ -107,7 +107,7 @@ export function UserForm({
             {/* Password */}
             <div className="grid gap-2">
                 <Label htmlFor="password">
-                    {editingUser ? "New Password (optional)" : "Password"}
+                    Password
                 </Label>
                 <Input
                     id="password_field"

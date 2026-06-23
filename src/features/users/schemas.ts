@@ -14,16 +14,13 @@ export const userSchema = z
 		email: z.email("Invalid email address").optional().or(z.literal("")),
 		full_name: z
 			.string()
+			.min(5, "Full name must be at least 5 characters")
 			.max(100, "Full name must be at most 100 characters")
-			.optional()
-			.or(z.literal("")),
-
+			.regex(/^[a-zA-Z 0-9]+$/, "Name can only contain letters and space"),
 		password: z
 			.string()
 			.min(4, "Password must be at least 4 characters")
-			.optional()
 			.or(z.literal("")),
-
 		confirmPassword: z.string().optional().or(z.literal("")),
 	})
 	.refine(
