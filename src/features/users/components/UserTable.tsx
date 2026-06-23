@@ -24,7 +24,7 @@ export default function UserTable({ users, isMutating, onDelete, onEdit, onView 
         <Table className="mt-5">
             <TableHeader>
                 <TableRow>
-                    <TableHead className="text-center w-[50px]">#</TableHead>
+                    <TableHead className="text-center w-12.5">#</TableHead>
                     <TableHead className="text-center">Username</TableHead>
                     <TableHead className="text-center">Name</TableHead>
                     <TableHead className="text-center">Email</TableHead>
