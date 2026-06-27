@@ -7,9 +7,9 @@ import { User } from "../types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useConfirmStore } from "@/app/store/confirmStore";
 import { useModalStore } from "@/app/store/modalStore";
-import { UserForm } from '@/features/users/components/UserForm';
-import { UserFormData } from "../schemas";
 import UserTable from "../components/UserTable";
+import { UserForm } from '../components/UserForm';
+import { UserFormData } from "../schemas";
 
 export default function Users() {
     const showConfirm = useConfirmStore((state) => state.showConfirm);
@@ -24,7 +24,6 @@ export default function Users() {
     const queryClient = useQueryClient();
     const refreshUsers = () => queryClient.invalidateQueries({ queryKey: ['users'] });
 
-    // ============ Mutations ============
     const { mutate: deleteUserMutate, isPending: isDeleting } = useMutation({
         mutationFn: deleteUser,
         onSuccess: () => {
@@ -57,7 +56,6 @@ export default function Users() {
 
     const isMutating = isDeleting || isCreating || isUpdating;
 
-    // ============ Handlers ============
     const handleAddDialog = (): void => {
         openModal({
             title: "Add New User",
@@ -147,7 +145,7 @@ export default function Users() {
         });
     };
 
-    const handleDelete = (user: User): void => {
+    const handleDeleteDialog = (user: User): void => {
         showConfirm({
             title: "Delete User?",
             description: `Are you sure you want to delete "${user.username}"?`,
@@ -158,7 +156,6 @@ export default function Users() {
         });
     };
 
-    // ============ Render ============
     if (error) {
         return (
             <div className="p-6 text-center">
@@ -184,7 +181,7 @@ export default function Users() {
             >
                 <Plus />
             </Button>
-            <UserTable users={users} isMutating={isMutating} onDelete={handleDelete} onEdit={handleEditDialog} onView={handleViewDialog} />
+            <UserTable users={users} isMutating={isMutating} onDelete={handleDeleteDialog} onEdit={handleEditDialog} onView={handleViewDialog} />
         </div>
     );
 }
