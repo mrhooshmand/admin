@@ -63,7 +63,7 @@ export default function Users() {
             content: (
                 <UserForm
                     editingUser={null}
-                    onCancel={closeModal}
+                    onCancel={() => closeModal()}
                     isMutating={isMutating}
                     onSave={(data: UserFormData) => {
                         const userData: Partial<User> & { password: string } = {
@@ -91,7 +91,7 @@ export default function Users() {
             content: (
                 <UserForm
                     editingUser={user}
-                    onCancel={closeModal}
+                    onCancel={() => closeModal()}
                     isMutating={isMutating}
                     onSave={(data: UserFormData) => {
                         const userData: Partial<User> & { password?: string } = {
