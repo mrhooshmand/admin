@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSchema, UserFormData } from "../schemas";
 import { Input } from "@/shared/ui/input";
@@ -24,7 +24,7 @@ export function UserForm({
         register,
         handleSubmit,
         reset,
-        watch,
+        control,
         formState: { errors },
     } = useForm<UserFormData>({
         resolver: zodResolver(userSchema),
@@ -57,8 +57,10 @@ export function UserForm({
         }
     }, [editingUser, reset]);
 
-    const watchPassword = watch("password");
-
+    const watchPassword = useWatch({
+        control,
+        name: "password"
+    })
     return (
         <form onSubmit={handleSubmit(onSave)} className="grid gap-4 py-4">
             {/* Username */}

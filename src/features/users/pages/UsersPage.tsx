@@ -2,7 +2,7 @@ import { getUsers, updateUser, createUser, deleteUser } from "../api/userApi";
 import { showAlert } from "@/shared/utils/errorHandler";
 
 import { Button } from "@/shared/ui/button";
-import { Plus, Carrot } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { User } from "../types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useConfirmStore } from "@/app/store/confirmStore";
