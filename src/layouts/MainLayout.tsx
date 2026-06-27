@@ -18,6 +18,7 @@ import {
 import ProtectedRoute from "@/app/router/ProtectedRoute";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { GlobalModal } from "@/shared/components/GlobalModal";
+import { ThemeToggle } from "@/shared/components/ThemeToggle";
 
 export default function MainLayout() {
     const navigate = useNavigate();
@@ -61,7 +62,7 @@ export default function MainLayout() {
 
     return (
         <ProtectedRoute>
-            <div className="flex h-screen bg-gray-100">
+            <div className="flex h-screen">
                 {isMobile && !isSidebarOpen && (
                     <Button
                         variant="outline"
@@ -74,24 +75,25 @@ export default function MainLayout() {
                 )}
                 <aside
                     className={`
-          bg-slate-900 text-white transition-all duration-300 ease-in-out
+          bg-background border-r shadow-lg z-40 
           ${isSidebarOpen ? "w-64" : "w-0 overflow-hidden"}
           ${isMobile ? "fixed left-0 top-0 z-40 h-full" : "relative"}
         `}
                 >
                     <div className="flex flex-col h-full">
-                        <div className="flex items-center justify-between p-5 border-b border-slate-700">
-                            <h2 className="text-xl font-bold text-white hover:text-white hover:bg-slate-800">{user?.full_name || ''}</h2>
+                        <div className="flex items-center justify-between p-5 border-b">
+                            <h2 className="text-xl font-bold  hover:text-white hover:bg-slate-800">{user?.full_name || ''}</h2>
                             {isMobile && (
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="text-white hover:text-white hover:bg-slate-800"
+                                    className=" hover:text-white hover:bg-slate-800"
                                     onClick={toggleSidebar}
                                 >
                                     <X className="h-5 w-5" />
                                 </Button>
                             )}
+                            <ThemeToggle />
                         </div>
                         <nav className="flex-1 p-4">
                             <ul className="space-y-2">
@@ -107,7 +109,7 @@ export default function MainLayout() {
                         flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
                         ${isActive
                                                         ? "bg-blue-600 text-white"
-                                                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                                                        : "hover:bg-slate-800 hover:text-white"
                                                     }
                       `}
                                             >
@@ -119,10 +121,10 @@ export default function MainLayout() {
                                 })}
                             </ul>
                         </nav>
-                        <div className="p-4 border-t border-slate-700">
+                        <div className="p-4 border-t">
                             <Button
                                 variant="ghost"
-                                className="w-full justify-start gap-3 text-slate-300 hover:text-white hover:bg-slate-800"
+                                className="w-full justify-start gap-3 hover:text-white hover:bg-slate-800"
                                 onClick={handleLogout}
                             >
                                 <LogOut className="h-5 w-5" />
@@ -149,7 +151,7 @@ export default function MainLayout() {
                     </div>
                 </main>
                 <ConfirmDialog />
-                <GlobalModal/>
+                <GlobalModal />
             </div>
         </ProtectedRoute>
     );

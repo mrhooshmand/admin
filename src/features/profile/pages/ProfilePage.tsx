@@ -1,8 +1,8 @@
-import {useAuth} from "@/app/providers/AuthProvider";
-import {Button} from "@/shared/ui/button";
+import { useAuth } from "@/app/providers/AuthProvider";
+import { Button } from "@/shared/ui/button";
 
 export default function Profile() {
-    const {user} = useAuth();
+    const { user } = useAuth();
 
     return (
         <div style={styles.container}>
@@ -47,11 +47,9 @@ const styles = {
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
         padding: "20px",
     },
     profileCard: {
-        backgroundColor: "white",
         borderRadius: "12px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
         padding: "30px",
@@ -75,8 +73,6 @@ const styles = {
         width: "100px",
         height: "100px",
         borderRadius: "50%",
-        backgroundColor: "#4CAF50",
-        color: "white",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -94,15 +90,11 @@ const styles = {
     label: {
         fontWeight: "bold",
         width: "120px",
-        color: "#666",
     },
     value: {
         flex: 1,
-        color: "#333",
     },
     button: {
-        backgroundColor: "#4CAF50",
-        color: "white",
         border: "none",
         padding: "10px 20px",
         borderRadius: "5px",
@@ -111,8 +103,6 @@ const styles = {
         width: "100%",
     },
     logoutButton: {
-        backgroundColor: "#dc3545",
-        color: "white",
         border: "none",
         padding: "8px 16px",
         borderRadius: "5px",
@@ -120,8 +110,6 @@ const styles = {
         fontSize: "14px",
     },
     dashboardButton: {
-        backgroundColor: "#007bff",
-        color: "white",
         border: "none",
         padding: "12px 24px",
         borderRadius: "5px",
@@ -137,7 +125,6 @@ const styles = {
     error: {
         textAlign: "center",
         fontSize: "16px",
-        color: "#dc3545",
         marginBottom: "20px",
     },
 };
