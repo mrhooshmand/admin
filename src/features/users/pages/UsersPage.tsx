@@ -46,16 +46,7 @@ export default function Users() {
                         }
                         createUser(userData, {
                             onSuccess: () => {
-                                showAlert(
-                                    "success",
-                                    "User Created successfully"
-                                );
-
                                 closeModal();
-                            },
-
-                            onError: (err) => {
-                                showAlert("error", err);
                             }
                         });
                     }}
@@ -85,14 +76,7 @@ export default function Users() {
                         }
                         updateUser({ id: user.id, data: userData }, {
                             onSuccess: () => {
-                                showAlert(
-                                    "success",
-                                    "User updated successfully"
-                                );
                                 closeModal();
-                            },
-                            onError: (err) => {
-                                showAlert("error", err);
                             }
                         });
                     }}
@@ -145,16 +129,7 @@ export default function Users() {
             confirmVariant: "destructive",
             onConfirm: () => deleteUser(user.id, {
                 onSuccess: () => {
-                    showAlert(
-                        "success",
-                        "User Deleted successfully"
-                    );
-
                     closeModal();
-                },
-
-                onError: (err) => {
-                    showAlert("error", err);
                 }
             }),
         });

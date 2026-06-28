@@ -18,8 +18,6 @@ const api: AxiosInstance = axios.create({
 api.interceptors.response.use(
 	(response) => response,
 	(error: AxiosError) => {
-		const { message } = handleApiError(error);
-		showAlert("error", message);
 		return Promise.reject(error);
 	},
 );
