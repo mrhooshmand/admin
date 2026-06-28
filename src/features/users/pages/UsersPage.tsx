@@ -1,60 +1,27 @@
-import { getUsers, updateUser, createUser, deleteUser } from "../api/userApi";
 import { showAlert } from "@/shared/utils/errorHandler";
-
 import { Button } from "@/shared/ui/button";
 import { Plus } from 'lucide-react';
 import { User } from "../types";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useConfirmStore } from "@/app/store/confirmStore";
 import { useModalStore } from "@/app/store/modalStore";
 import UserTable from "../components/UserTable";
 import { UserForm } from '../components/UserForm';
 import { UserFormData } from "../schemas";
+import { useUsers } from "../hooks/useUsers";
 
 export default function Users() {
     const showConfirm = useConfirmStore((state) => state.showConfirm);
     const openModal = useModalStore((state) => state.openModal);
     const closeModal = useModalStore((state) => state.closeModal);
-
-    const { data: users = [], error, refetch } = useQuery({
-        queryKey: ['users'],
-        queryFn: getUsers,
-    });
-
-    const queryClient = useQueryClient();
-    const refreshUsers = () => queryClient.invalidateQueries({ queryKey: ['users'] });
-
-    const { mutate: deleteUserMutate, isPending: isDeleting } = useMutation({
-        mutationFn: deleteUser,
-        onSuccess: () => {
-            refreshUsers();
-            showAlert("success", "User deleted successfully");
-        },
-        onError: (err) => showAlert("error", err),
-    });
-
-    const { mutate: createUserMutate, isPending: isCreating } = useMutation({
-        mutationFn: createUser,
-        onSuccess: () => {
-            refreshUsers();
-            showAlert("success", "User created successfully");
-            closeModal();
-        },
-        onError: (err) => showAlert("error", err),
-    });
-
-    const { mutate: updateUserMutate, isPending: isUpdating } = useMutation({
-        mutationFn: ({ id, data }: { id: number; data: Partial<User> }) =>
-            updateUser(id, data),
-        onSuccess: () => {
-            refreshUsers();
-            showAlert("success", "User updated successfully");
-            closeModal();
-        },
-        onError: (err) => showAlert("error", err),
-    });
-
-    const isMutating = isDeleting || isCreating || isUpdating;
+    const {
+        users,
+        error,
+        refetch,
+        createUser,
+        updateUser,
+        deleteUser,
+        isMutating
+    } = useUsers();
 
     const handleAddDialog = (): void => {
         openModal({
@@ -77,7 +44,20 @@ export default function Users() {
                             showAlert("error", "Password is required");
                             return;
                         }
-                        createUserMutate(userData);
+                        createUser(userData, {
+                            onSuccess: () => {
+                                showAlert(
+                                    "success",
+                                    "User Created successfully"
+                                );
+
+                                closeModal();
+                            },
+
+                            onError: (err) => {
+                                showAlert("error", err);
+                            }
+                        });
                     }}
                 />
             ),
@@ -103,7 +83,18 @@ export default function Users() {
                         if (data.password) {
                             userData.password = data.password;
                         }
-                        updateUserMutate({ id: user.id, data: userData });
+                        updateUser({ id: user.id, data: userData }, {
+                            onSuccess: () => {
+                                showAlert(
+                                    "success",
+                                    "User updated successfully"
+                                );
+                                closeModal();
+                            },
+                            onError: (err) => {
+                                showAlert("error", err);
+                            }
+                        });
                     }}
                 />
             ),
@@ -152,7 +143,20 @@ export default function Users() {
             confirmText: "Delete",
             cancelText: "Cancel",
             confirmVariant: "destructive",
-            onConfirm: () => deleteUserMutate(user.id),
+            onConfirm: () => deleteUser(user.id, {
+                onSuccess: () => {
+                    showAlert(
+                        "success",
+                        "User Deleted successfully"
+                    );
+
+                    closeModal();
+                },
+
+                onError: (err) => {
+                    showAlert("error", err);
+                }
+            }),
         });
     };
 

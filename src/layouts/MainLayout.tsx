@@ -1,7 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/providers/AuthProvider";
-import Loading from "@/shared/components/Loading";
 import { useLoading } from "@/app/providers/LoadingProvider";
 import { useEffect, useState } from "react";
 
@@ -19,6 +18,7 @@ import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { GlobalModal } from "@/shared/components/GlobalModal";
 import { ThemeToggle } from "@/shared/components/ThemeToggle";
 import useUserData from "@/features/auth/hooks/useUserData";
+import Loading from "@/shared/components/Loading";
 
 export default function MainLayout() {
     const navigate = useNavigate();
@@ -28,7 +28,8 @@ export default function MainLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
     const {
-        data: user
+        data: user,
+        isPending
     } = useUserData();
     useEffect(() => {
         const checkScreen = () => {
@@ -144,8 +145,8 @@ export default function MainLayout() {
                             onClick={toggleSidebar}
                         />
                     )}
-                    <div className={`p-6 relative min-h-full ${isLoading ? 'overflow-hidden h-screen' : ''}`}>
-                        {isLoading && <Loading message={message} />}
+                    <div className={`p-6 relative min-h-full ${isPending ? 'overflow-hidden h-screen' : ''}`}>
+                        {isPending && <Loading message={message} />}
                         <Outlet />
                     </div>
                 </main>

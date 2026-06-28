@@ -1,5 +1,5 @@
 import { useMe } from "./useMe";
 
-export function useCurrentUser() {
+export default function useUserData() {
 	return useMe();
 }
