@@ -1,14 +1,45 @@
 import { useTheme } from "next-themes";
-import { Button } from "@/shared/ui/button";
-import { Sun, Moon } from "lucide-react"
+import { Sun, Moon, Settings2, MonitorCog } from "lucide-react"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuShortcut,
+    DropdownMenuTrigger,
+} from "@/shared/ui/dropdown-menu"
 
 export function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
-
+    const { setTheme } = useTheme();
+    const changeTheme = (mode = 'light') => {
+        setTheme(mode)
+    }
     return (
-        <Button variant="ghost" size="icon" aria-label="Submit" onClick={() =>
-            setTheme(theme === "dark" ? "light" : "dark")}>
-            {theme === "dark" ? <Sun /> : <Moon />}
-        </Button>
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Settings2 />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40" align="start">
+                    <DropdownMenuGroup>
+                        <DropdownMenuLabel>Theme</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => changeTheme('light')}>
+                            Light
+                            <DropdownMenuShortcut><Sun /></DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeTheme('dark')}>
+                            Dark
+                            <DropdownMenuShortcut><Moon /></DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeTheme('system')}>
+                            System
+                            <DropdownMenuShortcut><MonitorCog /></DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+        </>
     );
 }
