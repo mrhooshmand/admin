@@ -4,7 +4,6 @@ import { useAuth } from "@/app/providers/AuthProvider";
 import Loading from "@/shared/components/Loading";
 import { useLoading } from "@/app/providers/LoadingProvider";
 import { useEffect, useState } from "react";
-import { ROUTES } from "@/shared/constants/routes";
 
 import { Button } from "@/shared/ui/button";
 import {
@@ -19,14 +18,18 @@ import ProtectedRoute from "@/app/router/ProtectedRoute";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { GlobalModal } from "@/shared/components/GlobalModal";
 import { ThemeToggle } from "@/shared/components/ThemeToggle";
+import useUserData from "@/features/auth/hooks/useUserData";
 
 export default function MainLayout() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isLoading, message } = useLoading();
-    const { logout, token, user } = useAuth();
+    const { message } = useLoading();
+    const { logout } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const {
+        data: user
+    } = useUserData();
     useEffect(() => {
         const checkScreen = () => {
             setIsMobile(window.innerWidth < 768);
@@ -40,11 +43,7 @@ export default function MainLayout() {
         window.addEventListener("resize", checkScreen);
         return () => window.removeEventListener("resize", checkScreen);
     }, []);
-    useEffect(() => {
-        if (!token) {
-            navigate(ROUTES.LOGIN);
-        }
-    }, [token, navigate]);
+
     const handleLogout = () => {
         logout();
         navigate("/login");
@@ -75,7 +74,7 @@ export default function MainLayout() {
                 )}
                 <aside
                     className={`
-          bg-background border-r shadow-lg z-40 
+                        fixed inset-y-0 left-0 bg-background/95 backdrop-blur border-r shadow-[4px_0_20px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_20px_rgba(0,0,0,0.3)] 
           ${isSidebarOpen ? "w-64" : "w-0 overflow-hidden"}
           ${isMobile ? "fixed left-0 top-0 z-40 h-full" : "relative"}
         `}
@@ -135,7 +134,7 @@ export default function MainLayout() {
                 </aside>
                 <main
                     className={`
-          flex-1 overflow-auto transition-all duration-300
+          flex-1 overflow-auto transition-all duration-300 bg-muted/30
           ${isMobile && isSidebarOpen ? "blur-sm" : ""}
         `}
                 >

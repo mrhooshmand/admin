@@ -19,16 +19,6 @@ CORS(app, resources={
 })
 
 
-# همچنین این middleware را اضافه کنید
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
-
-
 SECRET_KEY = "your-secret-key"
 tokens_db = {}
 
@@ -99,23 +89,6 @@ def init_db():
 
 
 init_db()
-
-
-# ============ توابع کمکی ============
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        if not token or not token.startswith('Bearer '):
-            return jsonify({"error": "Token missing"}), 401
-
-        token = token.split(' ')[1]
-        if token not in tokens_db or tokens_db[token]["expires"] < datetime.now():
-            return jsonify({"error": "Invalid token"}), 401
-
-        return f(*args, **kwargs)
-
-    return decorated
 
 
 # ============ API Endpoints ============
@@ -195,29 +168,53 @@ def login():
                     "email": user['email'],
                     "full_name": user['full_name']
                 }
-
-                return jsonify({"token": token, "user": user_info})
-
+                response = jsonify({ "message": "Login successful", "user": user_info})
+                response.set_cookie(
+                    'token', 
+                    token, 
+                    httponly=True, 
+                    secure=False,  # برای localhost
+                    samesite='Lax',
+                    max_age=24*60*60
+                )
+                return response
+               
             return jsonify({"error": "Invalid credentials"}), 401
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    response = jsonify({"message": "Logged out successfully"})
+    response.delete_cookie('token')
+    return response
 
 @app.route('/api/me', methods=['GET'])
-@token_required
 def get_me():
-    token = request.headers.get('Authorization').split(' ')[1]
-    username = tokens_db[token]["username"]
-
     try:
+        token = request.cookies.get('token')
+        
+        if not token:
+            return jsonify({"error": "Token missing"}), 401
+            
+        if token not in tokens_db:
+            return jsonify({"error": "Invalid token"}), 401
+            
+        if tokens_db[token]["expires"] < datetime.now():
+            return jsonify({"error": "Token expired"}), 401
+
+        username = tokens_db[token]["username"]
+
         with get_db() as conn:
             cursor = conn.execute(
                 "SELECT username, email, full_name, created_at FROM users WHERE username = ?",
                 (username,)
             )
-            user = dict(cursor.fetchone())
-            return jsonify(user)
+            user = cursor.fetchone()
+            if user:
+                return jsonify(dict(user))
+            return jsonify({"error": "User not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

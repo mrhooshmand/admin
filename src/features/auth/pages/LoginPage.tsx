@@ -1,36 +1,35 @@
-import {useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {useAuth} from "@/app/providers/AuthProvider";
-import {loginRequest} from "../api/authApi";
-import {ROUTES} from "@/shared/constants/routes";
-import {useLoading} from "@/app/providers/LoadingProvider";
-import {showAlert} from "@/shared/utils/errorHandler";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ROUTES } from "@/shared/constants/routes";
+import { useLoading } from "@/app/providers/LoadingProvider";
+import { showAlert } from "@/shared/utils/errorHandler";
+import { useLogin } from "../hooks/useLogin";
 
 export default function Login() {
-    const {login} = useAuth();
     const navigate = useNavigate();
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const {isLoading} = useLoading();
+    const { isLoading } = useLoading();
+    const loginMutation = useLogin();
 
-    const loginEvent = async (): Promise<void> => {
-        if (!username.trim() || !password.trim()) {
-            showAlert("error", "Please fill username and password");
-            return;
-        }
+    const loginEvent = () => {
 
-
-        try {
-            const response = await loginRequest({
+        loginMutation.mutate(
+            {
                 username,
                 password
-            });
-            login(response.data);
-            showAlert("success", "Welcome back!");
-            navigate(ROUTES.DASHBOARD);
-        } catch (error) {
-            showAlert("error", error);
-        }
+            },
+            {
+                onSuccess: () => {
+                    showAlert("success", "Welcome back!");
+                    navigate(ROUTES.DASHBOARD);
+                },
+
+                onError: (error) => {
+                    showAlert("error", error);
+                }
+            }
+        );
     };
     return (
         <>

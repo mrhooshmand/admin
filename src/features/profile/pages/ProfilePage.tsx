@@ -1,9 +1,12 @@
 import { useAuth } from "@/app/providers/AuthProvider";
+import { useMe } from "@/features/auth/hooks/useMe";
 import { Button } from "@/shared/ui/button";
 
 export default function Profile() {
-    const { user } = useAuth();
-
+    const {
+        data: user,
+        isLoading
+    } = useMe();
     return (
         <div style={styles.container}>
             <div style={styles.profileCard}>

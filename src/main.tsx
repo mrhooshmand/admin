@@ -7,27 +7,30 @@ import { LoadingProvider } from '@/app/providers/LoadingProvider'
 import { QueryProvider } from '@/app/providers/QueryProvider'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import { Toaster } from 'sonner'
+import { BrowserRouter } from 'react-router-dom'
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <ThemeProvider>
-            <QueryProvider>
-                <LoadingProvider>
-                    <AuthProvider>
-                        <Toaster
-                            position="top-center"
-                            richColors
-                            closeButton
-                            toastOptions={{
-                                style: {
-                                    fontSize: "14px",
-                                    padding: "12px 16px",
-                                },
-                            }} />
-                        <App />
-                    </AuthProvider>
-                </LoadingProvider>
-            </QueryProvider>
-        </ThemeProvider>
+        <BrowserRouter>
+            <ThemeProvider>
+                <QueryProvider>
+                    <LoadingProvider>
+                        <AuthProvider>
+                            <Toaster
+                                position="top-center"
+                                richColors
+                                closeButton
+                                toastOptions={{
+                                    style: {
+                                        fontSize: "14px",
+                                        padding: "12px 16px",
+                                    },
+                                }} />
+                            <App />
+                        </AuthProvider>
+                    </LoadingProvider>
+                </QueryProvider>
+            </ThemeProvider>
+        </BrowserRouter>
     </StrictMode >,
 )
