@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 import sqlite3
 from contextlib import contextmanager
+import random
 
 app = Flask(__name__)
 
@@ -90,7 +91,36 @@ def init_db():
 
 init_db()
 
+def create_test_users(count=100):
+    """ساخت کاربران تستی"""
+    with get_db() as conn:
+        for i in range(1, count + 1):
+            username = f"testuser{i}"
+            password = "1234"
+            email = f"testuser{i}@example.com"
+            full_name = f"Test User {i}"
 
+            try:
+                conn.execute('''
+                    INSERT INTO users (username, password, email, full_name)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    username,
+                    password,
+                    email,
+                    full_name
+                ))
+
+            except sqlite3.IntegrityError:
+                # اگر قبلاً ساخته شده بود رد شود
+                pass
+
+        conn.commit()
+
+    print(f"✅ {count} test users created")
+
+    
+create_test_users(100)
 # ============ API Endpoints ============
 
 @app.route('/api/health', methods=['GET'])

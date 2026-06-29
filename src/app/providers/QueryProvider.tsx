@@ -4,14 +4,16 @@ import { ReactNode } from 'react'
 
 const queryClient = new QueryClient({
     queryCache: new QueryCache({
-        onError(error) {
+        onError(error, query) {
+            if (query.meta?.skipGlobalError) return
             showAlert("error", error);
             console.log("queryCache error:", error);
         }
     }),
 
     mutationCache: new MutationCache({
-        onError(error) {
+        onError(error, variables, context, mutation) {
+            if (mutation.meta?.skipGlobalError) return
             showAlert("error", error);
             console.log("mutationCache error:", error);
         }
@@ -22,6 +24,9 @@ const queryClient = new QueryClient({
             staleTime: 1000 * 60 * 5, // 5 دقیقه
             retry: 1,
             refetchOnWindowFocus: false,
+        },
+        mutations: {
+            retry: false,
         }
     },
 })

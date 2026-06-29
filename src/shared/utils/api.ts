@@ -3,7 +3,6 @@ import axios, {
 	AxiosError,
 } from "axios";
 import { API_BASE_URL } from "../constants/api";
-import { handleApiError, showAlert } from "../utils/errorHandler";
 
 const api: AxiosInstance = axios.create({
 	baseURL: API_BASE_URL,
