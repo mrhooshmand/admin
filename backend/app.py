@@ -92,7 +92,6 @@ def init_db():
 init_db()
 
 def create_test_users(count=100):
-    """ساخت کاربران تستی"""
     with get_db() as conn:
         for i in range(1, count + 1):
             username = f"testuser{i}"
@@ -112,7 +111,6 @@ def create_test_users(count=100):
                 ))
 
             except sqlite3.IntegrityError:
-                # اگر قبلاً ساخته شده بود رد شود
                 pass
 
         conn.commit()
