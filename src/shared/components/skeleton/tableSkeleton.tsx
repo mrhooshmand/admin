@@ -5,23 +5,14 @@ interface TableSkeletonProps {
     columns?: number
 }
 
-export function TableSkeleton({ rows = 5, columns = 5 }: TableSkeletonProps) {
+export function TableSkeleton({ rows = 5, columns = 4 }: TableSkeletonProps) {
     return (
-        <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-50 p-4 border-b">
-                <div className={`grid grid-cols-${columns} gap-4`}>
-                    {[...Array(columns)].map((_, i) => (
-                        <Skeleton key={i} className="h-4 w-full" />
+        <div className="flex w-full max-w-sm flex-col gap-2">
+            {[...Array(rows)].map((_, index) => (
+                <div className="flex gap-4" key={index}>
+                    {[...Array(columns)].map((_, indexc) => (
+                        <Skeleton className="h-4 flex-1" key={indexc} />
                     ))}
-                </div>
-            </div>
-            {[...Array(rows)].map((_, i) => (
-                <div key={i} className="p-4 border-b last:border-b-0">
-                    <div className={`grid grid-cols-${columns} gap-4 items-center`}>
-                        {[...Array(columns)].map((_, j) => (
-                            <Skeleton key={j} className="h-4 w-full" />
-                        ))}
-                    </div>
                 </div>
             ))}
         </div>

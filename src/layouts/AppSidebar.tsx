@@ -17,8 +17,7 @@ import {
     UserCircle
 } from "lucide-react"
 
-import { Link } from "react-router-dom"
-
+import { Link, useLocation } from "react-router-dom";
 
 const items = [
     {
@@ -40,6 +39,7 @@ const items = [
 
 
 export function AppSidebar() {
+    const location = useLocation();
     return (
         <Sidebar>
             <SidebarHeader>
@@ -52,9 +52,10 @@ export function AppSidebar() {
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {items.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
+                            {items.map((item) => {
+                                const isActive = location.pathname === item.url;
+                                return (<SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild isActive={isActive}>
                                         <Link to={item.url}>
                                             <item.icon />
                                             <span>
@@ -62,8 +63,8 @@ export function AppSidebar() {
                                             </span>
                                         </Link>
                                     </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
+                                </SidebarMenuItem>)
+                            })}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

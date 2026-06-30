@@ -8,6 +8,7 @@ import UserTable from "../components/UserTable";
 import { UserForm } from '../components/UserForm';
 import { UserFormData } from "../schemas";
 import { useUsers } from "../hooks/useUsers";
+import { TableSkeleton } from "@/shared/components/skeleton/tableSkeleton";
 
 export default function Users() {
     const showConfirm = useConfirmStore((state) => state.showConfirm);
@@ -20,7 +21,8 @@ export default function Users() {
         createUser,
         updateUser,
         deleteUser,
-        isMutating
+        isMutating,
+        isLoading
     } = useUsers();
 
     const handleAddDialog = (): void => {
@@ -148,9 +150,10 @@ export default function Users() {
             </div>
         );
     }
+    if (isLoading) return (<TableSkeleton />)
 
     return (
-        <div className="p-6">
+        <>
             <Button
                 className="float-end"
                 variant="outline"
@@ -161,6 +164,6 @@ export default function Users() {
                 <Plus />
             </Button>
             <UserTable users={users} isMutating={isMutating} onDelete={handleDeleteDialog} onEdit={handleEditDialog} onView={handleViewDialog} />
-        </div>
+        </>
     );
 }
