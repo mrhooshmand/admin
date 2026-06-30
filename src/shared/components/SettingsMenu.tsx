@@ -9,18 +9,31 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
+import { Button } from "@/shared/ui/button";
 
 export function ThemeToggle() {
     const { setTheme } = useTheme();
-    const changeTheme = (mode = 'light') => {
+    const changeTheme = (mode: 'light' | 'dark' | 'system') => {
         setTheme(mode)
     }
     return (
-        <>
+        <TooltipProvider>
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Settings2 />
-                </DropdownMenuTrigger>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <Settings2 />
+                            </Button>
+                        </DropdownMenuTrigger>
+                    </TooltipTrigger>
+
+                    <TooltipContent>
+                        Settings
+                    </TooltipContent>
+                </Tooltip>
+
                 <DropdownMenuContent className="w-40" align="start">
                     <DropdownMenuGroup>
                         <DropdownMenuLabel>Theme</DropdownMenuLabel>
@@ -39,7 +52,6 @@ export function ThemeToggle() {
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
-
-        </>
+        </TooltipProvider>
     );
 }

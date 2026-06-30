@@ -22,7 +22,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/shared/ui/tooltip";
-import { ThemeToggle } from "@/shared/components/ThemeToggle";
+import { ThemeToggle } from "@/shared/components/SettingsMenu";
 
 function getInitials(fullName?: string, username?: string) {
     const source = fullName?.trim() || username?.trim() || "?";
@@ -42,10 +42,9 @@ export default function HeaderLayout() {
     return (
         <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <SidebarTrigger />
-
             <div className="flex flex-1 items-center justify-between gap-2">
                 <span className="text-sm font-medium text-muted-foreground">
-                    Admin Panel
+
                 </span>
 
                 <div className="flex items-center gap-1">
@@ -66,7 +65,7 @@ export default function HeaderLayout() {
                                             {getInitials(user?.full_name, user?.username)}
                                         </span>
                                         <div className="hidden flex-col items-start text-left sm:flex">
-                                            <span className="text-sm font-medium leading-none">
+                                            <span className="text-sm font-medium pb-1 leading-none">
                                                 {user?.full_name || user?.username}
                                             </span>
                                             <span className="text-xs text-muted-foreground">
@@ -102,35 +101,27 @@ export default function HeaderLayout() {
                                     <DropdownMenuSeparator />
 
                                     <DropdownMenuGroup>
-                                        <DropdownMenuItem asChild>
+                                        <DropdownMenuItem asChild className="flex items-center gap-2 cursor-pointer"
+                                        >
                                             <Link to={ROUTES.PROFILE}>
                                                 <UserCircle />
                                                 Profile
                                             </Link>
                                         </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            <Separator orientation="vertical" className="mx-3 bg-accent"/>
-                            <ThemeToggle />
-                            <Separator orientation="vertical" className="mx-3 bg-accent"/>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon-sm"
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
                                             onClick={() => logout()}
-                                            aria-label="Logout"
+                                            className="flex items-center gap-2 cursor-pointer"
                                         >
                                             <LogOut />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom">
-                                        Logout
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                                            <span>Logout</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <Separator orientation="vertical" className="mx-3 bg-accent" />
+                            <ThemeToggle />
                         </>
                     )}
                 </div>

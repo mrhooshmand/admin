@@ -10,7 +10,7 @@ import {
     SidebarMenuButton,
     SidebarHeader,
 } from "@/shared/ui/sidebar"
-
+import { SidebarClock } from '@/shared/components/SidebarClock'
 import {
     LayoutDashboard,
     Users,
@@ -69,7 +69,7 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-                Footer
+                <SidebarClock />
             </SidebarFooter>
         </Sidebar>
     )
