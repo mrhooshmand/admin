@@ -6,12 +6,12 @@ import { Label } from "@/shared/ui/label";
 import { Button } from "@/shared/ui/button";
 
 interface RegisterFormProps {
-    onSave: (data: RegisterFormData) => void;
+    onSubmit: (data: RegisterFormData) => void;
     isMutating: boolean;
 }
 
 export function RegisterForm({
-    onSave,
+    onSubmit,
     isMutating,
 }: RegisterFormProps) {
     const {
@@ -35,7 +35,7 @@ export function RegisterForm({
         name: "password"
     })
     return (
-        <form onSubmit={handleSubmit(onSave)} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
             {/* Username */}
             <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>

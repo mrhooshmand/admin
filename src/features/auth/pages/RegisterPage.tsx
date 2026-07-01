@@ -40,7 +40,7 @@ export default function Register() {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-6 px-10">
-                    <RegisterForm onSave={(data: RegisterFormData) => {
+                    <RegisterForm onSubmit={(data: RegisterFormData) => {
                         registerMutation.mutate(
                             data,
                             {
