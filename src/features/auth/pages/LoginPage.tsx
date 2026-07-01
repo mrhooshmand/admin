@@ -27,7 +27,6 @@ export default function Login() {
     const loginMutation = useLogin();
 
     return (
-        <div className="flex items-center justify-center min-h-dvh">
             <Card className="w-full max-w-md mx-4 pb-0 shadow-2xs">
                 <CardHeader className="space-y-1 text-center mb-2 mt-4">
                     <div className="flex justify-center">
@@ -60,6 +59,5 @@ export default function Login() {
                     </p>
                 </CardFooter>
             </Card>
-        </div>
     );
 }

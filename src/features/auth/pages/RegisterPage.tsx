@@ -26,39 +26,37 @@ export default function Register() {
     const navigate = useNavigate();
     const registerMutation = useRegister();
     return (
-        <div className="flex items-center justify-center min-h-dvh">
-            <Card className="w-full max-w-md mx-4 pb-0 shadow-2xs">
-                <CardHeader className="space-y-1 text-center mb-2 mt-4">
-                    <div className="flex justify-center">
-                        <Logo />
-                    </div>
-                    <div>
-                        <h2 className="text-balance text-2xl font-semibold">Create your SCore account</h2>
-                        <p className="text-pretty text-muted-foreground text-sm">
-                            Create your account and get started.
-                        </p>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-6 px-10">
-                    <RegisterForm onSubmit={(data: RegisterFormData) => {
-                        registerMutation.mutate(
-                            data,
-                            {
-                                onSuccess: () => {
-                                    showAlert("success", "Account created successfullt");
-                                    navigate(ROUTES.LOGIN);
-                                },
-                            }
-                        );
-                    }} isMutating={registerMutation.isPending} />
-                </CardContent>
-                <CardFooter className="flex justify-center border-t py-4!">
-                    <p className="text-pretty text-center text-sm text-muted-foreground">
-                        Already have a SCore account?{" "}
-                        <Link to={ROUTES.LOGIN} className="text-primary hover:underline">Sign in</Link>
+        <Card className="w-full max-w-md mx-4 pb-0 shadow-2xs">
+            <CardHeader className="space-y-1 text-center mb-2 mt-4">
+                <div className="flex justify-center">
+                    <Logo />
+                </div>
+                <div>
+                    <h2 className="text-balance text-2xl font-semibold">Create your SCore account</h2>
+                    <p className="text-pretty text-muted-foreground text-sm">
+                        Create your account and get started.
                     </p>
-                </CardFooter>
-            </Card>
-        </div>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-6 px-10">
+                <RegisterForm onSubmit={(data: RegisterFormData) => {
+                    registerMutation.mutate(
+                        data,
+                        {
+                            onSuccess: () => {
+                                showAlert("success", "Account created successfullt");
+                                navigate(ROUTES.LOGIN);
+                            },
+                        }
+                    );
+                }} isMutating={registerMutation.isPending} />
+            </CardContent>
+            <CardFooter className="flex justify-center border-t py-4!">
+                <p className="text-pretty text-center text-sm text-muted-foreground">
+                    Already have a SCore account?{" "}
+                    <Link to={ROUTES.LOGIN} className="text-primary hover:underline">Sign in</Link>
+                </p>
+            </CardFooter>
+        </Card>
     );
 }

@@ -10,7 +10,9 @@ interface AuthLayoutProps {
 export default function AuthLayout({ }: AuthLayoutProps) {
     return (
         <div className="mainAuthContainer" style={{ backgroundImage: "linear-gradient(to top, #dfe9f3 0%, white 100%)" }}>
-            <Outlet />
-        </div>
+            <div className="flex items-center justify-center min-h-dvh">
+                <Outlet />
+            </div>
+        </div >
     );
 }
