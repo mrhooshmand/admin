@@ -114,8 +114,8 @@ export function RegisterForm({
             )}
 
             {/* Buttons */}
-            <div className="flex gap-2 mt-4 justify-end">
-                <Button type="submit" disabled={isMutating}>
+            <div className="space-y-2">
+                <Button type="submit" disabled={isMutating} className="w-full">
                     {isMutating ? "Creating account..." : "Sign Up"}
                 </Button>
             </div>

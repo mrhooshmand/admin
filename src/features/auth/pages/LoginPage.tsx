@@ -1,14 +1,11 @@
-import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/shared/ui/card";
-import { Checkbox } from "@/shared/ui/checkbox";
-import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
-import { EyeIcon, EyeOffIcon, Key } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { JSX, SVGProps, useState } from "react";
+import { JSX, SVGProps } from "react";
 import { ROUTES } from "@/shared/constants/routes";
 import { showAlert } from "@/shared/utils/errorHandler";
 import { useLogin } from "@/features/auth/hooks/useAuth";
+import { LoginForm } from "../components/LoginForm";
+import { LoginFormData } from "../schemas";
 const Logo = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
     <svg fill="currentColor" height="48" viewBox="0 0 40 48" width="40" {...props}>
         <clipPath id="a">
@@ -26,30 +23,9 @@ const Logo = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
 );
 
 export default function Login() {
-    const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-    const togglePasswordVisibility = () => setIsPasswordVisible((prev) => !prev);
     const navigate = useNavigate();
-    const [username, setUsername] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
     const loginMutation = useLogin();
 
-    const loginEvent = () => {
-        loginMutation.mutate(
-            {
-                username,
-                password
-            },
-            {
-                onSuccess: () => {
-                    showAlert("success", "Welcome back!");
-                    navigate(ROUTES.DASHBOARD);
-                },
-                onError: (error) => {
-                    showAlert("error", error);
-                }
-            }
-        );
-    };
     return (
         <div className="flex items-center justify-center min-h-dvh">
             <Card className="w-full max-w-md mx-4 pb-0 shadow-2xs">
@@ -65,61 +41,17 @@ export default function Login() {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-6 px-10">
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Username</Label>
-                        <Input type="text"
-                            placeholder="Username" value={username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) =>
-                                e.key === "Enter" && loginEvent()
-                            } />
-                    </div>
-                    <div className="space-y-0">
-                        <div className="flex items-center justify-between mb-2">
-                            <Label htmlFor="password">Password</Label>
-                        </div>
-                        <div className="relative">
-                            <Input
-                                value={password}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                                className="pe-9"
-                                placeholder="Enter your password"
-                                type={isPasswordVisible ? "text" : "password"}
-                                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) =>
-                                    e.key === "Enter" && loginEvent()
-                                }
-                            />
-                            <button
-                                className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                                type="button"
-                                onClick={togglePasswordVisibility}
-                                aria-label={isPasswordVisible ? "Hide password" : "Show password"}
-                                aria-pressed={isPasswordVisible}
-                                aria-controls="password"
-                            >
-                                {isPasswordVisible ? (
-                                    <EyeOffIcon size={16} aria-hidden="true" />
-                                ) : (
-                                    <EyeIcon size={16} aria-hidden="true" />
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Checkbox id="remember" defaultChecked />
-                        <Label htmlFor="remember" className="text-sm font-normal">
-                            Remember me
-                        </Label>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Button className="w-full" type="submit" onClick={loginEvent}
-                            disabled={username == '' || password == '' || loginMutation.isPending}>
-                            Sign In {loginMutation.isPending && '..'}
-                        </Button>
-                        <Button variant="outline" className="w-full" type="button">
-                            <Key className="mr-2 h-4 w-4" />
-                            Single sign-on (SSO)
-                        </Button>
-                    </div>
+                    <LoginForm onSubmit={(data: LoginFormData) => {
+                        loginMutation.mutate(
+                            data,
+                            {
+                                onSuccess: () => {
+                                    showAlert("success", "Welcome back!");
+                                    navigate(ROUTES.DASHBOARD);
+                                },
+                            }
+                        );
+                    }} isMutating={loginMutation.isPending} />
                 </CardContent>
                 <CardFooter className="flex justify-center border-t py-4!">
                     <p className="text-pretty text-center text-sm text-muted-foreground">
