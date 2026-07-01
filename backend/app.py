@@ -224,7 +224,7 @@ def get_me():
         token = request.cookies.get('token')
         
         if not token:
-            return jsonify({"error": "Token missing"}), 401
+            return jsonify({"error": "Not authorised, please sign in"}), 401
             
         if token not in tokens_db:
             return jsonify({"error": "Invalid token"}), 401

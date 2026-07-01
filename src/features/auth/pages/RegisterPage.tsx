@@ -1,192 +1,64 @@
-import {useState} from "react";
-import {useNavigate, Link} from "react-router-dom";
-import {useAuth} from "../../../app/providers/AuthProvider";
-import {showAlert} from "@/shared/utils/errorHandler";
-import {useLoading} from "@/app/providers/LoadingProvider";
-import {ROUTES} from "@/shared/constants/routes";
-import api from "@/shared/utils/api";
-
-interface FormData {
-    username: string;
-    password: string;
-    confirmPassword: string;
-    email: string;
-    full_name: string;
-    error: boolean;
-}
+import { Card, CardContent, CardFooter, CardHeader } from "@/shared/ui/card";
+import { Link, useNavigate } from "react-router-dom";
+import { JSX, SVGProps } from "react";
+import { ROUTES } from "@/shared/constants/routes";
+import { showAlert } from "@/shared/utils/errorHandler";
+import { useRegister } from "@/features/auth/hooks/useAuth";
+import { RegisterForm } from "@/features/auth/components/RegisterForm";
+import { RegisterFormData } from "../schemas";
+const Logo = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+    <svg fill="currentColor" height="48" viewBox="0 0 40 48" width="40" {...props}>
+        <clipPath id="a">
+            <path d="m0 0h40v48h-40z" />
+        </clipPath>
+        <g clipPath="url(#a)">
+            <path d="m25.0887 5.05386-3.933-1.05386-3.3145 12.3696-2.9923-11.16736-3.9331 1.05386 3.233 12.0655-8.05262-8.0526-2.87919 2.8792 8.83271 8.8328-10.99975-2.9474-1.05385625 3.933 12.01860625 3.2204c-.1376-.5935-.2104-1.2119-.2104-1.8473 0-4.4976 3.646-8.1436 8.1437-8.1436 4.4976 0 8.1436 3.646 8.1436 8.1436 0 .6313-.0719 1.2459-.2078 1.8359l10.9227 2.9267 1.0538-3.933-12.0664-3.2332 11.0005-2.9476-1.0539-3.933-12.0659 3.233 8.0526-8.0526-2.8792-2.87916-8.7102 8.71026z" />
+            <path d="m27.8723 26.2214c-.3372 1.4256-1.0491 2.7063-2.0259 3.7324l7.913 7.9131 2.8792-2.8792z" />
+            <path d="m25.7665 30.0366c-.9886 1.0097-2.2379 1.7632-3.6389 2.1515l2.8794 10.746 3.933-1.0539z" />
+            <path d="m21.9807 32.2274c-.65.1671-1.3313.2559-2.0334.2559-.7522 0-1.4806-.102-2.1721-.2929l-2.882 10.7558 3.933 1.0538z" />
+            <path d="m17.6361 32.1507c-1.3796-.4076-2.6067-1.1707-3.5751-2.1833l-7.9325 7.9325 2.87919 2.8792z" />
+            <path d="m13.9956 29.8973c-.9518-1.019-1.6451-2.2826-1.9751-3.6862l-10.95836 2.9363 1.05385 3.933z" />
+        </g>
+    </svg>
+);
 
 export default function Register() {
-    const {login} = useAuth();
     const navigate = useNavigate();
-    const {showLoading, hideLoading} = useLoading();
-
-    const [formData, setFormData] = useState<FormData>({
-        username: "",
-        password: "",
-        confirmPassword: "",
-        email: "",
-        full_name: "",
-        error: false,
-    });
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        if (!formData.username.trim()) {
-            showAlert("error", "Username is required");
-            return;
-        }
-
-        if (formData.password.length < 4) {
-            showAlert("error", "Password must be at least 4 characters");
-            return;
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-            showAlert("error", "Passwords do not match");
-            return;
-        }
-
-        if (formData.email && !formData.email.includes('@')) {
-            showAlert("error", "Invalid email address");
-            return;
-        }
-
-        showLoading("Creating account...");
-
-        try {
-            const response = await api.post("/register", {
-                username: formData.username.trim(),
-                password: formData.password,
-                email: formData.email.trim(),
-                full_name: formData.full_name.trim()
-            });
-
-            login(response.data);
-            showAlert("success", "Account created successfully! 🎉");
-            navigate(ROUTES.DASHBOARD);
-        } catch (err: any) {
-            console.error("Registration error:", err);
-            const errorMsg = err.response?.data?.error || "Registration failed. Please try again.";
-            showAlert("error", errorMsg);
-        } finally {
-            hideLoading();
-        }
-    };
-
+    const registerMutation = useRegister();
     return (
-        <>
-            {formData?.error && (
-                <div style={styles.error}>{formData.error}</div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Username *"
-                    value={formData.username}
-                    onChange={handleChange}
-                    style={styles.input}
-                    required
-                />
-
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    style={styles.input}
-                />
-
-                <input
-                    type="text"
-                    name="full_name"
-                    placeholder="Full Name"
-                    value={formData.full_name}
-                    onChange={handleChange}
-                    style={styles.input}
-                />
-
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password *"
-                    value={formData.password}
-                    onChange={handleChange}
-                    style={styles.input}
-                    required
-                />
-
-                <input
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="Confirm Password *"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    style={styles.input}
-                    required
-                />
-
-                <button type="submit" style={styles.button}>
-                    Sign up
-                </button>
-            </form>
-
-            <p style={styles.footer}>
-                Already have an account? <Link to={ROUTES.LOGIN} style={styles.link}>Sign in</Link>
-            </p>
-        </>
+        <div className="flex items-center justify-center min-h-dvh">
+            <Card className="w-full max-w-md mx-4 pb-0 shadow-2xs">
+                <CardHeader className="space-y-1 text-center mb-2 mt-4">
+                    <div className="flex justify-center">
+                        <Logo />
+                    </div>
+                    <div>
+                        <h2 className="text-balance text-2xl font-semibold">Create your SCore account</h2>
+                        <p className="text-pretty text-muted-foreground text-sm">
+                            Create your account and get started.
+                        </p>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-6 px-10">
+                    <RegisterForm onSave={(data: RegisterFormData) => {
+                        registerMutation.mutate(
+                            data,
+                            {
+                                onSuccess: () => {
+                                    showAlert("success", "Account created successfullt");
+                                    navigate(ROUTES.LOGIN);
+                                },
+                            }
+                        );
+                    }} isMutating={registerMutation.isPending} />
+                </CardContent>
+                <CardFooter className="flex justify-center border-t py-4!">
+                    <p className="text-pretty text-center text-sm text-muted-foreground">
+                        Already have a SCore account?{" "}
+                        <Link to={ROUTES.LOGIN} className="text-primary hover:underline">Sign in</Link>
+                    </p>
+                </CardFooter>
+            </Card>
+        </div>
     );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-    input: {
-        width: "100%",
-        padding: "12px",
-        marginBottom: "15px",
-        border: "1px solid #ddd",
-        borderRadius: "6px",
-        fontSize: "16px",
-        boxSizing: "border-box",
-    },
-    button: {
-        width: "100%",
-        padding: "12px",
-        backgroundColor: "#4CAF50",
-        color: "white",
-        border: "none",
-        borderRadius: "6px",
-        fontSize: "16px",
-        cursor: "pointer",
-        marginTop: "10px",
-    },
-    error: {
-        backgroundColor: "#f8d7da",
-        color: "#721c24",
-        padding: "10px",
-        borderRadius: "6px",
-        marginBottom: "20px",
-        textAlign: "center",
-        fontSize: "14px",
-    },
-    footer: {
-        textAlign: "center",
-        marginTop: "20px",
-        color: "#666",
-        fontSize: "14px",
-    },
-    link: {
-        color: "#007bff",
-        textDecoration: "none",
-        fontWeight: "bold",
-    },
-};
