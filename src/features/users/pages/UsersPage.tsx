@@ -9,13 +9,11 @@ import {UserForm} from '../components/UserForm';
 import {UserFormData} from "../schemas";
 import {useUsers} from "../hooks/useUsers";
 import {TableSkeleton} from "@/shared/components/skeleton/tableSkeleton";
-import {
-    Page,
-    PageHeader,
-    PageToolbar,
-    PageContent,
-    PageFooter
-} from "@/shared/components/pageLayout";
+import {Page} from "@/shared/components/pageLayout/Page.tsx";
+import {PageHeader} from "@/shared/components/pageLayout/PageHeader.tsx";
+import {PageToolbar} from "@/shared/components/pageLayout/PageToolbar.tsx";
+import {PageContent} from "@/shared/components/pageLayout/PageContent.tsx";
+import {PageFooter} from "@/shared/components/pageLayout/PageFooter.tsx";
 
 
 export default function Users() {
@@ -162,7 +160,7 @@ export default function Users() {
 
     return (
         <Page>
-            <PageHeader title='Users' description='Manage Users'/>
+            <PageHeader title='Users' description='Manage Users' toolbar={<PageToolbar children={''}/>}/>
             <PageToolbar>
                 <Button
                     className="float-end"
@@ -178,7 +176,7 @@ export default function Users() {
                 <UserTable users={users} isMutating={isMutating} onDelete={handleDeleteDialog} onEdit={handleEditDialog} onView={handleViewDialog}/>
             </PageContent>
             <PageFooter>
-
+                12345
             </PageFooter>
         </Page>
     );
