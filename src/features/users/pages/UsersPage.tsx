@@ -1,14 +1,22 @@
-import { showAlert } from "@/shared/utils/errorHandler";
-import { Button } from "@/shared/ui/button";
-import { Plus } from 'lucide-react';
-import { User } from "../types";
-import { useConfirmStore } from "@/app/store/confirmStore";
-import { useModalStore } from "@/app/store/modalStore";
+import {showAlert} from "@/shared/utils/errorHandler";
+import {Button} from "@/shared/ui/button";
+import {Plus} from 'lucide-react';
+import {User} from "../types";
+import {useConfirmStore} from "@/app/store/confirmStore";
+import {useModalStore} from "@/app/store/modalStore";
 import UserTable from "../components/UserTable";
-import { UserForm } from '../components/UserForm';
-import { UserFormData } from "../schemas";
-import { useUsers } from "../hooks/useUsers";
-import { TableSkeleton } from "@/shared/components/skeleton/tableSkeleton";
+import {UserForm} from '../components/UserForm';
+import {UserFormData} from "../schemas";
+import {useUsers} from "../hooks/useUsers";
+import {TableSkeleton} from "@/shared/components/skeleton/tableSkeleton";
+import {
+    Page,
+    PageHeader,
+    PageToolbar,
+    PageContent,
+    PageFooter
+} from "@/shared/components/pageLayout";
+
 
 export default function Users() {
     const showConfirm = useConfirmStore((state) => state.showConfirm);
@@ -76,7 +84,7 @@ export default function Users() {
                         if (data.password) {
                             userData.password = data.password;
                         }
-                        updateUser({ id: user.id, data: userData }, {
+                        updateUser({id: user.id, data: userData}, {
                             onSuccess: () => {
                                 closeModal();
                             }
@@ -150,20 +158,28 @@ export default function Users() {
             </div>
         );
     }
-    if (isLoading) return (<TableSkeleton />)
+    if (isLoading) return (<TableSkeleton/>)
 
     return (
-        <>
-            <Button
-                className="float-end"
-                variant="outline"
-                size="icon"
-                onClick={handleAddDialog}
-                disabled={isMutating}
-            >
-                <Plus />
-            </Button>
-            <UserTable users={users} isMutating={isMutating} onDelete={handleDeleteDialog} onEdit={handleEditDialog} onView={handleViewDialog} />
-        </>
+        <Page>
+            <PageHeader title='Users' description='Manage Users'/>
+            <PageToolbar>
+                <Button
+                    className="float-end"
+                    variant="outline"
+                    size="icon"
+                    onClick={handleAddDialog}
+                    disabled={isMutating}
+                >
+                    <Plus/>
+                </Button>
+            </PageToolbar>
+            <PageContent>
+                <UserTable users={users} isMutating={isMutating} onDelete={handleDeleteDialog} onEdit={handleEditDialog} onView={handleViewDialog}/>
+            </PageContent>
+            <PageFooter>
+
+            </PageFooter>
+        </Page>
     );
 }
