@@ -1,6 +1,6 @@
 import {showAlert} from "@/shared/utils/errorHandler";
 import {Button} from "@/shared/ui/button";
-import {Plus} from 'lucide-react';
+import {FileSpreadsheetIcon, Plus} from 'lucide-react';
 import {User} from "../types";
 import {useConfirmStore} from "@/app/store/confirmStore";
 import {useModalStore} from "@/app/store/modalStore";
@@ -9,12 +9,15 @@ import {UserForm} from '../components/UserForm';
 import {UserFormData} from "../schemas";
 import {useUsers} from "../hooks/useUsers";
 import {TableSkeleton} from "@/shared/components/skeleton/tableSkeleton";
-import {Page} from "@/shared/components/pageLayout/Page.tsx";
-import {PageHeader} from "@/shared/components/pageLayout/PageHeader.tsx";
-import {PageToolbar} from "@/shared/components/pageLayout/PageToolbar.tsx";
-import {PageContent} from "@/shared/components/pageLayout/PageContent.tsx";
-import {PageFooter} from "@/shared/components/pageLayout/PageFooter.tsx";
-
+import {Page} from "@/shared/components/page/Page.tsx";
+import {PaginationComponent} from "@/shared/components/PaginationComponent.tsx";
+import {PageFilters, PageFiltersActions, PageFiltersContent} from "@/shared/components/page-filters";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/shared/ui/collapsible"
+import {Input} from "@/shared/ui/input";
 
 export default function Users() {
     const showConfirm = useConfirmStore((state) => state.showConfirm);
@@ -160,24 +163,51 @@ export default function Users() {
 
     return (
         <Page>
-            <PageHeader title='Users' description='Manage Users' toolbar={<PageToolbar children={''}/>}/>
-            <PageToolbar>
-                <Button
-                    className="float-end"
-                    variant="outline"
-                    size="icon"
-                    onClick={handleAddDialog}
-                    disabled={isMutating}
-                >
-                    <Plus/>
-                </Button>
-            </PageToolbar>
-            <PageContent>
-                <UserTable users={users} isMutating={isMutating} onDelete={handleDeleteDialog} onEdit={handleEditDialog} onView={handleViewDialog}/>
-            </PageContent>
-            <PageFooter>
-                12345
-            </PageFooter>
+            <PageFilters>
+
+                <Collapsible>
+                    <CollapsibleTrigger>
+                        <div className="bg-accent flex justify-between w-full">
+                            <PageFiltersActions>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={handleAddDialog}
+                                    disabled={isMutating}
+                                >
+                                    <Plus/>
+                                </Button>
+                                <Button variant="outline" onClick={() => console.log('123')}>
+                                    <FileSpreadsheetIcon/>
+                                </Button>
+                            </PageFiltersActions>
+                        </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                        <PageFiltersContent>
+                            <form>
+                                <div className="flex flex-row gap-6">
+                                    <div className="grid gap-2">
+                                        <label>Email</label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            placeholder="m@example.com"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <label>Password</label>
+                                        <Input id="password" type="password" required/>
+                                    </div>
+                                </div>
+                            </form>
+                        </PageFiltersContent>
+                    </CollapsibleContent>
+                </Collapsible>
+            </PageFilters>
+            <UserTable users={users} isMutating={isMutating} onDelete={handleDeleteDialog} onEdit={handleEditDialog} onView={handleViewDialog}/>
+            <PaginationComponent/>
         </Page>
     );
 }
