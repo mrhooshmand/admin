@@ -6,7 +6,7 @@ interface PageFiltersContentProps {
 
 export function PageFiltersContent({children}: PageFiltersContentProps) {
     return (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 w-full">
+        <div className="border-t-1 border-accent mt-1 w-full">
             {children}
         </div>
     )

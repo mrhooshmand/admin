@@ -18,7 +18,7 @@ interface UserTableProps {
     onDelete: (user: User) => void
 
 }
-export default function UserTable({ users, isMutating, onDelete, onEdit, onView }: UserTableProps) {
+export default function UsersTable({ users, isMutating, onDelete, onEdit, onView }: UserTableProps) {
 
     return (
         <Table className="mt-5">
