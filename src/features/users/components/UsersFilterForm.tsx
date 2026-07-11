@@ -10,7 +10,7 @@ export function UsersFilterForm({onSubmit}: PageFilterProps) {
         <>
             <form className="w-full p-1">
                 <div className="flex flex-row gap-2">
-                    <div className="grid gap-1 text-start">
+                    <div className="columns-1 gap-1 text-start">
                         <label>Username</label>
                         <Input
                             id="username"
@@ -19,7 +19,52 @@ export function UsersFilterForm({onSubmit}: PageFilterProps) {
                             required
                         />
                     </div>
-                    <div className="grid gap-1 text-start">
+                    <div className="columns-1 gap-1 text-start">
+                        <label>Email</label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            required
+                        />
+                    </div>
+                    <div className="columns-1 gap-1 text-start">
+                        <label>Email</label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            required
+                        />
+                    </div>
+                    <div className="columns-1 gap-1 text-start">
+                        <label>Email</label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            required
+                        />
+                    </div>
+                    <div className="columns-1 gap-1 text-start">
+                        <label>Email</label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            required
+                        />
+                    </div>
+                    <div className="columns-1 gap-1 text-start">
+                        <label>Email</label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            required
+                        />
+                    </div>
+                    <div className="columns-1 gap-1 text-start">
                         <label>Email</label>
                         <Input
                             id="email"
