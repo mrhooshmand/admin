@@ -75,15 +75,6 @@ def init_db():
                          VALUES (?, ?, ?, ?)
                          ''', ("admin", "1234", "admin@example.com", "Admin User"))
 
-            conn.execute('''
-                         INSERT INTO users (username, password, email, full_name)
-                         VALUES (?, ?, ?, ?)
-                         ''', ("user", "1234", "user@example.com", "Regular User"))
-
-            conn.execute('''
-                         INSERT INTO users (username, password, email, full_name)
-                         VALUES (?, ?, ?, ?)
-                         ''', ("public", "1234", "public@example.com", "Public User"))
 
             conn.commit()
             print("✅ Users table created with default users")
@@ -117,8 +108,8 @@ def create_test_users(count=100):
 
     print(f"✅ {count} test users created")
 
-    
-create_test_users(100)
+
+create_test_users(25)
 # ============ API Endpoints ============
 
 @app.route('/api/health', methods=['GET'])
@@ -198,15 +189,15 @@ def login():
                 }
                 response = jsonify({ "message": "Login successful", "user": user_info})
                 response.set_cookie(
-                    'token', 
-                    token, 
-                    httponly=True, 
+                    'token',
+                    token,
+                    httponly=True,
                     secure=False,  # برای localhost
                     samesite='Lax',
                     max_age=24*60*60
                 )
                 return response
-               
+
             return jsonify({"error": "Invalid credentials"}), 401
 
     except Exception as e:
@@ -222,13 +213,13 @@ def logout():
 def get_me():
     try:
         token = request.cookies.get('token')
-        
+
         if not token:
             return jsonify({"error": "Not authorised, please sign in"}), 401
-            
+
         if token not in tokens_db:
             return jsonify({"error": "Invalid token"}), 401
-            
+
         if tokens_db[token]["expires"] < datetime.now():
             return jsonify({"error": "Token expired"}), 401
 
