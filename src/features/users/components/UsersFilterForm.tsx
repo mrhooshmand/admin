@@ -50,20 +50,20 @@ export function UsersFilterForm({onSubmit}: PageFilterProps) {
                         <Input
                             {...register("username")}
                         />
-                        {errors.username && (
-                            <p className="text-xs text-red-500">{errors.username.message}</p>
-                        )}
+                        <p className="h-4 truncate text-[10px] text-destructive" title={errors.name?.message}>
+                            {errors.username?.message}
+                        </p>
                     </Field>
                     <Field>
                         <FieldLabel>Name</FieldLabel>
                         <Input
                             {...register("name")}
                         />
-                        {errors.name && (
-                            <p className="text-xs text-red-500">{errors.name.message}</p>
-                        )}
+                        <p className="h-4 truncate text-[10px] text-destructive" title={errors.name?.message}>
+                            {errors.name?.message}
+                        </p>
                     </Field>
-                    <div className="flex items-end justify-start">
+                    <div className="flex items-center justify-start">
                         <Button type="submit">
                             Search
                         </Button>
