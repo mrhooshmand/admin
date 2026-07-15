@@ -14,7 +14,6 @@ interface PaginationProps {
 }
 
 export function PaginationComponent({pagination, onPageChange}: PaginationProps) {
-    console.log(pagination)
     const {page, totalPages} = pagination;
     const hasPrevious = page > 1;
     const hasNext = page < totalPages;
