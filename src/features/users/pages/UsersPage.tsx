@@ -1,6 +1,6 @@
 import {showAlert} from "@/shared/utils/errorHandler";
 import {Button} from "@/shared/ui/button";
-import {User} from "../types";
+import {User} from "../types/types";
 import {useConfirmStore} from "@/app/store/confirmStore";
 import {useModalStore} from "@/app/store/modalStore";
 import UsersTable from "../components/UsersTable.tsx";

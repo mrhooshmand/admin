@@ -6,16 +6,17 @@ import {
     deleteUser as deleteUserApi, searchUsers,
 } from "../api/userApi";
 
-import {User} from "../types";
+import {User} from "../types/types";
 import {showAlert} from "@/shared/utils/errorHandler";
 import {SearchRequest} from "@/shared/api/types/search-request.ts";
+import {UsersFilters} from "@/features/users/types/users-filters.ts";
 
 interface responseStatus {
     status: string,
     message: string
 }
 
-export function useUsers(request: SearchRequest<User>) {
+export function useUsers(request: SearchRequest<UsersFilters>) {
     const queryClient = useQueryClient();
 
     const usersQuery = useQuery({

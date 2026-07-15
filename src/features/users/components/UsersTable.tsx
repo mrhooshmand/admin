@@ -8,7 +8,7 @@ import {
 } from "@/shared/ui/table"
 import {Button} from "@/shared/ui/button";
 import {Edit, Trash2, InfoIcon} from 'lucide-react';
-import {User} from "../types";
+import {User} from "../types/types";
 import {PaginationType} from "@/shared/api/types/pagination.ts";
 
 interface UserTableProps {

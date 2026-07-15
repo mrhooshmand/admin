@@ -5,7 +5,7 @@ import { userSchema, UserFormData } from "../schemas";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Button } from "@/shared/ui/button";
-import { User } from "../types";
+import { User } from "../types/types";
 
 interface UserFormProps {
     editingUser: User | null;
