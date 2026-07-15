@@ -1,70 +1,75 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 
 import {
-	getUsers,
-	createUser as createUserApi,
-	updateUser as updateUserApi,
-	deleteUser as deleteUserApi,
+    createUser as createUserApi,
+    updateUser as updateUserApi,
+    deleteUser as deleteUserApi, searchUsers,
 } from "../api/userApi";
 
-import { User } from "../types";
-import { showAlert } from "@/shared/utils/errorHandler";
+import {User} from "../types";
+import {showAlert} from "@/shared/utils/errorHandler";
+import {SearchRequest} from "@/shared/api/types/search-request.ts";
 
-export function useUsers() {
-	const queryClient = useQueryClient();
+interface responseStatus {
+    status: string,
+    message: string
+}
 
-	const usersQuery = useQuery({
-		queryKey: ["users"],
-		queryFn: getUsers,
-	});
+export function useUsers(request: SearchRequest<User>) {
+    const queryClient = useQueryClient();
 
-	const createMutation = useMutation({
-		mutationFn: createUserApi,
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["users"],
-			});
-			showAlert("success", "User Created successfully");
-		},
-	});
+    const usersQuery = useQuery({
+        queryKey: ["users", request],
+        queryFn: () => searchUsers(request),
+    });
 
-	const updateMutation = useMutation({
-		mutationFn: ({ id, data }: { id: number; data: Partial<User> }) =>
-			updateUserApi(id, data),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["users"],
-			});
-			showAlert("success", "User updated successfully");
-		},
-	});
+    const createMutation = useMutation({
+        mutationFn: createUserApi,
+        onSuccess: (response) => {
+            queryClient.invalidateQueries({
+                queryKey: ["users"],
+            });
+            showAlert(response.status, response.message);
+        },
+    });
 
-	const deleteMutation = useMutation({
-		mutationFn: deleteUserApi,
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["users"],
-			});
-			showAlert("success", "User Deleted successfully");
-		},
-	});
+    const updateMutation = useMutation({
+        mutationFn: ({id, data}: { id: number; data: Partial<User> }) =>
+            updateUserApi(id, data),
+        onSuccess: (response) => {
+            queryClient.invalidateQueries({
+                queryKey: ["users"],
+            });
+            showAlert(response.status, response.message);
+        },
+    });
 
-	return {
-		// query
-		users: usersQuery.data ?? [],
-		error: usersQuery.error,
-		refetch: usersQuery.refetch,
-		isLoading: usersQuery.isLoading,
+    const deleteMutation = useMutation({
+        mutationFn: deleteUserApi,
+        onSuccess: (response: responseStatus) => {
+            queryClient.invalidateQueries({
+                queryKey: ["users"],
+            });
+            showAlert(response.status, response.message);
+        },
+    });
 
-		// mutations
-		createUser: createMutation.mutate,
-		updateUser: updateMutation.mutate,
-		deleteUser: deleteMutation.mutate,
+    return {
+        // query
+        users: usersQuery?.data ?? [],
+        error: usersQuery.error,
+        refetch: usersQuery.refetch,
+        isLoading: usersQuery.isLoading,
 
-		// state
-		isMutating:
-			createMutation.isPending ||
-			updateMutation.isPending ||
-			deleteMutation.isPending,
-	};
+        // mutations
+        createUser: createMutation.mutate,
+        updateUser: updateMutation.mutate,
+        deleteUser: deleteMutation.mutate,
+
+        // state
+        isMutating:
+            createMutation.isPending ||
+            updateMutation.isPending ||
+            deleteMutation.isPending,
+    };
 }

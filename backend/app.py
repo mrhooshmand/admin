@@ -19,7 +19,6 @@ CORS(app, resources={
     }
 })
 
-
 SECRET_KEY = "your-secret-key"
 tokens_db = {}
 
@@ -75,31 +74,31 @@ def init_db():
                          VALUES (?, ?, ?, ?)
                          ''', ("admin", "1234", "admin@example.com", "Admin User"))
 
-
             conn.commit()
             print("✅ Users table created with default users")
 
 
 init_db()
 
+
 def create_test_users(count=100):
     with get_db() as conn:
         for i in range(1, count + 1):
-            username = f"testuser{i}"
+            username = f"user_{i}"
             password = "1234"
-            email = f"testuser{i}@example.com"
-            full_name = f"Test User {i}"
+            email = f"user{i}@example.com"
+            full_name = f"User {i}"
 
             try:
                 conn.execute('''
-                    INSERT INTO users (username, password, email, full_name)
-                    VALUES (?, ?, ?, ?)
-                ''', (
-                    username,
-                    password,
-                    email,
-                    full_name
-                ))
+                             INSERT INTO users (username, password, email, full_name)
+                             VALUES (?, ?, ?, ?)
+                             ''', (
+                                 username,
+                                 password,
+                                 email,
+                                 full_name
+                             ))
 
             except sqlite3.IntegrityError:
                 pass
@@ -110,6 +109,8 @@ def create_test_users(count=100):
 
 
 create_test_users(25)
+
+
 # ============ API Endpoints ============
 
 @app.route('/api/health', methods=['GET'])
@@ -187,14 +188,14 @@ def login():
                     "email": user['email'],
                     "full_name": user['full_name']
                 }
-                response = jsonify({ "message": "Login successful", "user": user_info})
+                response = jsonify({"message": "Login successful", "user": user_info})
                 response.set_cookie(
                     'token',
                     token,
                     httponly=True,
                     secure=False,  # برای localhost
                     samesite='Lax',
-                    max_age=24*60*60
+                    max_age=24 * 60 * 60
                 )
                 return response
 
@@ -203,11 +204,13 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/api/logout', methods=['POST'])
 def logout():
     response = jsonify({"message": "Logged out successfully"})
     response.delete_cookie('token')
     return response
+
 
 @app.route('/api/me', methods=['GET'])
 def get_me():
@@ -238,19 +241,117 @@ def get_me():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/users', methods=['GET'])
-def get_users():
+@app.route("/api/users/search", methods=["POST"])
+def search_users():
     try:
+        data = request.get_json() or {}
+
+        fields = data.get("fields", {})
+
+        page = max(int(data.get("page", 0)), 0)
+        page_size = max(int(data.get("pageSize", 20)), 1)
+
+        order = data.get("order", "created_at")
+        order_type = data.get("orderType", "desc").upper()
+
+        # ---------- امنیت ----------
+        allowed_sort_columns = {
+            "id",
+            "username",
+            "email",
+            "full_name",
+            "created_at"
+        }
+
+        if order not in allowed_sort_columns:
+            order = "created_at"
+
+        if order_type not in ["ASC", "DESC"]:
+            order_type = "DESC"
+
+        # ---------- Query ----------
+        base_query = """
+            FROM users
+        """
+
+        where = []
+        params = []
+
+        username = fields.get("username", "").strip()
+        email = fields.get("email", "").strip()
+        full_name = fields.get("full_name", "").strip()
+
+        if username:
+            where.append("username LIKE ?")
+            params.append(f"%{username}%")
+
+        if email:
+            where.append("email LIKE ?")
+            params.append(f"%{email}%")
+
+        if full_name:
+            where.append("full_name LIKE ?")
+            params.append(f"%{full_name}%")
+
+        if where:
+            base_query += " WHERE " + " AND ".join(where)
+
+        # ---------- Total Count ----------
+        count_query = f"""
+            SELECT COUNT(*)
+            {base_query}
+        """
+        offset = (page - 1) * page_size
         with get_db() as conn:
-            cursor = conn.execute('''
-                                  SELECT id, username, email, full_name, created_at
-                                  FROM users
-                                  ORDER BY created_at DESC
-                                  ''')
-            users_list = [dict(row) for row in cursor.fetchall()]
-            return jsonify(users_list)
+
+            total = conn.execute(
+                count_query,
+                params
+            ).fetchone()[0]
+
+            query = f"""
+                SELECT
+                    id,
+                    username,
+                    email,
+                    full_name,
+                    created_at
+                {base_query}
+                ORDER BY {order} {order_type}
+                LIMIT ?
+                OFFSET ?
+            """
+
+            cursor = conn.execute(
+                query,
+                [
+                    *params,
+                    page_size,
+                    offset
+                ]
+            )
+
+            users = [dict(row) for row in cursor.fetchall()]
+
+        return jsonify({
+            "status": "success",
+            "message": "",
+            "data": users,
+            "pagination": {
+                "page": page,
+                "pageSize": page_size,
+                "total": total,
+                "totalPages": (total + page_size - 1) // page_size,
+                "order": order,
+                "orderType": order_type.lower()
+            },
+        })
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
 
 
 @app.route('/api/users', methods=['POST'])
@@ -283,9 +384,20 @@ def create_user():
                                   (username,))
             new_user = dict(cursor.fetchone())
 
-            return jsonify(new_user), 201
+            return jsonify(
+                {
+                    "status": "success",
+                    "message": "User created successfully",
+                    "data": {
+                        "id": updated_user["id"],
+                        "username": updated_user["username"],
+                    },
+                })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
 
 
 @app.route('/api/users/<int:user_id>', methods=['PUT'])
@@ -346,10 +458,20 @@ def update_user(user_id):
             cursor = conn.execute('SELECT id, username, email, full_name, created_at FROM users WHERE id = ?',
                                   (user_id,))
             updated_user = dict(cursor.fetchone())
-
-            return jsonify(updated_user)
+            print(updated_user)
+            return jsonify({
+                "status": "success",
+                "message": "User updated successfully",
+                "data": {
+                    "id": updated_user["id"],
+                    "username": updated_user["username"],
+                },
+            })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
 
 
 @app.route('/api/users/<int:user_id>', methods=['DELETE'])
@@ -369,9 +491,15 @@ def delete_user(user_id):
             conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
             conn.commit()
 
-            return jsonify({"message": "User deleted successfully"})
+            return jsonify({
+                "status": "success",
+                "message": "User deleted successfully!",
+            })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
 
 
 if __name__ == '__main__':

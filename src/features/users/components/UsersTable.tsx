@@ -6,20 +6,22 @@ import {
     TableHeader,
     TableRow,
 } from "@/shared/ui/table"
-import { Button } from "@/shared/ui/button";
-import { Edit, Trash2, InfoIcon } from 'lucide-react';
-import { User } from "../types";
+import {Button} from "@/shared/ui/button";
+import {Edit, Trash2, InfoIcon} from 'lucide-react';
+import {User} from "../types";
+import {PaginationType} from "@/shared/api/types/pagination.ts";
 
 interface UserTableProps {
     users: User[],
     isMutating: boolean,
+    pagination: PaginationType,
     onView: (user: User) => void
     onEdit: (user: User) => void
     onDelete: (user: User) => void
-
 }
-export default function UsersTable({ users, isMutating, onDelete, onEdit, onView }: UserTableProps) {
 
+export default function UsersTable({users, pagination, isMutating, onDelete, onEdit, onView}: UserTableProps) {
+    const {page, pageSize} = pagination;
     return (
         <Table className="mt-5">
             <TableHeader>
@@ -34,13 +36,13 @@ export default function UsersTable({ users, isMutating, onDelete, onEdit, onView
             <TableBody>
                 {users.map((user, index) => (
                     <TableRow key={user.id}>
-                        <TableCell className="text-center font-medium">{index + 1}</TableCell>
+                        <TableCell className="text-center font-medium">{Number((page-1) * pageSize) + Number(index + 1)}</TableCell>
                         <TableCell className="text-center font-medium">{user.username}</TableCell>
                         <TableCell className="text-center">{user.full_name || "—"}</TableCell>
                         <TableCell className="text-center">{user.email || "—"}</TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-center">
                             {user.username !== 'admin' && (
-                                <div className="flex items-center justify-end gap-1">
+                                <div className="flex items-center justify-center gap-1">
                                     <Button
                                         variant="ghost"
                                         size="sm"
@@ -48,7 +50,7 @@ export default function UsersTable({ users, isMutating, onDelete, onEdit, onView
                                         onClick={() => onEdit(user)}
                                         className="h-8 w-8 p-0 hover:text-blue-700"
                                     >
-                                        <Edit className="h-4 w-4" />
+                                        <Edit className="h-4 w-4"/>
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -56,7 +58,7 @@ export default function UsersTable({ users, isMutating, onDelete, onEdit, onView
                                         onClick={() => onView(user)}
                                         className="h-8 w-8 p-0 hover:text-blue-700"
                                     >
-                                        <InfoIcon className="h-4 w-4" />
+                                        <InfoIcon className="h-4 w-4"/>
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -65,7 +67,7 @@ export default function UsersTable({ users, isMutating, onDelete, onEdit, onView
                                         onClick={() => onDelete(user)}
                                         className="h-8 w-8 p-0 hover:text-red-700"
                                     >
-                                        <Trash2 className="h-4 w-4" />
+                                        <Trash2 className="h-4 w-4"/>
                                     </Button>
                                 </div>
                             )}

@@ -13,11 +13,30 @@ import {PaginationComponent} from "@/shared/components/PaginationComponent.tsx";
 import {PageFilters} from "@/shared/components/page-filters";
 import {UsersToolbar} from "@/features/users/components/UsersToolbar.tsx";
 import {UsersFilterForm} from "@/features/users/components/UsersFilterForm.tsx";
+import {SearchRequest} from "@/shared/api/types/search-request.ts";
+import {useState} from "react";
+
+interface UsersFilters {
+    username?: string;
+    full_name?: string;
+    id?: number;
+    email?: string;
+    created_at?: string;
+}
 
 export default function Users() {
     const showConfirm = useConfirmStore((state) => state.showConfirm);
     const openModal = useModalStore((state) => state.openModal);
     const closeModal = useModalStore((state) => state.closeModal);
+
+    type UsersSearchRequest = SearchRequest<UsersFilters>;
+    const [request, setRequest] = useState<UsersSearchRequest>({
+        fields: {},
+        page: 1,
+        pageSize: 10,
+        order: "id",
+        orderType: "asc",
+    });
     const {
         users,
         error,
@@ -26,8 +45,8 @@ export default function Users() {
         updateUser,
         deleteUser,
         isMutating,
-        isLoading
-    } = useUsers();
+        isLoading,
+    } = useUsers(request);
 
     const handleAddDialog = (): void => {
         openModal({
@@ -76,7 +95,6 @@ export default function Users() {
                             email: data.email || "",
                             full_name: data.full_name || ""
                         };
-
                         if (data.password) {
                             userData.password = data.password;
                         }
@@ -141,9 +159,6 @@ export default function Users() {
         });
     };
 
-    const handleSearchAction = (): void => {
-        console.log('search request')
-    }
     if (error) {
         return (
             <div className="p-6 text-center">
@@ -163,16 +178,33 @@ export default function Users() {
             <PageFilters actions={
                 <UsersToolbar onAdd={handleAddDialog} onExport={() => console.log('123')}/>}
             >
-                <UsersFilterForm onSubmit={handleSearchAction}/>
+                <UsersFilterForm onSubmit={(data) => {
+                    const fields: Partial<User> & { password?: string } = {
+                        username: data.username,
+                        full_name: data.name || ""
+                    };
+                    setRequest((prev) => ({
+                            ...prev,
+                            page: 1,
+                            fields
+                        })
+                    )
+                }}/>
             </PageFilters>
             {isLoading ? (
                 <TableSkeleton/>
             ) : (
                 <>
-                    <UsersTable users={users} isMutating={isMutating} onDelete={handleDeleteDialog}
+                    <UsersTable users={users?.data ?? []} pagination={users?.pagination ?? {}} isMutating={isMutating}
+                                onDelete={handleDeleteDialog}
                                 onEdit={handleEditDialog}
                                 onView={handleViewDialog}/>
-                    <PaginationComponent/>
+                    <PaginationComponent pagination={users?.pagination ?? {}}
+                                         onPageChange={(pageNumber: number) => setRequest((prev) => ({
+                                                 ...prev,
+                                                 page: pageNumber
+                                             })
+                                         )}/>
                 </>
             )}
 
