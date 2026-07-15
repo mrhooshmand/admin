@@ -11,11 +11,6 @@ import {showAlert} from "@/shared/utils/errorHandler";
 import {SearchRequest} from "@/shared/api/types/search-request.ts";
 import {UsersFilters} from "@/features/users/types/users-filters.ts";
 
-interface responseStatus {
-    status: string,
-    message: string
-}
-
 export function useUsers(request: SearchRequest<UsersFilters>) {
     const queryClient = useQueryClient();
 
@@ -47,7 +42,7 @@ export function useUsers(request: SearchRequest<UsersFilters>) {
 
     const deleteMutation = useMutation({
         mutationFn: deleteUserApi,
-        onSuccess: (response: responseStatus) => {
+        onSuccess: (response) => {
             queryClient.invalidateQueries({
                 queryKey: ["users"],
             });
