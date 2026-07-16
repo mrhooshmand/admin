@@ -21,18 +21,13 @@ export function Pagination({page, totalPages, onPageChange}: PaginationProps) {
         currentPage: page,
         totalPages,
     });
+    const handlePageClick = (pageNumber: number) => {
+        if (pageNumber === page || pageNumber < 1 || pageNumber > totalPages) return;
+        onPageChange(pageNumber);
+    };
     if (totalPages <= 1) {
         return null;
     }
-    const handlePrevious = () => {
-        if (!hasPrevious) return;
-        onPageChange(page - 1);
-    };
-
-    const handleNext = () => {
-        if (!hasNext) return;
-        onPageChange(page + 1);
-    };
     return (
         <ShadcnPagination className="mt-5">
             <PaginationContent>
@@ -40,7 +35,10 @@ export function Pagination({page, totalPages, onPageChange}: PaginationProps) {
                     <PaginationPrevious
                         aria-disabled={!hasPrevious}
                         className={!hasPrevious ? "pointer-events-none opacity-50" : ""}
-                        onClick={handlePrevious}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handlePageClick(page - 1);
+                        }}
                     />
                 </PaginationItem>
                 {pages.map((item, index) =>
@@ -52,7 +50,10 @@ export function Pagination({page, totalPages, onPageChange}: PaginationProps) {
                         <PaginationItem key={item}>
                             <PaginationLink
                                 isActive={item === page}
-                                onClick={() => onPageChange(item)}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePageClick(item);
+                                }}
                             >
                                 {item}
                             </PaginationLink>
@@ -63,7 +64,10 @@ export function Pagination({page, totalPages, onPageChange}: PaginationProps) {
                     <PaginationNext
                         aria-disabled={!hasNext}
                         className={!hasNext ? "pointer-events-none opacity-50" : ""}
-                        onClick={handleNext}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handlePageClick(page + 1)
+                        }}
                     />
                 </PaginationItem>
             </PaginationContent>
