@@ -9,19 +9,17 @@ import {
 import {Button} from "@/shared/ui/button";
 import {Edit, Trash2, InfoIcon} from 'lucide-react';
 import {User} from "../types/types";
-import {PaginationType} from "@/shared/api/types/pagination.ts";
 
 interface UserTableProps {
     users: User[],
     isMutating: boolean,
-    pagination: PaginationType,
+    rowOffset: number,
     onView: (user: User) => void
     onEdit: (user: User) => void
     onDelete: (user: User) => void
 }
 
-export default function UsersTable({users, pagination, isMutating, onDelete, onEdit, onView}: UserTableProps) {
-    const {page, pageSize} = pagination;
+export default function UsersTable({users, rowOffset, isMutating, onDelete, onEdit, onView}: UserTableProps) {
     return (
         <Table className="mt-5">
             <TableHeader>
@@ -36,7 +34,7 @@ export default function UsersTable({users, pagination, isMutating, onDelete, onE
             <TableBody>
                 {users.map((user, index) => (
                     <TableRow key={user.id}>
-                        <TableCell className="text-center font-medium">{Number((page-1) * pageSize) + Number(index + 1)}</TableCell>
+                        <TableCell className="text-center font-medium">{Number(rowOffset) + Number(index + 1)}</TableCell>
                         <TableCell className="text-center font-medium">{user.username}</TableCell>
                         <TableCell className="text-center">{user.full_name || "—"}</TableCell>
                         <TableCell className="text-center">{user.email || "—"}</TableCell>

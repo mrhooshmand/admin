@@ -9,34 +9,25 @@ import {UserFormData} from "../schemas";
 import {useUsers} from "../hooks/useUsers";
 import {TableSkeleton} from "@/shared/components/skeleton/tableSkeleton";
 import {Page} from "@/shared/components/page/Page.tsx";
-import {PaginationComponent} from "@/shared/components/PaginationComponent.tsx";
 import {PageFilters} from "@/shared/components/page-filters";
 import {UsersToolbar} from "@/features/users/components/UsersToolbar.tsx";
 import {UsersFilterForm} from "@/features/users/components/UsersFilterForm.tsx";
-import {SearchRequest} from "@/shared/api/types/search-request.ts";
-import {useState} from "react";
-
-interface UsersFilters {
-    username?: string;
-    full_name?: string;
-    id?: number;
-    email?: string;
-    created_at?: string;
-}
+import {useSearchRequest} from "@/shared/search/hooks/useSearchRequest.ts";
+import {UsersFilters} from "@/features/users/types/users-filters.ts";
+import {INITIAL_USERS_FILTERS} from "@/features/users/constants.ts";
+import {Pagination} from "@/shared/pagination/Pagination.tsx";
 
 export default function Users() {
     const showConfirm = useConfirmStore((state) => state.showConfirm);
     const openModal = useModalStore((state) => state.openModal);
     const closeModal = useModalStore((state) => state.closeModal);
 
-    type UsersSearchRequest = SearchRequest<UsersFilters>;
-    const [request, setRequest] = useState<UsersSearchRequest>({
-        fields: {},
-        page: 1,
-        pageSize: 10,
-        order: "id",
-        orderType: "asc",
+
+    const search = useSearchRequest<UsersFilters>({
+        initialFilters: INITIAL_USERS_FILTERS
     });
+    const rowOffset = (search.request.page - 1) * search.request.pageSize;
+
     const {
         users,
         error,
@@ -46,7 +37,7 @@ export default function Users() {
         deleteUser,
         isMutating,
         isLoading,
-    } = useUsers(request);
+    } = useUsers(search.request);
 
     const handleAddDialog = (): void => {
         openModal({
@@ -172,39 +163,29 @@ export default function Users() {
             </div>
         );
     }
-
     return (
         <Page>
             <PageFilters actions={
                 <UsersToolbar onAdd={handleAddDialog} onExport={() => console.log('123')}/>}
             >
-                <UsersFilterForm onSubmit={(data) => {
-                    const fields: Partial<User> & { password?: string } = {
-                        username: data.username,
-                        full_name: data.name || ""
-                    };
-                    setRequest((prev) => ({
-                            ...prev,
-                            page: 1,
-                            fields
-                        })
-                    )
-                }}/>
+                <UsersFilterForm onSubmit={(filters: UsersFilters) =>
+                    search.setFilters(filters)
+                }/>
             </PageFilters>
             {isLoading ? (
                 <TableSkeleton/>
             ) : (
                 <>
-                    <UsersTable users={users?.data ?? []} pagination={users?.pagination ?? {}} isMutating={isMutating}
+                    <UsersTable users={users?.data ?? []}
+                                rowOffset={rowOffset} isMutating={isMutating}
                                 onDelete={handleDeleteDialog}
                                 onEdit={handleEditDialog}
                                 onView={handleViewDialog}/>
-                    <PaginationComponent pagination={users?.pagination ?? {}}
-                                         onPageChange={(pageNumber: number) => setRequest((prev) => ({
-                                                 ...prev,
-                                                 page: pageNumber
-                                             })
-                                         )}/>
+                    <Pagination
+                        page={users?.pagination.page ?? 1}
+                        totalPages={users?.pagination.totalPages ?? 1}
+                        onPageChange={search.setPage}
+                    />
                 </>
             )}
 
