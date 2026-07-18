@@ -15,7 +15,7 @@ interface PageFiltersProps {
 
 function PageFilters({title = "Search", actions, children}: PageFiltersProps) {
     return (
-        <Card className="w-full py-1">
+        <Card className="w-full py-1 mb-5">
             <Collapsible className="w-full">
                 <div className="flex items-center justify-between gap-4">
                     <CollapsibleTrigger asChild>

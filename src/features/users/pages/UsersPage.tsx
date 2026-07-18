@@ -3,7 +3,6 @@ import {Button} from "@/shared/ui/button";
 import {User} from "../types/types";
 import {useConfirmStore} from "@/app/store/confirmStore";
 import {useModalStore} from "@/app/store/modalStore";
-import UsersTable from "../components/UsersTable.tsx";
 import {UserForm} from '../components/UserForm';
 import {UserFormData} from "../schemas";
 import {useUsers} from "../hooks/useUsers";
@@ -16,6 +15,8 @@ import {useSearchRequest} from "@/shared/search/hooks/useSearchRequest.ts";
 import {UsersFilters} from "@/features/users/types/users-filters.ts";
 import {INITIAL_USERS_FILTERS} from "@/features/users/constants.ts";
 import {Pagination} from "@/shared/pagination/Pagination.tsx";
+import {DataTable} from "@/shared/table/DataTable.tsx";
+import {getUserColumns} from "@/features/users/columns/userColumns.tsx";
 
 export default function Users() {
     const showConfirm = useConfirmStore((state) => state.showConfirm);
@@ -149,7 +150,11 @@ export default function Users() {
             }),
         });
     };
-
+    const columns = getUserColumns({
+        onEdit: handleEditDialog,
+        onDelete: handleDeleteDialog,
+        onView: handleViewDialog,
+    })
     if (error) {
         return (
             <div className="p-6 text-center">
@@ -176,11 +181,8 @@ export default function Users() {
                 <TableSkeleton/>
             ) : (
                 <>
-                    <UsersTable users={users?.data ?? []}
-                                rowOffset={rowOffset} isMutating={isMutating}
-                                onDelete={handleDeleteDialog}
-                                onEdit={handleEditDialog}
-                                onView={handleViewDialog}/>
+                    <DataTable columns={columns} data={users?.data ?? []} meta={{rowOffset, isMutating,}}
+                               emptyMessage="User not found"/>
                     <Pagination
                         page={users?.pagination.page ?? 1}
                         totalPages={users?.pagination.totalPages ?? 1}
