@@ -1,17 +1,23 @@
 import {Button} from '@/shared/ui/button'
 import {ArrowRight} from 'lucide-react'
 import {useNavigate} from "react-router-dom";
+import placeholderImage from "/placeholder.svg";
 
+<img src={placeholderImage} alt="Placeholder"/>
 const PageNotFound = () => {
     const navigate = useNavigate()
     const handleNavigateHome = () => {
-        navigate("/")
+        if (window.history.length > 1) {
+            navigate(-1);
+        } else {
+            navigate("/");
+        }
     }
     return (
         <div
             className='mx-auto flex min-h-dvh max-w-7xl flex-col items-center justify-center gap-8 p-8 md:gap-12 md:p-16'>
             <img
-                src='placeholder.svg'
+                src={placeholderImage}
                 alt='placeholder image'
                 className='aspect-video w-full max-w-7xl rounded-xl object-cover dark:brightness-[0.95] dark:invert'
             />

@@ -25,7 +25,7 @@ export default function AppRouter() {
                 <Route element={<MainLayout />}>
                     <Route index element={<Dashboard />} />
                     <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="users" element={<Users />} />
+                    <Route path="users/accounts" element={<Users />} />
                     <Route path="profile" element={<Profile />} />
                 </Route>
                 <Route path="*" element={<PageNotFound />} />
