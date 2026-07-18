@@ -29,7 +29,9 @@ export function AppSidebar() {
         item.children?.some((child: NavItem) =>
             location.pathname === child.to
         ) ?? false;
-    const isMenuActive = (item: NavItem) => location.pathname === item.to
+    const isMenuActive = (item: NavItem) =>
+        location.pathname === item.to ||
+        location.pathname.startsWith(`${item.to}/`);
     const getIcon = (item: NavItem) => item.icon ? <item.icon/> : ''
 
     return (
@@ -103,7 +105,7 @@ export function AppSidebar() {
                                                 <SidebarMenuSub>
                                                     {item.children.map((child: NavItem) => (
                                                         <SidebarMenuSubItem key={child.title}>
-                                                            <NavLink to={child.to}>
+                                                            <NavLink to={child.to!}>
                                                                 <SidebarMenuSubButton asChild
                                                                                       isActive={isMenuActive(child)}>
                                                                     <span>{child.title}</span>
