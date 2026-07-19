@@ -1,10 +1,3 @@
-import {showAlert} from "@/shared/utils/errorHandler";
-import {Button} from "@/shared/ui/button";
-import {User} from "../types/types";
-import {useConfirmStore} from "@/app/store/confirmStore";
-import {useModalStore} from "@/app/store/modalStore";
-import {UserForm} from '../components/UserForm';
-import {UserFormData} from "../schemas";
 import {useUsers} from "../hooks/useUsers";
 import {TableSkeleton} from "@/shared/components/skeleton/tableSkeleton";
 import {Page} from "@/shared/components/page/Page.tsx";
@@ -17,13 +10,9 @@ import {INITIAL_USERS_FILTERS} from "@/features/users/constants.ts";
 import {Pagination} from "@/shared/pagination/Pagination.tsx";
 import {DataTable} from "@/shared/table/DataTable.tsx";
 import {getUserColumns} from "@/features/users/columns/userColumns.tsx";
+import {useUserDialogs} from "@/features/users/hooks/useUserDialogs.tsx";
 
 export default function Users() {
-    const showConfirm = useConfirmStore((state) => state.showConfirm);
-    const openModal = useModalStore((state) => state.openModal);
-    const closeModal = useModalStore((state) => state.closeModal);
-
-
     const search = useSearchRequest<UsersFilters>({
         initialFilters: INITIAL_USERS_FILTERS
     });
@@ -33,128 +22,26 @@ export default function Users() {
         users,
         error,
         refetch,
-        createUser,
-        updateUser,
-        deleteUser,
+        createUser: createUserMutation,
+        updateUser: updateUserMutation,
+        deleteUser: deleteUserMutation,
         isMutating,
         isLoading,
     } = useUsers(search.request);
 
-    const handleAddDialog = (): void => {
-        openModal({
-            title: "Add New User",
-            size: "lg",
-            content: (
-                <UserForm
-                    editingUser={null}
-                    onCancel={() => closeModal()}
-                    isMutating={isMutating}
-                    onSave={(data: UserFormData) => {
-                        const userData: Partial<User> & { password: string } = {
-                            username: data.username,
-                            email: data.email || "",
-                            full_name: data.full_name || "",
-                            password: data.password || "",
-                        };
+    const dialogs = useUserDialogs({
+        createUserMutation,
+        updateUserMutation,
+        deleteUserMutation,
+        isMutating,
+    });
 
-                        if (!userData.password) {
-                            showAlert("error", "Password is required");
-                            return;
-                        }
-                        createUser(userData, {
-                            onSuccess: () => {
-                                closeModal();
-                            }
-                        });
-                    }}
-                />
-            ),
-        });
-    };
-
-    const handleEditDialog = (user: User) => {
-        openModal({
-            title: `Edit User: ${user.username}`,
-            size: "lg",
-            content: (
-                <UserForm
-                    editingUser={user}
-                    onCancel={() => closeModal()}
-                    isMutating={isMutating}
-                    onSave={(data: UserFormData) => {
-                        const userData: Partial<User> & { password?: string } = {
-                            username: data.username,
-                            email: data.email || "",
-                            full_name: data.full_name || ""
-                        };
-                        if (data.password) {
-                            userData.password = data.password;
-                        }
-                        updateUser({id: user.id, data: userData}, {
-                            onSuccess: () => {
-                                closeModal();
-                            }
-                        });
-                    }}
-                />
-            ),
-        });
-    };
-
-    const handleViewDialog = (user: User) => {
-        openModal({
-            title: `User Details: ${user.username}`,
-            description: `Information about ${user.username}`,
-            size: "lg",
-            content: (
-                <div className="space-y-4 py-4">
-                    <div className="grid grid-cols-3 gap-2">
-                        <span className="text-sm font-medium text-gray-500">Username</span>
-                        <span className="col-span-2 text-sm">{user.username}</span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                        <span className="text-sm font-medium text-gray-500">Full Name</span>
-                        <span className="col-span-2 text-sm">{user.full_name || "—"}</span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                        <span className="text-sm font-medium text-gray-500">Email</span>
-                        <span className="col-span-2 text-sm">{user.email || "—"}</span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                        <span className="text-sm font-medium text-gray-500">Created At</span>
-                        <span className="col-span-2 text-sm">
-                            {user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}
-                        </span>
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                        <Button variant="outline" onClick={() => closeModal()}>
-                            Close
-                        </Button>
-                    </div>
-                </div>
-            ),
-        });
-    };
-
-    const handleDeleteDialog = (user: User): void => {
-        showConfirm({
-            title: "Delete User?",
-            description: `Are you sure you want to delete "${user.username}"?`,
-            confirmText: "Delete",
-            cancelText: "Cancel",
-            confirmVariant: "destructive",
-            onConfirm: () => deleteUser(user.id, {
-                onSuccess: () => {
-                    closeModal();
-                }
-            }),
-        });
-    };
     const columns = getUserColumns({
-        onEdit: handleEditDialog,
-        onDelete: handleDeleteDialog,
-        onView: handleViewDialog,
+        onEdit: dialogs.editUser,
+        onDelete: dialogs.deleteUser,
+        onView: dialogs.viewUser,
     })
+
     if (error) {
         return (
             <div className="p-6 text-center">
@@ -171,7 +58,7 @@ export default function Users() {
     return (
         <Page>
             <PageFilters actions={
-                <UsersToolbar onAdd={handleAddDialog} onExport={() => console.log('123')}/>}
+                <UsersToolbar onAdd={dialogs.addUser} onExport={() => console.log('123')}/>}
             >
                 <UsersFilterForm onSubmit={(filters: UsersFilters) =>
                     search.setFilters(filters)
