@@ -1,7 +1,7 @@
 "use client"
 
 import {User} from "@/features/users/types/types.ts";
-import {UserActions} from "@/features/users/components/UserActions.tsx";
+import {UserActions} from "@/features/users/columns/UserActions.tsx";
 import {ColumnDef, RowData} from "@tanstack/react-table";
 
 declare module "@tanstack/react-table" {

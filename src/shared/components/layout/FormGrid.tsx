@@ -16,13 +16,13 @@ const columnsMap = {
 
 export function FormGrid({
                              children,
-                             columns = 6,
+                             columns = 5,
                              className,
                          }: FormGridProps) {
     return (
         <div
             className={cn(
-                "grid grid-cols-1 gap-4 md:grid-cols-2",
+                "grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-4 xl:grid-cols-6",
                 "[&_label,&_button]:text-xs",
                 "[&_label,&_button]:font-normal",
                 columnsMap[columns],
