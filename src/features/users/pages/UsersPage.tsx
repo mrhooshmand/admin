@@ -10,13 +10,34 @@ import {INITIAL_USERS_FILTERS} from "@/features/users/constants.ts";
 import {DataTable} from "@/shared/table/DataTable.tsx";
 import {getUserColumns} from "@/features/users/columns/userColumns.tsx";
 import {useUserDialogs} from "@/features/users/hooks/useUserDialogs.tsx";
+import {OnChangeFn, SortingState} from "@tanstack/react-table";
+import {useState} from "react";
+import {DEFAULT_ORDER, DEFAULT_ORDER_TYPE} from "@/shared/search/constants.ts";
 
 export default function Users() {
     const search = useSearchRequest<UsersFilters>({
         initialFilters: INITIAL_USERS_FILTERS
     });
     const rowOffset = (search.request.page - 1) * search.request.pageSize;
-
+    const [sorting, setSorting] = useState<SortingState>([])
+    const handleSortingChange: OnChangeFn<SortingState> = (updater) => {
+        const next =
+            typeof updater === "function"
+                ? updater(sorting)
+                : updater
+        setSorting(next)
+        if (next.length) {
+            search.setSorting({
+                order: next[0].id,
+                orderType: next[0].desc ? "desc" : "asc",
+            })
+        } else {
+            search.setSorting({
+                order: DEFAULT_ORDER,
+                orderType: DEFAULT_ORDER_TYPE,
+            })
+        }
+    }
     const {
         users,
         error,
@@ -73,7 +94,10 @@ export default function Users() {
                                    page: users.pagination.page,
                                    totalPages: users.pagination.totalPages,
                                    onPageChange: search.setPage,
-                               }}/>
+                               }}
+                               sorting={sorting}
+                               onSortingChange={handleSortingChange}
+                    />
                 </>
             )}
         </Page>

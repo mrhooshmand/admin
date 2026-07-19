@@ -27,14 +27,17 @@ export const getUserColumns = ({
     {
         accessorKey: "username",
         header: "Username",
+        enableSorting: true,
     },
     {
         accessorKey: "full_name",
         header: "Name",
+        enableSorting: false,
     },
     {
         accessorKey: "email",
         header: "Email",
+        enableSorting: false,
     },
     {
         id: "actions",
