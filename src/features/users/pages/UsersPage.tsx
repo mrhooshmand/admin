@@ -7,7 +7,6 @@ import {UsersFilterForm} from "@/features/users/components/UsersFilterForm.tsx";
 import {useSearchRequest} from "@/shared/search/hooks/useSearchRequest.ts";
 import {UsersFilters} from "@/features/users/types/users-filters.ts";
 import {INITIAL_USERS_FILTERS} from "@/features/users/constants.ts";
-import {Pagination} from "@/shared/pagination/Pagination.tsx";
 import {DataTable} from "@/shared/table/DataTable.tsx";
 import {getUserColumns} from "@/features/users/columns/userColumns.tsx";
 import {useUserDialogs} from "@/features/users/hooks/useUserDialogs.tsx";
@@ -69,16 +68,14 @@ export default function Users() {
             ) : (
                 <>
                     <DataTable columns={columns} data={users?.data ?? []} meta={{rowOffset, isMutating,}}
-                               emptyMessage="User not found"/>
-                    <Pagination
-                        page={users?.pagination.page ?? 1}
-                        totalPages={users?.pagination.totalPages ?? 1}
-                        onPageChange={search.setPage}
-                    />
+                               emptyMessage="User not found"
+                               pagination={{
+                                   page: users.pagination.page,
+                                   totalPages: users.pagination.totalPages,
+                                   onPageChange: search.setPage,
+                               }}/>
                 </>
             )}
-
-
         </Page>
     );
 }
