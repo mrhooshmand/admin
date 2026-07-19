@@ -1,4 +1,11 @@
 import {LucideIcon} from "lucide-react";
+import {
+    LayoutDashboard,
+    Users,
+    ContactRound,
+    UserStar,
+    UserKey
+} from "lucide-react";
 
 export interface NavItem {
     title: string;
@@ -6,12 +13,6 @@ export interface NavItem {
     icon?: LucideIcon;
     children?: NavItem[];
 }
-
-import {
-    LayoutDashboard,
-    Users,
-    ContactRound
-} from "lucide-react";
 
 export const navigation: NavItem[] = [
     {
@@ -21,20 +22,18 @@ export const navigation: NavItem[] = [
     },
     {
         title: "Access",
-        icon: Users,
+        icon: UserKey,
         children: [
             {
                 title: "Accounts",
+                icon: Users,
                 to: "/users/accounts",
             },
             {
                 title: "Roles",
+                icon: UserStar,
                 to: "/users/roles",
-            },
-            {
-                title: "Permissions",
-                to: "/users/permissions",
-            },
+            }
         ],
     },
     {

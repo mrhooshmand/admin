@@ -6,34 +6,13 @@ import {
     SidebarGroupContent,
     SidebarGroupLabel,
     SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-    SidebarHeader, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton,
+    SidebarHeader,
 } from "@/shared/ui/sidebar"
-import {SidebarClock} from '@/shared/components/SidebarClock'
-import {
-    ChevronRight
-} from "lucide-react"
-
-import {NavLink, useLocation} from "react-router-dom";
-import {navigation, NavItem} from '@/shared/types/navigation.ts'
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/shared/ui/collapsible";
+import {SidebarClock} from '@/shared/components/sidebar/SidebarClock'
+import {navigation} from '@/shared/types/navigation.ts'
+import {SidebarItem} from "@/shared/components/sidebar/SidebarItem.tsx";
 
 export function AppSidebar() {
-    const location = useLocation();
-    const isMenuOpen = (item: NavItem) =>
-        item.children?.some((child: NavItem) =>
-            location.pathname === child.to
-        ) ?? false;
-    const isMenuActive = (item: NavItem) =>
-        location.pathname === item.to ||
-        location.pathname.startsWith(`${item.to}/`);
-    const getIcon = (item: NavItem) => item.icon ? <item.icon/> : ''
-
     return (
         <Sidebar>
             <SidebarHeader>
@@ -84,52 +63,12 @@ export function AppSidebar() {
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {navigation.map((item) =>
-                                item.children ? (
-                                    <Collapsible
-                                        key={item.title}
-                                        asChild
-                                        defaultOpen={isMenuOpen(item)}
-                                    >
-                                        <SidebarMenuItem>
-                                            <CollapsibleTrigger asChild>
-                                                <SidebarMenuButton>
-                                                    {getIcon(item)}
-                                                    <span>{item.title}</span>
-                                                    <ChevronRight
-                                                        className={"ml-auto transition-transform group-data-[state=open]/collapsible:rotate-45"}/>
-                                                </SidebarMenuButton>
-                                            </CollapsibleTrigger>
-
-                                            <CollapsibleContent>
-                                                <SidebarMenuSub>
-                                                    {item.children.map((child: NavItem) => (
-                                                        <SidebarMenuSubItem key={child.title}>
-                                                            <NavLink to={child.to!}>
-                                                                <SidebarMenuSubButton asChild
-                                                                                      isActive={isMenuActive(child)}>
-                                                                    <span>{child.title}</span>
-                                                                </SidebarMenuSubButton>
-                                                            </NavLink>
-                                                        </SidebarMenuSubItem>
-                                                    ))}
-                                                </SidebarMenuSub>
-                                            </CollapsibleContent>
-                                        </SidebarMenuItem>
-                                    </Collapsible>
-                                ) : (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild isActive={isMenuActive(item)}>
-                                            <NavLink to={item.to!} className={
-                                                isMenuActive(item) ? "data-[active=true]:bg-accent bg-accent text-accent-foreground" : ""
-                                            }>
-                                                {getIcon(item)}
-                                                <span>{item.title}</span>
-                                            </NavLink>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                )
-                            )}
+                            {navigation.map((item) => (
+                                <SidebarItem
+                                    key={item.title}
+                                    item={item}
+                                />
+                            ))}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
