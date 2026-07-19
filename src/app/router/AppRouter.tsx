@@ -9,6 +9,7 @@ import PageNotFound from "@/shared/components/PageNotFound";
 
 const Dashboard = lazy(() => import("@/features/dashboard/pages/DashboardPage"));
 const Users = lazy(() => import("@/features/users/pages/UsersPage"));
+const Roles = lazy(() => import("@/features/roles/pages/RolesPage"));
 const Profile = lazy(() => import("@/features/profile/pages/ProfilePage"));
 
 const PageLoader = () => <Loading />;
@@ -26,6 +27,7 @@ export default function AppRouter() {
                     <Route index element={<Dashboard />} />
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="users/accounts" element={<Users />} />
+                    <Route path="users/roles" element={<Roles />} />
                     <Route path="profile" element={<Profile />} />
                 </Route>
                 <Route path="*" element={<PageNotFound />} />
