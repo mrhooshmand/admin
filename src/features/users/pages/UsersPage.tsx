@@ -1,5 +1,4 @@
 import {useUsers} from "../hooks/useUsers";
-import {TableSkeleton} from "@/shared/components/skeleton/tableSkeleton";
 import {Page} from "@/shared/components/page/Page.tsx";
 import {PageFilters} from "@/shared/components/page-filters";
 import {UsersToolbar} from "@/features/users/components/UsersToolbar.tsx";
@@ -84,22 +83,17 @@ export default function Users() {
                     search.setFilters(filters)
                 }/>
             </PageFilters>
-            {isLoading ? (
-                <TableSkeleton/>
-            ) : (
-                <>
-                    <DataTable columns={columns} data={users?.data ?? []} meta={{rowOffset, isMutating,}}
-                               emptyMessage="User not found"
-                               pagination={{
-                                   page: users.pagination.page,
-                                   totalPages: users.pagination.totalPages,
-                                   onPageChange: search.setPage,
-                               }}
-                               sorting={sorting}
-                               onSortingChange={handleSortingChange}
-                    />
-                </>
-            )}
+            <DataTable columns={columns} data={users?.data ?? []} isLoading={isLoading}
+                       meta={{rowOffset, isMutating,}}
+                       emptyMessage="User not found"
+                       pagination={{
+                           page: users.pagination?.page,
+                           totalPages: users.pagination?.totalPages,
+                           onPageChange: search.setPage,
+                       }}
+                       sorting={sorting}
+                       onSortingChange={handleSortingChange}
+            />
         </Page>
     );
 }
