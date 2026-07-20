@@ -1,12 +1,29 @@
-import {Sorting} from "@/shared/search/types";
+export interface DataTablePaginationProps {
+    pagination?: {
+        page: number
+        totalPages: number
+        onPageChange: (page: number) => void
+    }
+}
 
-export type DataTableSorting =
-    | {
+import { TableMeta } from "@tanstack/react-table";
+
+export interface DataTablePagination {
+    page: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}
+
+export interface DataTableSorting {
     mode: "server";
     order: string;
     orderType: "asc" | "desc";
-    onChange: (sorting: Sorting) => void;
+    onChange: (sorting: {
+        order: string;
+        orderType: "asc" | "desc";
+    }) => void;
 }
-    | {
-    mode: "client";
-};
+
+export interface DataTableProps<TData> {
+    meta?: TableMeta<TData>;
+}

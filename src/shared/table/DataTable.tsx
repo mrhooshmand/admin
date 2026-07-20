@@ -2,40 +2,30 @@
 
 import {
     ColumnDef,
-    flexRender,
     getCoreRowModel,
     useReactTable,
-    SortingState,
-    OnChangeFn,
+    TableMeta
 } from "@tanstack/react-table"
 
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+    Table
 } from "@/shared/ui/table"
-import {TableMeta} from "@tanstack/react-table"
 import {cn} from "@/lib/utils.ts";
-import {Pagination} from "@/shared/pagination/Pagination.tsx";
-import {ArrowUpDown, ArrowUp, ArrowDown} from "lucide-react";
 import {TableSkeleton} from "@/shared/components/skeleton/tableSkeleton.tsx";
-import {DataTableSorting} from "@/shared/table/types.ts";
-import {useEffect, useState} from "react";
-import {DEFAULT_ORDER, DEFAULT_ORDER_TYPE} from "@/shared/search/constants.ts";
+import type {
+    DataTablePagination as DataTablePaginationProp,
+    DataTableSorting,
+} from "@/shared/table/types";
+import {DataTablePagination} from "@/shared/table/DataTablePagination.tsx";
+import {DataTableHeader} from "@/shared/table/DataTableHeader.tsx";
+import {DataTableBody} from "@/shared/table/DataTableBody.tsx";
+import {useServerSorting} from "@/shared/table/hooks/useServerSorting.ts";
 
-interface DataTablePagination {
-    page: number,
-    totalPages: number,
-    onPageChange: (page: number) => void;
-}
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
-    pagination?: DataTablePagination
+    pagination?: DataTablePaginationProp
     sorting?: DataTableSorting
     meta?: TableMeta<TData>
     className?: string
@@ -51,34 +41,12 @@ export function DataTable<TData, TValue>({
                                              meta,
                                              className, emptyMessage, isLoading
                                          }: DataTableProps<TData, TValue>) {
-    const handleSortingChange: OnChangeFn<SortingState> = (updater) => {
-        const next =
-            typeof updater === "function"
-                ? updater(sortingState)
-                : updater;
-        setSortingState(next);
-        if (!sorting) return;
-        if (next.length) {
-            sorting.onChange({
-                order: next[0].id,
-                orderType: next[0].desc ? "desc" : "asc",
-            });
-        } else {
-            sorting.onChange({
-                order: DEFAULT_ORDER,
-                orderType: DEFAULT_ORDER_TYPE,
-            });
-        }
-    };
-    const [sortingState, setSortingState] = useState<SortingState>(() => {
-        if (!sorting) return [];
-        return [
-            {
-                id: sorting.order,
-                desc: sorting.orderType === "desc",
-            },
-        ];
-    });
+    const {
+        sortingState,
+        handleSortingChange,
+        manualSorting,
+    } = useServerSorting(sorting);
+
     const table = useReactTable({
         data,
         columns,
@@ -86,87 +54,29 @@ export function DataTable<TData, TValue>({
         state: {
             sorting: sortingState,
         },
-        manualSorting: sorting?.mode === "server",
+        manualSorting,
         onSortingChange: handleSortingChange,
         getCoreRowModel: getCoreRowModel()
     })
-    useEffect(() => {
-        if (!sorting) return;
-        setSortingState([
-            {
-                id: sorting.order,
-                desc: sorting.orderType === "desc",
-            },
-        ]);
-    }, [sorting?.order, sorting?.orderType]);
+
+    if (isLoading) return <TableSkeleton/>
     return (
-        isLoading ? (
-            <TableSkeleton/>
-        ) : (
-            <div>
-                <div
-                    className={cn(
-                        "overflow-hidden",
-                        className
-                    )}
-                >
-                    <Table>
-                        <TableHeader>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        const sort = header.column.getIsSorted();
-                                        return (
-                                            <TableHead
-                                                key={header.id}
-                                                onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                                    {sort === "asc" && <ArrowUp className="h-3 w-3"/>}
-                                                    {sort === "desc" && <ArrowDown className="h-3 w-3"/>}
-                                                    {sort === false && header.column.getCanSort() && (
-                                                        <ArrowUpDown className="h-3 w-3 opacity-40"/>
-                                                    )}
-                                                </div>
-                                            </TableHead>
-                                        )
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {table.getRowModel().rows?.length ? (
-                                table.getRowModel().rows.map((row) => (
-                                    <TableRow
-                                        key={row.id}
-                                        data-state={row.getIsSelected() && "selected"}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                                        {emptyMessage ?? "No results."}
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-                {pagination && (
-                    <Pagination
-                        page={pagination.page}
-                        totalPages={pagination.totalPages}
-                        onPageChange={pagination.onPageChange}
-                    />
+        <div>
+            <div
+                className={cn(
+                    "overflow-hidden",
+                    className
                 )}
+            >
+                <Table>
+                    <DataTableHeader table={table}/>
+                    <DataTableBody
+                        table={table}
+                        emptyMessage={emptyMessage}
+                    />
+                </Table>
             </div>
-        )
+            <DataTablePagination pagination={pagination}/>
+        </div>
     )
 }
