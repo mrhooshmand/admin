@@ -19,7 +19,7 @@ import type {
 import {DataTablePagination} from "@/shared/table/DataTablePagination.tsx";
 import {DataTableHeader} from "@/shared/table/DataTableHeader.tsx";
 import {DataTableBody} from "@/shared/table/DataTableBody.tsx";
-import {useServerSorting} from "@/shared/table/hooks/useServerSorting.ts";
+import {useDataTableSorting} from "@/shared/table/hooks/useDataTableSorting.ts";
 
 
 interface DataTableProps<TData, TValue> {
@@ -45,7 +45,7 @@ export function DataTable<TData, TValue>({
         sortingState,
         handleSortingChange,
         manualSorting,
-    } = useServerSorting(sorting);
+    } = useDataTableSorting(sorting);
 
     const table = useReactTable({
         data,

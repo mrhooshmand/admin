@@ -11,7 +11,7 @@ import {
 
 import type {DataTableSorting} from "../types";
 
-export function useServerSorting(
+export function useDataTableSorting(
     sorting?: DataTableSorting
 ) {
     const [sortingState, setSortingState] = useState<SortingState>(() => {
