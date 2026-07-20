@@ -22,6 +22,9 @@ import {cn} from "@/lib/utils.ts";
 import {Pagination} from "@/shared/pagination/Pagination.tsx";
 import {ArrowUpDown, ArrowUp, ArrowDown} from "lucide-react";
 import {TableSkeleton} from "@/shared/components/skeleton/tableSkeleton.tsx";
+import {DataTableSorting} from "@/shared/table/types.ts";
+import {useEffect, useState} from "react";
+import {DEFAULT_ORDER, DEFAULT_ORDER_TYPE} from "@/shared/search/constants.ts";
 
 interface DataTablePagination {
     page: number,
@@ -33,8 +36,7 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     pagination?: DataTablePagination
-    sorting?: SortingState
-    onSortingChange?: OnChangeFn<SortingState>
+    sorting?: DataTableSorting
     meta?: TableMeta<TData>
     className?: string
     emptyMessage?: React.ReactNode
@@ -46,21 +48,57 @@ export function DataTable<TData, TValue>({
                                              columns,
                                              pagination,
                                              sorting,
-                                             onSortingChange,
                                              meta,
                                              className, emptyMessage, isLoading
                                          }: DataTableProps<TData, TValue>) {
+    const handleSortingChange: OnChangeFn<SortingState> = (updater) => {
+        const next =
+            typeof updater === "function"
+                ? updater(sortingState)
+                : updater;
+        setSortingState(next);
+        if (!sorting) return;
+        if (next.length) {
+            sorting.onChange({
+                order: next[0].id,
+                orderType: next[0].desc ? "desc" : "asc",
+            });
+        } else {
+            sorting.onChange({
+                order: DEFAULT_ORDER,
+                orderType: DEFAULT_ORDER_TYPE,
+            });
+        }
+    };
+    const [sortingState, setSortingState] = useState<SortingState>(() => {
+        if (!sorting) return [];
+        return [
+            {
+                id: sorting.order,
+                desc: sorting.orderType === "desc",
+            },
+        ];
+    });
     const table = useReactTable({
         data,
         columns,
         meta,
         state: {
-            sorting,
+            sorting: sortingState,
         },
-        onSortingChange,
-        manualSorting: true,
+        manualSorting: sorting?.mode === "server",
+        onSortingChange: handleSortingChange,
         getCoreRowModel: getCoreRowModel()
     })
+    useEffect(() => {
+        if (!sorting) return;
+        setSortingState([
+            {
+                id: sorting.order,
+                desc: sorting.orderType === "desc",
+            },
+        ]);
+    }, [sorting?.order, sorting?.orderType]);
     return (
         isLoading ? (
             <TableSkeleton/>
