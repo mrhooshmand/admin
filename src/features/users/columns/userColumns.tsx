@@ -38,6 +38,10 @@ export const getUserColumns = ({
         accessorKey: "email",
         header: "Email",
         enableSorting: false,
+        meta: {
+            headerClassName: "justify-start",
+            cellClassName: "text-start font-medium",
+        },
     },
     {
         id: "actions",

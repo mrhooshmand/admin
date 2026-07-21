@@ -4,6 +4,9 @@ import {
     TableCell,
     TableRow,
 } from "@/shared/ui/table";
+import "@tanstack/react-table";
+import {cn} from "@/lib/utils.ts";
+
 
 interface DataTableBodyProps<TData> {
     table: Table<TData>;
@@ -24,7 +27,10 @@ export function DataTableBody<TData>({
                         data-state={row.getIsSelected() && "selected"}
                     >
                         {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
+                            <TableCell key={cell.id} className={cn(
+                                'text-center',
+                                cell.column.columnDef.meta?.cellClassName,
+                            )}>
                                 {flexRender(
                                     cell.column.columnDef.cell,
                                     cell.getContext()

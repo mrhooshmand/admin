@@ -27,3 +27,9 @@ export interface DataTableSorting {
 export interface DataTableProps<TData> {
     meta?: TableMeta<TData>;
 }
+declare module "@tanstack/react-table" {
+    interface ColumnMeta<TData, TValue> {
+        headerClassName?: string;
+        cellClassName?: string;
+    }
+}

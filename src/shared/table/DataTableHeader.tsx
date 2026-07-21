@@ -8,6 +8,8 @@ import {
     TableRow,
 } from "@/shared/ui/table";
 import {ArrowDown, ArrowUp, ArrowUpDown} from "lucide-react";
+import {cn} from "@/lib/utils.ts";
+import "@tanstack/react-table";
 
 interface DataTableHeaderProps<TData> {
     table: Table<TData>;
@@ -31,13 +33,17 @@ export function DataTableHeader<TData>({
                                         ? header.column.getToggleSortingHandler()
                                         : undefined
                                 }
-                                className={
-                                    header.column.getCanSort()
-                                        ? "cursor-pointer select-none"
-                                        : ""
+                                className={cn(
+                                    "text-center",
+                                    header.column.columnDef.meta?.headerClassName,
+                                    header.column.getCanSort() && "cursor-pointer select-none",
+                                )
                                 }
                             >
-                                <div className="flex items-center gap-2">
+                                <div className={cn(
+                                    "flex items-center gap-2 justify-center",
+                                    header.column.columnDef.meta?.headerClassName
+                                )}>
                                     {flexRender(
                                         header.column.columnDef.header,
                                         header.getContext()

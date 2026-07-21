@@ -39,6 +39,7 @@ export function UserActions({
             <Button
                 variant="ghost"
                 size="icon"
+                className="text-rose-500"
                 disabled={isMutating}
                 onClick={() => onDelete(user)}
             >
