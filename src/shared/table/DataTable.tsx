@@ -19,7 +19,16 @@ import type {
 import {DataTablePagination} from "@/shared/table/DataTablePagination.tsx";
 import {DataTableHeader} from "@/shared/table/DataTableHeader.tsx";
 import {DataTableBody} from "@/shared/table/DataTableBody.tsx";
-import {useDataTableSorting} from "@/shared/table/hooks/useDataTableSorting.ts";
+import {useEffect, useState} from "react";
+import {
+    OnChangeFn,
+    SortingState,
+} from "@tanstack/react-table";
+
+import {
+    DEFAULT_ORDER,
+    DEFAULT_ORDER_TYPE,
+} from "@/shared/search/constants";
 
 
 interface DataTableProps<TData, TValue> {
@@ -41,11 +50,49 @@ export function DataTable<TData, TValue>({
                                              meta,
                                              className, emptyMessage, isLoading
                                          }: DataTableProps<TData, TValue>) {
-    const {
-        sortingState,
-        handleSortingChange,
-        manualSorting,
-    } = useDataTableSorting(sorting);
+
+
+    const [sortingState, setSortingState] = useState<SortingState>(
+        sorting
+            ? [
+                {
+                    id: sorting.order,
+                    desc: sorting.orderType === "desc",
+                },
+            ]
+            : []
+    );
+
+    const handleSortingChange: OnChangeFn<SortingState> = (updater) => {
+        const next =
+            typeof updater === "function"
+                ? updater(sortingState)
+                : updater;
+        setSortingState(next);
+        if (!sorting) return;
+        if (next.length) {
+            sorting.onChange({
+                order: next[0].id,
+                orderType: next[0].desc ? "desc" : "asc",
+            });
+        } else {
+            sorting.onChange({
+                order: DEFAULT_ORDER,
+                orderType: DEFAULT_ORDER_TYPE,
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (!sorting) return;
+        const next: SortingState = [
+            {
+                id: sorting.order,
+                desc: sorting.orderType === "desc",
+            },
+        ];
+        setSortingState(next);
+    }, [sorting?.order, sorting?.orderType]);
 
     const table = useReactTable({
         data,
@@ -54,7 +101,7 @@ export function DataTable<TData, TValue>({
         state: {
             sorting: sortingState,
         },
-        manualSorting,
+        manualSorting: sorting?.mode === 'server',
         onSortingChange: handleSortingChange,
         getCoreRowModel: getCoreRowModel()
     })
