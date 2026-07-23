@@ -19,11 +19,10 @@ CORS(app, resources={
     }
 })
 
-SECRET_KEY = "your-secret-key"
 tokens_db = {}
 
 # ============ دیتابیس ============
-DATABASE_NAME = "users.db"
+DATABASE_NAME = "adminData.db"
 
 
 @contextmanager
@@ -66,7 +65,6 @@ def init_db():
                          CURRENT_TIMESTAMP
                      )
                      ''')
-
         cursor = conn.execute("SELECT COUNT(*) FROM users")
         if cursor.fetchone()[0] == 0:
             conn.execute('''
@@ -76,6 +74,43 @@ def init_db():
 
             conn.commit()
             print("✅ Users table created with default users")
+
+        conn.execute('''
+                     CREATE TABLE IF NOT EXISTS roles
+                     (
+                         id
+                         INTEGER
+                         PRIMARY
+                         KEY
+                         AUTOINCREMENT,
+                         name
+                         TEXT
+                         UNIQUE
+                         NOT
+                         NULL,
+                         description
+                         TEXT,
+                         created_at
+                         TIMESTAMP
+                         DEFAULT
+                         CURRENT_TIMESTAMP
+                     )
+                     ''')
+        cursor = conn.execute("SELECT COUNT(*) FROM roles")
+
+        if cursor.fetchone()[0] == 0:
+            roles = [
+                ("admin", "Administrator Role"),
+                ("manager", "Manager Role"),
+                ("operator", "Operator Role"),
+                ("viewer", "Viewer Role"),
+            ]
+            conn.executemany("""
+                             INSERT INTO roles (name, description)
+                             VALUES (?, ?)
+                             """, roles)
+            conn.commit()
+            print("✅ Roles table created with default roles")
 
 
 init_db()
@@ -486,8 +521,6 @@ def delete_user(user_id):
             if user['username'] == 'admin':
                 return jsonify({"error": "Cannot delete admin user"}), 403
 
-            cursor = conn.execute("SELECT username FROM users WHERE id = ?", (user_id,))
-
             conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
             conn.commit()
 
@@ -502,8 +535,226 @@ def delete_user(user_id):
         }), 500
 
 
+@app.route("/api/roles/search", methods=["POST"])
+def search_roles():
+    try:
+        data = request.get_json() or {}
+
+        fields = data.get("fields", {})
+
+        page = max(int(data.get("page", 0)), 0)
+        page_size = max(int(data.get("pageSize", 20)), 1)
+
+        order = data.get("order", "created_at")
+        order_type = data.get("orderType", "desc").upper()
+
+        # ---------- امنیت ----------
+        allowed_sort_columns = {
+            "id",
+            "name",
+            "description",
+            "created_at"
+        }
+
+        if order not in allowed_sort_columns:
+            order = "created_at"
+
+        if order_type not in ["ASC", "DESC"]:
+            order_type = "DESC"
+
+        # ---------- Query ----------
+        base_query = """
+            FROM roles
+        """
+
+        where = []
+        params = []
+
+        name = fields.get("name", "").strip()
+        description = fields.get("description", "").strip()
+
+        if name:
+            where.append("name LIKE ?")
+            params.append(f"%{name}%")
+
+        if description:
+            where.append("description LIKE ?")
+            params.append(f"%{description}%")
+
+        if where:
+            base_query += " WHERE " + " AND ".join(where)
+
+        # ---------- Total Count ----------
+        count_query = f"""
+            SELECT COUNT(*)
+            {base_query}
+        """
+        offset = (page - 1) * page_size
+        with get_db() as conn:
+
+            total = conn.execute(
+                count_query,
+                params
+            ).fetchone()[0]
+
+            query = f"""
+                SELECT
+                    id,
+                    name,
+                    description,
+                    created_at
+                {base_query}
+                ORDER BY {order} {order_type}
+                LIMIT ?
+                OFFSET ?
+            """
+
+            cursor = conn.execute(
+                query,
+                [
+                    *params,
+                    page_size,
+                    offset
+                ]
+            )
+
+            roles = [dict(row) for row in cursor.fetchall()]
+
+        return jsonify({
+            "status": "success",
+            "message": "",
+            "data": roles,
+            "pagination": {
+                "page": page,
+                "pageSize": page_size,
+                "total": total,
+                "totalPages": (total + page_size - 1) // page_size,
+                "order": order,
+                "orderType": order_type.lower()
+            },
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
+@app.route('/api/roles', methods=['POST'])
+def create_role():
+    try:
+        data = request.json
+        name = data.get('name')
+        description = data.get('description')
+
+        if not name or not description:
+            return jsonify({"error": "Name and description required"}), 400
+
+        with get_db() as conn:
+            cursor = conn.execute("SELECT id FROM roles WHERE name = ?", (name,))
+            if cursor.fetchone():
+                return jsonify({"error": "Role already exists"}), 400
+
+            conn.execute('''
+                         INSERT INTO roles (name, description)
+                         VALUES (?, ?)
+                         ''', (name, description))
+            conn.commit()
+
+            cursor = conn.execute('SELECT id, name, description, created_at FROM roles WHERE name = ?',
+                                  (name,))
+            new_role = dict(cursor.fetchone())
+
+            return jsonify(
+                {
+                    "status": "success",
+                    "message": "Role created successfully",
+                    "data": {
+                        "id": new_role["id"],
+                        "name": new_role["name"],
+                    },
+                })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
+@app.route('/api/roles/<int:role_id>', methods=['PUT'])
+def update_role(role_id):
+    try:
+        data = request.json
+        name = data.get('name')
+        description = data.get('description')
+
+        with get_db() as conn:
+            cursor = conn.execute("SELECT * FROM roles WHERE id = ?", (role_id,))
+            role = cursor.fetchone()
+            if not role:
+                return jsonify({"error": "Role not found"}), 404
+
+            if role['name'] == 'admin':
+                return jsonify({"error": "Cannot modify admin role"}), 403
+
+            if not name or not description:
+                return jsonify({"error": "Name and Description are required"}), 400
+
+            conn.execute('''
+                         UPDATE roles
+                         SET name        = ?,
+                             description = ?
+                         WHERE id = ?
+                         ''', (name, description, role_id))
+
+            conn.commit()
+
+            cursor = conn.execute('SELECT id, name, description, created_at FROM roles WHERE id = ?',
+                                  (role_id,))
+
+            updated_role = dict(cursor.fetchone())
+            return jsonify({
+                "status": "success",
+                "message": "Role updated successfully",
+                "data": {
+                    "id": updated_role["id"],
+                    "name": updated_role["name"],
+                },
+            })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
+@app.route('/api/roles/<int:role_id>', methods=['DELETE'])
+def delete_role(role_id):
+    try:
+        with get_db() as conn:
+            cursor = conn.execute("SELECT name FROM roles WHERE id = ?", (role_id,))
+            role = cursor.fetchone()
+            if not role:
+                return jsonify({"error": "Role not found"}), 404
+
+            if user['name'] == 'admin':
+                return jsonify({"error": "Cannot delete admin role"}), 403
+
+            conn.execute("DELETE FROM roles WHERE id = ?", (role_id,))
+            conn.commit()
+
+            return jsonify({
+                "status": "success",
+                "message": "Role deleted successfully!",
+            })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
 if __name__ == '__main__':
-    print("🚀 Flask server starting with SQLite database...")
     print("📍 http://localhost:8000")
-    print("🔐 Test users: admin/1234 or user/1234")
     app.run(host='0.0.0.0', port=8000, debug=True)
