@@ -38,9 +38,9 @@ export default function Roles() {
     return (
         <Page>
             <PageFilters actions={
-                <RolesToolbar onAdd={() => null} onExport={() => console.log('123')}/>}
+                <RolesToolbar onAdd={dialogs.addRole} onExport={() => console.log('123')}/>}
             >
-                <RolesFilterForm onSubmit={() => null}/>
+                <RolesFilterForm onSubmit={(filters: RolesFilters) => search.setFilters(filters)}/>
             </PageFilters>
             <DataTable columns={columns} data={roles?.data ?? []} isLoading={isLoading}
                        meta={{rowOffset, isMutating,}}

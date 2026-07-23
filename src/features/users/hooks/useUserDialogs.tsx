@@ -48,7 +48,7 @@ export function useUserDialogs({
                 <UserForm
                     editingUser={null}
                     isMutating={isMutating}
-                    onCancel={closeModal}
+                    onCancel={() => closeModal()}
                     onSave={(data: UserFormData) => {
 
                         const payload = {
@@ -64,7 +64,7 @@ export function useUserDialogs({
                         }
 
                         createUserMutation(payload, {
-                            onSuccess: closeModal,
+                            onSuccess: closeModal(),
                         });
                     }}
                 />

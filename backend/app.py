@@ -424,8 +424,8 @@ def create_user():
                     "status": "success",
                     "message": "User created successfully",
                     "data": {
-                        "id": updated_user["id"],
-                        "username": updated_user["username"],
+                        "id": new_user["id"],
+                        "username": new_user["username"],
                     },
                 })
     except Exception as e:
@@ -738,7 +738,7 @@ def delete_role(role_id):
             if not role:
                 return jsonify({"error": "Role not found"}), 404
 
-            if user['name'] == 'admin':
+            if role['name'] == 'admin':
                 return jsonify({"error": "Cannot delete admin role"}), 403
 
             conn.execute("DELETE FROM roles WHERE id = ?", (role_id,))

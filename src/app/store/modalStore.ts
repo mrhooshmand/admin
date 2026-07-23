@@ -70,7 +70,6 @@ export const useModalStore = create<ModalStore>((set, get) => ({
 				const newModals = modals.filter((m) => m.id !== id);
 
 				if (newModals.length > 0) {
-					const lastModal = newModals[newModals.length - 1];
 					return {
 						modals: newModals.map((m, index) => ({
 							...m,
@@ -94,7 +93,6 @@ export const useModalStore = create<ModalStore>((set, get) => ({
 				const newModals = modals.filter((m) => m.id !== topModal.id);
 
 				if (newModals.length > 0) {
-					const lastModal = newModals[newModals.length - 1];
 					return {
 						modals: newModals.map((m, index) => ({
 							...m,

@@ -18,7 +18,7 @@ interface PageFilterProps {
 }
 
 const formSchema = z.object({
-    title: z
+    name: z
         .string()
         .max(30, "title must be at most 30 characters."),
 })
@@ -31,21 +31,21 @@ export function RolesFilterForm({onSubmit}: PageFilterProps) {
     } = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            title: "",
+            name: "",
         },
     })
 
     return (
         <>
-            <form id="users-filter-form" onSubmit={handleSubmit(onSubmit)}>
+            <form id="roles-filter-form" onSubmit={handleSubmit(onSubmit)}>
                 <FormGrid>
                     <Field>
-                        <FieldLabel>Title</FieldLabel>
+                        <FieldLabel>Name</FieldLabel>
                         <Input
-                            {...register("title")}
+                            {...register("name")}
                         />
-                        <p className="h-4 truncate text-[10px] text-destructive" title={errors.title?.message}>
-                            {errors.title?.message}
+                        <p className="h-4 truncate text-[10px] text-destructive" title={errors.name?.message}>
+                            {errors.name?.message}
                         </p>
                     </Field>
                     <div className="flex items-center justify-start">
