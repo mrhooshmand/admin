@@ -14,6 +14,7 @@ The UI is crafted with **TailwindCSS** and **shadcn** for a clean, responsive de
 
 # ساختار پروژه / Project Structure
 
+admin └── .continue └── .history └── .venv backend ├── adminData.db └── app.py dist node_modules public src ├── app ├── assets ├── features │ ├── auth │ ├── dashboard │ ├── profile │ └── roles │ ├── api │ ├── columns │ │ ├── RoleActions.tsx │ │ └── roleColumns.tsx │ ├── components │ │ ├── RoleForm.tsx │ │ ├── RolesFilterForm.tsx │ │ └── RolesToolbar.tsx │ ├── hooks │ │ ├── useRoleDialogs.tsx │ │ └── useRoles.ts │ ├── pages │ ├── types │ │ ├── roles-filters.ts │ │ └── types.ts │ ├── constants.ts │ └── schemas.ts │ └── users │ ├── api │ │ └── userApi.ts │ ├── columns │ │ ├── UserActions.tsx │ │ └── userColumns.tsx │ ├── components │ │ ├── UserForm.tsx │ │ ├── UsersFilterForm.tsx │ │ ├── UsersTable.tsx │ │ └── UsersToolbar.tsx │ ├── hooks │ │ ├── useUserDialogs.tsx │ │ └── useUsers.ts │ ├── pages │ │ └── UsersPage.tsx │ ├── types │ │ ├── types.ts │ │ └── users-filters.ts │ ├── constants.ts │ └── schemas.ts ├── hooks ├── layouts ├── lib └── shared App.css App.tsx index.css main.tsx vite-env.d.ts .env .env.sample .gitignore admin.zip components.json eslint.config.js index.html package.json package-lock.json README.md tsconfig.json tsconfig.node.json users.db vite.config.ts
 ---
 
 # ابزارها و وابستگی‌ها / Tools & Dependencies
@@ -34,6 +35,14 @@ The UI is crafted with **TailwindCSS** and **shadcn** for a clean, responsive de
 ---
 
 # راه‌اندازی پروژه / Getting Started
+
+bash
+# نصب وابستگی‌ها
+npm install
+# اجرای محیط توسعه
+npm run dev
+# ساخت نسخه production
+npm run build
 
 ---
 
