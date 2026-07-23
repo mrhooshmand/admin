@@ -38,9 +38,11 @@ export const getRoleColumns = ({
         id: "actions",
         header: "Actions",
         cell: ({row, table}) => {
+            const role = row.original;
+            if (role.name === "admin") return null;
             return (
                 <RoleActions
-                    role={row.original}
+                    role={role}
                     isMutating={table.options.meta?.isMutating ?? false}
                     onEdit={onEdit}
                     onDelete={onDelete}
