@@ -1,0 +1,81 @@
+# معرفی پروژه / Project Overview
+
+## فارسی
+این پروژه یک اپلیکیشن وب مدرن است که از فریم‌ورک **React** و **TypeScript** بهره می‌برد.
+در این پروژه بخش‌های مدیریتی، داشبورد و کاربر‌مدیریتی (Users) و نقش‌های مدیریتی (Roles) پیاده‌سازی شده‌اند.
+با استفاده از **TailwindCSS** و **shadcn**، رابط کاربری زیبا و پاسخگو ساخته شده است.
+
+## English
+This project is a modern web application built with **React** and **TypeScript**.
+It includes administrative, dashboard, user management (Users), and role management (Roles) features.
+The UI is crafted with **TailwindCSS** and **shadcn** for a clean, responsive design.
+
+---
+
+# ساختار پروژه / Project Structure
+
+---
+
+# ابزارها و وابستگی‌ها / Tools & Dependencies
+
+| بسته (Package) | نسخه | توضیح |
+|-----------------|-------|-------|
+| **React** | 19.2.6 | کتابخانه UI |
+| **TypeScript** | 6.0.3 | تایپینگ استاتیک |
+| **TailwindCSS** | 4.3.1 | فریمورک CSS |
+| **shadcn** | 4.11.0 | کامپوننت‌های UI |
+| **axios** | 1.17.0 | HTTP client |
+| **react-query** | 5.101.0 | مدیریت حالت و درخواست‌های HTTP |
+| **zustand** | 5.0.14 | state management ساده |
+| **react-router-dom** | 7.17.0 | مسیر‌سازی |
+| **zod** | 4.4.3 | اعتبارسنجی داده |
+| ... | | سایر وابستگی‌ها به صورت بالا |
+
+---
+
+# راه‌اندازی پروژه / Getting Started
+
+---
+
+# توسعه و ساختار کد / Development & Code Structure
+
+- **features/** : هر بخش (Auth, Dashboard, Roles, Users) در پوشه‌ی خود جداگانه قرار دارد.
+- **components/** : کامپوننت‌های قابل استفاده مجدد در سطح پروژه.
+- **hooks/** : Hook‌های مخصوص هر feature.
+- **pages/** : صفحات اصلی (مانند UsersPage).
+- **types/** : تعریف نوع‌های TypeScript برای هر feature.
+- **constants.ts / schemas.ts** : مقادیر ثابت و اسکیمای اعتبارسنجی.
+
+---
+
+# نکات کلیدی / Key Points
+
+- از **React Query** برای درخواست‌های API و کشینگ استفاده شده است.
+- **Zustand** برای مدیریت سطوح state global استفاده می‌شود.
+- فایل‌های `*.ts` و `*.tsx` به‌صورت strict type-checked هستند.
+- برای UI از **shadcn** و **Tailwind** ترکیب شده‌اند تا کارایی و زیبایی بالا باشد.
+
+---
+
+# مستندات و منابع بیشتر / Further Reading
+
+- [React Docs](https://reactjs.org/docs/getting-started.html)
+- [TypeScript Docs](https://www.typescriptlang.org/docs/)
+- [Tailwind CSS Docs](https://tailwindcss.com/docs)
+- [shadcn UI](https://ui.shadcn.com/)
+- [React Query Docs](https://tanstack.com/query/latest)
+
+---
+
+# قوانین همکاری / Contribution Guidelines
+
+- پیشنهادها و issue‌های جدید را در GitHub مطرح کنید.
+- برای pull request، یک شاخه‌ی feature جدید ایجاد کنید و `npm run build` را در branch خود اجرا کنید.
+- کدهای شما باید با `npm run lint` بدون خطا باشند.
+
+---
+
+**نکته**: برای دسترسی به پایگاه داده‌های `backend` و `users`, پوشه‌ی `backend/` دارای فایل `app.py` و دیتابیس‌های SQLite است.
+برای استفاده در محیط توسعه، تنظیمات محیطی را در فایل `.env` تنظیم کنید.
+
+> اگر سؤال یا نیاز به توضیح بیشتری دارید، خوشحال می‌شویم کمک کنیم!
