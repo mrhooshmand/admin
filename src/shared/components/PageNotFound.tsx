@@ -1,0 +1,40 @@
+import {Button} from '@/shared/ui/button'
+import {ArrowRight} from 'lucide-react'
+import {useNavigate} from "react-router-dom";
+import placeholderImage from "/placeholder.svg";
+
+<img src={placeholderImage} alt="Placeholder"/>
+const PageNotFound = () => {
+    const navigate = useNavigate()
+    const handleNavigateHome = () => {
+        if (window.history.length > 1) {
+            navigate(-1);
+        } else {
+            navigate("/");
+        }
+    }
+    return (
+        <div
+            className='mx-auto flex min-h-dvh max-w-7xl flex-col items-center justify-center gap-8 p-8 md:gap-12 md:p-16'>
+            <img
+                src={placeholderImage}
+                alt='placeholder image'
+                className='aspect-video w-full max-w-7xl rounded-xl object-cover dark:brightness-[0.95] dark:invert'
+            />
+            <div className='text-center'>
+                <h1 className='mb-2 text-3xl font-bold'>Page Not Found</h1>
+                <p>Oops! The page you're trying to access doesn't exist.</p>
+                <div className='mt-6 flex items-center justify-center gap-4 md:mt-8'>
+                    <Button className="h-9 px-4 py-2 cursor-pointer" onClick={handleNavigateHome}>Go Back
+                        Home</Button>
+                    <Button variant='ghost' className="h-9 px-4 py-2 cursor-pointer" onClick={handleNavigateHome}>
+                        <span>Contact Us</span>
+                        <ArrowRight/>
+                    </Button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default PageNotFound

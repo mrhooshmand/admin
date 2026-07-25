@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 import sqlite3
 from contextlib import contextmanager
+import random
 
 app = Flask(__name__)
 
@@ -18,22 +19,10 @@ CORS(app, resources={
     }
 })
 
-
-# همچنین این middleware را اضافه کنید
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
-
-
-SECRET_KEY = "your-secret-key"
 tokens_db = {}
 
 # ============ دیتابیس ============
-DATABASE_NAME = "users.db"
+DATABASE_NAME = "adminData.db"
 
 
 @contextmanager
@@ -76,7 +65,6 @@ def init_db():
                          CURRENT_TIMESTAMP
                      )
                      ''')
-
         cursor = conn.execute("SELECT COUNT(*) FROM users")
         if cursor.fetchone()[0] == 0:
             conn.execute('''
@@ -84,38 +72,78 @@ def init_db():
                          VALUES (?, ?, ?, ?)
                          ''', ("admin", "1234", "admin@example.com", "Admin User"))
 
-            conn.execute('''
-                         INSERT INTO users (username, password, email, full_name)
-                         VALUES (?, ?, ?, ?)
-                         ''', ("user", "1234", "user@example.com", "Regular User"))
-
-            conn.execute('''
-                         INSERT INTO users (username, password, email, full_name)
-                         VALUES (?, ?, ?, ?)
-                         ''', ("public", "1234", "public@example.com", "Public User"))
-
             conn.commit()
             print("✅ Users table created with default users")
+
+        conn.execute('''
+                     CREATE TABLE IF NOT EXISTS roles
+                     (
+                         id
+                         INTEGER
+                         PRIMARY
+                         KEY
+                         AUTOINCREMENT,
+                         name
+                         TEXT
+                         UNIQUE
+                         NOT
+                         NULL,
+                         description
+                         TEXT,
+                         created_at
+                         TIMESTAMP
+                         DEFAULT
+                         CURRENT_TIMESTAMP
+                     )
+                     ''')
+        cursor = conn.execute("SELECT COUNT(*) FROM roles")
+
+        if cursor.fetchone()[0] == 0:
+            roles = [
+                ("admin", "Administrator Role"),
+                ("manager", "Manager Role"),
+                ("operator", "Operator Role"),
+                ("viewer", "Viewer Role"),
+            ]
+            conn.executemany("""
+                             INSERT INTO roles (name, description)
+                             VALUES (?, ?)
+                             """, roles)
+            conn.commit()
+            print("✅ Roles table created with default roles")
 
 
 init_db()
 
 
-# ============ توابع کمکی ============
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        if not token or not token.startswith('Bearer '):
-            return jsonify({"error": "Token missing"}), 401
+def create_test_users(count=100):
+    with get_db() as conn:
+        for i in range(1, count + 1):
+            username = f"user_{i}"
+            password = "1234"
+            email = f"user{i}@example.com"
+            full_name = f"User {i}"
 
-        token = token.split(' ')[1]
-        if token not in tokens_db or tokens_db[token]["expires"] < datetime.now():
-            return jsonify({"error": "Invalid token"}), 401
+            try:
+                conn.execute('''
+                             INSERT INTO users (username, password, email, full_name)
+                             VALUES (?, ?, ?, ?)
+                             ''', (
+                                 username,
+                                 password,
+                                 email,
+                                 full_name
+                             ))
 
-        return f(*args, **kwargs)
+            except sqlite3.IntegrityError:
+                pass
 
-    return decorated
+        conn.commit()
+
+    print(f"✅ {count} test users created")
+
+
+create_test_users(25)
 
 
 # ============ API Endpoints ============
@@ -195,8 +223,16 @@ def login():
                     "email": user['email'],
                     "full_name": user['full_name']
                 }
-
-                return jsonify({"token": token, "user": user_info})
+                response = jsonify({"message": "Login successful", "user": user_info})
+                response.set_cookie(
+                    'token',
+                    token,
+                    httponly=True,
+                    secure=False,  # برای localhost
+                    samesite='Lax',
+                    max_age=24 * 60 * 60
+                )
+                return response
 
             return jsonify({"error": "Invalid credentials"}), 401
 
@@ -204,37 +240,153 @@ def login():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/me', methods=['GET'])
-@token_required
-def get_me():
-    token = request.headers.get('Authorization').split(' ')[1]
-    username = tokens_db[token]["username"]
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    response = jsonify({"message": "Logged out successfully"})
+    response.delete_cookie('token')
+    return response
 
+
+@app.route('/api/me', methods=['GET'])
+def get_me():
     try:
+        token = request.cookies.get('token')
+
+        if not token:
+            return jsonify({"error": "Not authorised, please sign in"}), 401
+
+        if token not in tokens_db:
+            return jsonify({"error": "Invalid token"}), 401
+
+        if tokens_db[token]["expires"] < datetime.now():
+            return jsonify({"error": "Token expired"}), 401
+
+        username = tokens_db[token]["username"]
+
         with get_db() as conn:
             cursor = conn.execute(
                 "SELECT username, email, full_name, created_at FROM users WHERE username = ?",
                 (username,)
             )
-            user = dict(cursor.fetchone())
-            return jsonify(user)
+            user = cursor.fetchone()
+            if user:
+                return jsonify(dict(user))
+            return jsonify({"error": "User not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/users', methods=['GET'])
-def get_users():
+@app.route("/api/users/search", methods=["POST"])
+def search_users():
     try:
+        data = request.get_json() or {}
+
+        fields = data.get("fields", {})
+
+        page = max(int(data.get("page", 0)), 0)
+        page_size = max(int(data.get("pageSize", 20)), 1)
+
+        order = data.get("order", "created_at")
+        order_type = data.get("orderType", "desc").upper()
+
+        # ---------- امنیت ----------
+        allowed_sort_columns = {
+            "id",
+            "username",
+            "email",
+            "full_name",
+            "created_at"
+        }
+
+        if order not in allowed_sort_columns:
+            order = "created_at"
+
+        if order_type not in ["ASC", "DESC"]:
+            order_type = "DESC"
+
+        # ---------- Query ----------
+        base_query = """
+            FROM users
+        """
+
+        where = []
+        params = []
+
+        username = fields.get("username", "").strip()
+        email = fields.get("email", "").strip()
+        full_name = fields.get("full_name", "").strip()
+
+        if username:
+            where.append("username LIKE ?")
+            params.append(f"%{username}%")
+
+        if email:
+            where.append("email LIKE ?")
+            params.append(f"%{email}%")
+
+        if full_name:
+            where.append("full_name LIKE ?")
+            params.append(f"%{full_name}%")
+
+        if where:
+            base_query += " WHERE " + " AND ".join(where)
+
+        # ---------- Total Count ----------
+        count_query = f"""
+            SELECT COUNT(*)
+            {base_query}
+        """
+        offset = (page - 1) * page_size
         with get_db() as conn:
-            cursor = conn.execute('''
-                                  SELECT id, username, email, full_name, created_at
-                                  FROM users
-                                  ORDER BY created_at DESC
-                                  ''')
-            users_list = [dict(row) for row in cursor.fetchall()]
-            return jsonify(users_list)
+
+            total = conn.execute(
+                count_query,
+                params
+            ).fetchone()[0]
+
+            query = f"""
+                SELECT
+                    id,
+                    username,
+                    email,
+                    full_name,
+                    created_at
+                {base_query}
+                ORDER BY {order} {order_type}
+                LIMIT ?
+                OFFSET ?
+            """
+
+            cursor = conn.execute(
+                query,
+                [
+                    *params,
+                    page_size,
+                    offset
+                ]
+            )
+
+            users = [dict(row) for row in cursor.fetchall()]
+
+        return jsonify({
+            "status": "success",
+            "message": "",
+            "data": users,
+            "pagination": {
+                "page": page,
+                "pageSize": page_size,
+                "total": total,
+                "totalPages": (total + page_size - 1) // page_size,
+                "order": order,
+                "orderType": order_type.lower()
+            },
+        })
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
 
 
 @app.route('/api/users', methods=['POST'])
@@ -267,9 +419,20 @@ def create_user():
                                   (username,))
             new_user = dict(cursor.fetchone())
 
-            return jsonify(new_user), 201
+            return jsonify(
+                {
+                    "status": "success",
+                    "message": "User created successfully",
+                    "data": {
+                        "id": new_user["id"],
+                        "username": new_user["username"],
+                    },
+                })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
 
 
 @app.route('/api/users/<int:user_id>', methods=['PUT'])
@@ -330,10 +493,20 @@ def update_user(user_id):
             cursor = conn.execute('SELECT id, username, email, full_name, created_at FROM users WHERE id = ?',
                                   (user_id,))
             updated_user = dict(cursor.fetchone())
-
-            return jsonify(updated_user)
+            print(updated_user)
+            return jsonify({
+                "status": "success",
+                "message": "User updated successfully",
+                "data": {
+                    "id": updated_user["id"],
+                    "username": updated_user["username"],
+                },
+            })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
 
 
 @app.route('/api/users/<int:user_id>', methods=['DELETE'])
@@ -348,18 +521,240 @@ def delete_user(user_id):
             if user['username'] == 'admin':
                 return jsonify({"error": "Cannot delete admin user"}), 403
 
-            cursor = conn.execute("SELECT username FROM users WHERE id = ?", (user_id,))
-
             conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
             conn.commit()
 
-            return jsonify({"message": "User deleted successfully"})
+            return jsonify({
+                "status": "success",
+                "message": "User deleted successfully!",
+            })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
+@app.route("/api/roles/search", methods=["POST"])
+def search_roles():
+    try:
+        data = request.get_json() or {}
+
+        fields = data.get("fields", {})
+
+        page = max(int(data.get("page", 0)), 0)
+        page_size = max(int(data.get("pageSize", 20)), 1)
+
+        order = data.get("order", "created_at")
+        order_type = data.get("orderType", "desc").upper()
+
+        # ---------- امنیت ----------
+        allowed_sort_columns = {
+            "id",
+            "name",
+            "description",
+            "created_at"
+        }
+
+        if order not in allowed_sort_columns:
+            order = "created_at"
+
+        if order_type not in ["ASC", "DESC"]:
+            order_type = "DESC"
+
+        # ---------- Query ----------
+        base_query = """
+            FROM roles
+        """
+
+        where = []
+        params = []
+
+        name = fields.get("name", "").strip()
+        description = fields.get("description", "").strip()
+
+        if name:
+            where.append("name LIKE ?")
+            params.append(f"%{name}%")
+
+        if description:
+            where.append("description LIKE ?")
+            params.append(f"%{description}%")
+
+        if where:
+            base_query += " WHERE " + " AND ".join(where)
+
+        # ---------- Total Count ----------
+        count_query = f"""
+            SELECT COUNT(*)
+            {base_query}
+        """
+        offset = (page - 1) * page_size
+        with get_db() as conn:
+
+            total = conn.execute(
+                count_query,
+                params
+            ).fetchone()[0]
+
+            query = f"""
+                SELECT
+                    id,
+                    name,
+                    description,
+                    created_at
+                {base_query}
+                ORDER BY {order} {order_type}
+                LIMIT ?
+                OFFSET ?
+            """
+
+            cursor = conn.execute(
+                query,
+                [
+                    *params,
+                    page_size,
+                    offset
+                ]
+            )
+
+            roles = [dict(row) for row in cursor.fetchall()]
+
+        return jsonify({
+            "status": "success",
+            "message": "",
+            "data": roles,
+            "pagination": {
+                "page": page,
+                "pageSize": page_size,
+                "total": total,
+                "totalPages": (total + page_size - 1) // page_size,
+                "order": order,
+                "orderType": order_type.lower()
+            },
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
+@app.route('/api/roles', methods=['POST'])
+def create_role():
+    try:
+        data = request.json
+        name = data.get('name')
+        description = data.get('description')
+
+        if not name or not description:
+            return jsonify({"error": "Name and description required"}), 400
+
+        with get_db() as conn:
+            cursor = conn.execute("SELECT id FROM roles WHERE name = ?", (name,))
+            if cursor.fetchone():
+                return jsonify({"error": "Role already exists"}), 400
+
+            conn.execute('''
+                         INSERT INTO roles (name, description)
+                         VALUES (?, ?)
+                         ''', (name, description))
+            conn.commit()
+
+            cursor = conn.execute('SELECT id, name, description, created_at FROM roles WHERE name = ?',
+                                  (name,))
+            new_role = dict(cursor.fetchone())
+
+            return jsonify(
+                {
+                    "status": "success",
+                    "message": "Role created successfully",
+                    "data": {
+                        "id": new_role["id"],
+                        "name": new_role["name"],
+                    },
+                })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
+@app.route('/api/roles/<int:role_id>', methods=['PUT'])
+def update_role(role_id):
+    try:
+        data = request.json
+        name = data.get('name')
+        description = data.get('description')
+
+        with get_db() as conn:
+            cursor = conn.execute("SELECT * FROM roles WHERE id = ?", (role_id,))
+            role = cursor.fetchone()
+            if not role:
+                return jsonify({"error": "Role not found"}), 404
+
+            if role['name'] == 'admin':
+                return jsonify({"error": "Cannot modify admin role"}), 403
+
+            if not name or not description:
+                return jsonify({"error": "Name and Description are required"}), 400
+
+            conn.execute('''
+                         UPDATE roles
+                         SET name        = ?,
+                             description = ?
+                         WHERE id = ?
+                         ''', (name, description, role_id))
+
+            conn.commit()
+
+            cursor = conn.execute('SELECT id, name, description, created_at FROM roles WHERE id = ?',
+                                  (role_id,))
+
+            updated_role = dict(cursor.fetchone())
+            return jsonify({
+                "status": "success",
+                "message": "Role updated successfully",
+                "data": {
+                    "id": updated_role["id"],
+                    "name": updated_role["name"],
+                },
+            })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
+@app.route('/api/roles/<int:role_id>', methods=['DELETE'])
+def delete_role(role_id):
+    try:
+        with get_db() as conn:
+            cursor = conn.execute("SELECT name FROM roles WHERE id = ?", (role_id,))
+            role = cursor.fetchone()
+            if not role:
+                return jsonify({"error": "Role not found"}), 404
+
+            if role['name'] == 'admin':
+                return jsonify({"error": "Cannot delete admin role"}), 403
+
+            conn.execute("DELETE FROM roles WHERE id = ?", (role_id,))
+            conn.commit()
+
+            return jsonify({
+                "status": "success",
+                "message": "Role deleted successfully!",
+            })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
 
 
 if __name__ == '__main__':
-    print("🚀 Flask server starting with SQLite database...")
     print("📍 http://localhost:8000")
-    print("🔐 Test users: admin/1234 or user/1234")
     app.run(host='0.0.0.0', port=8000, debug=True)
