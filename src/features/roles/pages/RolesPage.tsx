@@ -38,7 +38,7 @@ export default function Roles() {
     return (
         <Page>
             <PageFilters actions={
-                <RolesToolbar onAdd={dialogs.addRole} onExport={() => console.log('123')}/>}
+                <RolesToolbar onAdd={dialogs.addRole}/>}
             >
                 <RolesFilterForm onSubmit={(filters: RolesFilters) => search.setFilters(filters)}/>
             </PageFilters>

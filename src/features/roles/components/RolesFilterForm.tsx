@@ -20,7 +20,7 @@ interface PageFilterProps {
 const formSchema = z.object({
     name: z
         .string()
-        .max(30, "title must be at most 30 characters."),
+        .max(30, "name must be at most 30 characters."),
 })
 
 export function RolesFilterForm({onSubmit}: PageFilterProps) {
