@@ -3,7 +3,6 @@ import {Plus} from "lucide-react";
 
 interface PageActionProps {
     onAdd?: () => void;
-    onExport?: () => void;
 }
 
 export function RolesToolbar({onAdd}: PageActionProps) {
