@@ -3,7 +3,7 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
     createUser as createUserApi,
     updateUser as updateUserApi,
-    deleteUser as deleteUserApi, searchUsers,
+    deleteUser as deleteUserApi, searchUsers, deleteUsers,
 } from "../api/userApi";
 
 import {User} from "../types/types";
@@ -50,6 +50,16 @@ export function useUsers(request: SearchRequest<UsersFilters>) {
         },
     });
 
+    const deleteBulkMutation = useMutation({
+        mutationFn: deleteUsers,
+        onSuccess: (response) => {
+            queryClient.invalidateQueries({
+                queryKey: ["users"],
+            });
+            showAlert(response.status, response.message);
+        },
+    });
+
     return {
         // query
         users: usersQuery?.data ?? [],
@@ -61,6 +71,7 @@ export function useUsers(request: SearchRequest<UsersFilters>) {
         createUser: createMutation.mutate,
         updateUser: updateMutation.mutate,
         deleteUser: deleteMutation.mutate,
+        deleteUsers: deleteBulkMutation.mutate,
 
         // state
         isMutating:

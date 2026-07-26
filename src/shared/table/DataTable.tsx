@@ -4,7 +4,7 @@ import {
     ColumnDef,
     getCoreRowModel,
     useReactTable,
-    TableMeta
+    TableMeta, RowSelectionState
 } from "@tanstack/react-table"
 
 import {
@@ -19,6 +19,7 @@ import type {
 import {DataTablePagination} from "@/shared/table/DataTablePagination.tsx";
 import {DataTableHeader} from "@/shared/table/DataTableHeader.tsx";
 import {DataTableBody} from "@/shared/table/DataTableBody.tsx";
+import {SelectionColumn} from "@/shared/table/SelectionColumn.tsx";
 import {useEffect, useState} from "react";
 import {
     OnChangeFn,
@@ -40,6 +41,8 @@ interface DataTableProps<TData, TValue> {
     className?: string
     emptyMessage?: React.ReactNode
     isLoading: boolean
+    selectable?: boolean;
+    onSelectionChange?: (rows: TData[]) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -48,7 +51,7 @@ export function DataTable<TData, TValue>({
                                              pagination,
                                              sorting,
                                              meta,
-                                             className, emptyMessage, isLoading
+                                             className, emptyMessage, isLoading, selectable = false, onSelectionChange
                                          }: DataTableProps<TData, TValue>) {
 
 
@@ -94,17 +97,42 @@ export function DataTable<TData, TValue>({
         setSortingState(next);
     }, [sorting?.order, sorting?.orderType]);
 
+
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+
+    useEffect(() => {
+        setRowSelection({});
+    }, [pagination?.page]);
+
+    const finalColumns = selectable
+        ? [
+            SelectionColumn<TData>(),
+            ...columns,
+        ]
+        : columns;
+
+
     const table = useReactTable({
         data,
-        columns,
+        columns: finalColumns,
         meta,
         state: {
             sorting: sortingState,
+            rowSelection
         },
         manualSorting: sorting?.mode === 'server',
         onSortingChange: handleSortingChange,
+        onRowSelectionChange: setRowSelection,
+        enableRowSelection: true,
         getCoreRowModel: getCoreRowModel()
     })
+
+    useEffect(() => {
+        if (!onSelectionChange) return;
+        onSelectionChange(
+            table.getSelectedRowModel().rows.map(row => row.original)
+        );
+    }, [rowSelection]);
 
     if (isLoading) return <TableSkeleton/>
     return (

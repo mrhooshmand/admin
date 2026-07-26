@@ -9,6 +9,10 @@ import {INITIAL_USERS_FILTERS} from "@/features/users/constants.ts";
 import {DataTable} from "@/shared/table/DataTable.tsx";
 import {getUserColumns} from "@/features/users/columns/userColumns.tsx";
 import {useUserDialogs} from "@/features/users/hooks/useUserDialogs.tsx";
+import {useState} from "react";
+import {User} from "@/features/auth/types.ts";
+import {BulkActionsBar} from "@/shared/table/BulkActionsBar.tsx";
+import {Button} from "@/shared/ui/button.tsx";
 
 export default function Users() {
     const search = useSearchRequest<UsersFilters>({
@@ -20,6 +24,7 @@ export default function Users() {
         createUser: createUserMutation,
         updateUser: updateUserMutation,
         deleteUser: deleteUserMutation,
+        deleteUsers: deleteUsersMutation,
         isMutating,
         isLoading,
     } = useUsers(search.request);
@@ -28,6 +33,7 @@ export default function Users() {
         createUserMutation,
         updateUserMutation,
         deleteUserMutation,
+        deleteUsersMutation,
         isMutating,
     });
 
@@ -36,6 +42,7 @@ export default function Users() {
         onDelete: dialogs.deleteUser,
         onView: dialogs.viewUser,
     })
+    const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
     return (
         <Page>
@@ -46,7 +53,17 @@ export default function Users() {
                     search.setFilters(filters)
                 }/>
             </PageFilters>
-            <DataTable columns={columns} data={users?.data ?? []} isLoading={isLoading}
+            <BulkActionsBar count={selectedUsers.length}>
+                <Button
+                    variant="destructive"
+                    onClick={() => dialogs.deleteUsers(selectedUsers.map(u => u.id))}
+                >
+                    Delete
+                </Button>
+                <Button variant="outline">Change Status</Button>
+            </BulkActionsBar>
+            <DataTable selectable onSelectionChange={setSelectedUsers} columns={columns} data={users?.data ?? []}
+                       isLoading={isLoading}
                        meta={{rowOffset, isMutating,}}
                        emptyMessage="User not found"
                        pagination={{

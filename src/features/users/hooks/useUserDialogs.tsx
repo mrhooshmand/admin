@@ -26,6 +26,11 @@ interface UseUserDialogsProps {
         options?: any
     ) => void;
 
+    deleteUsersMutation: (
+        data: number[],
+        options?: any
+    ) => void;
+
     isMutating: boolean;
 }
 
@@ -33,6 +38,7 @@ export function useUserDialogs({
                                    createUserMutation,
                                    updateUserMutation,
                                    deleteUserMutation,
+                                   deleteUsersMutation,
                                    isMutating,
                                }: UseUserDialogsProps) {
 
@@ -116,6 +122,21 @@ export function useUserDialogs({
         });
     };
 
+    const deleteUsers = (userIDs: number[]) => {
+        showConfirm({
+            title: "Delete Users?",
+            description: `Are you sure you want to delete "${userIDs.length}" users?`,
+            confirmText: "Delete",
+            cancelText: "Cancel",
+            confirmVariant: "destructive",
+            onConfirm: () => deleteUsersMutation(userIDs, {
+                onSuccess: () => {
+                    closeModal();
+                }
+            }),
+        });
+    };
+
     const viewUser = (user: User) => {
         openModal({
             title: `User Details: ${user.username}`,
@@ -156,5 +177,6 @@ export function useUserDialogs({
         editUser,
         viewUser,
         deleteUser,
+        deleteUsers,
     };
 }

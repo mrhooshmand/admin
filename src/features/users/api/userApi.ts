@@ -19,3 +19,7 @@ export const deleteUser = async (id: number) => {
     const response = await api.delete(`/users/${id}`);
     return response.data
 };
+export const deleteUsers = async (userData: object) => {
+    const response = await api.post("/users", userData);
+    return response.data
+};
