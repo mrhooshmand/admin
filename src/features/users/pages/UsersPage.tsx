@@ -62,7 +62,8 @@ export default function Users() {
                 </Button>
                 <Button variant="outline">Change Status</Button>
             </BulkActionsBar>
-            <DataTable selectable onSelectionChange={setSelectedUsers} columns={columns} data={users?.data ?? []}
+            <DataTable selectable={(user) => user.username !== "admin"} onSelectionChange={setSelectedUsers}
+                       columns={columns} data={users?.data ?? []}
                        isLoading={isLoading}
                        meta={{rowOffset, isMutating,}}
                        emptyMessage="User not found"

@@ -41,7 +41,7 @@ interface DataTableProps<TData, TValue> {
     className?: string
     emptyMessage?: React.ReactNode
     isLoading: boolean
-    selectable?: boolean;
+    selectable?: boolean | ((row: TData) => boolean);
     onSelectionChange?: (rows: TData[]) => void;
 }
 
@@ -123,7 +123,10 @@ export function DataTable<TData, TValue>({
         manualSorting: sorting?.mode === 'server',
         onSortingChange: handleSortingChange,
         onRowSelectionChange: setRowSelection,
-        enableRowSelection: true,
+        enableRowSelection:
+            typeof selectable === "function"
+                ? (row) => selectable(row.original)
+                : selectable,
         getCoreRowModel: getCoreRowModel()
     })
 

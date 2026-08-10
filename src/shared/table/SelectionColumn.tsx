@@ -19,6 +19,7 @@ export function SelectionColumn<TData>(): ColumnDef<TData> {
         cell: ({ row }) => (
             <Checkbox
                 checked={row.getIsSelected()}
+                disabled={!row.getCanSelect()}
                 onCheckedChange={(value) =>
                     row.toggleSelected(!!value)
                 }
