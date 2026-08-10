@@ -65,7 +65,7 @@ export function UserForm({
         <form onSubmit={handleSubmit(onSave)} className="grid gap-4 py-4">
             {/* Username */}
             <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username_field">Username</Label>
                 <Input
                     id="username_field"
                     placeholder="Enter username"
@@ -93,7 +93,7 @@ export function UserForm({
 
             {/* Email */}
             <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email_field">Email</Label>
                 <Input
                     id="email_field"
                     type="email"
@@ -108,7 +108,7 @@ export function UserForm({
 
             {/* Password */}
             <div className="grid gap-2">
-                <Label htmlFor="password">
+                <Label htmlFor="password_field">
                     Password
                 </Label>
                 <Input
@@ -126,7 +126,7 @@ export function UserForm({
             {/* Confirm Password */}
             {watchPassword && (
                 <div className="grid gap-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Label htmlFor="confirmPassword_field">Confirm Password</Label>
                     <Input
                         id="confirmPassword_field"
                         type="password"

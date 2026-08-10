@@ -70,7 +70,9 @@ export function useUserDialogs({
                         }
 
                         createUserMutation(payload, {
-                            onSuccess: closeModal(),
+                            onSuccess: () => {
+                                closeModal();
+                            }
                         });
                     }}
                 />
@@ -114,11 +116,7 @@ export function useUserDialogs({
             confirmText: "Delete",
             cancelText: "Cancel",
             confirmVariant: "destructive",
-            onConfirm: () => deleteUserMutation(user.id, {
-                onSuccess: () => {
-                    closeModal();
-                }
-            }),
+            onConfirm: () => deleteUserMutation(user.id)
         });
     };
 
@@ -129,11 +127,7 @@ export function useUserDialogs({
             confirmText: "Delete",
             cancelText: "Cancel",
             confirmVariant: "destructive",
-            onConfirm: () => deleteUsersMutation(userIDs, {
-                onSuccess: () => {
-                    closeModal();
-                }
-            }),
+            onConfirm: () => deleteUsersMutation(userIDs)
         });
     };
 
