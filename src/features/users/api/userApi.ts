@@ -6,12 +6,12 @@ export const searchUsers = async (userData: object) => {
 };
 
 export const createUser = async (userData: object) => {
-    const response = await api.post("/users", userData);
+    const response = await api.post("/users", {fields: userData});
     return response.data
 };
 
 export const updateUser = async (id: number, userData: object) => {
-    const response = await api.put(`/users/${id}`, userData);
+    const response = await api.put(`/users/${id}`, {fields: userData});
     return response.data
 };
 
@@ -20,6 +20,6 @@ export const deleteUser = async (id: number) => {
     return response.data
 };
 export const deleteUsers = async (userData: object) => {
-    const response = await api.post("/users", userData);
+    const response = await api.put("/users/bulkDelete", {fields: {ids: userData}});
     return response.data
 };

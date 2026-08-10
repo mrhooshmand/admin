@@ -392,11 +392,12 @@ def search_users():
 @app.route('/api/users', methods=['POST'])
 def create_user():
     try:
-        data = request.json
-        username = data.get('username')
-        password = data.get('password')
-        email = data.get('email', '')
-        full_name = data.get('full_name', '')
+        data = request.get_json() or {}
+        fields = data.get("fields", {})
+        username = fields.get('username')
+        password = fields.get('password')
+        email = fields.get('email', '')
+        full_name = fields.get('full_name', '')
 
         if not username or not password:
             return jsonify({"error": "Username and password required"}), 400
@@ -438,11 +439,12 @@ def create_user():
 @app.route('/api/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     try:
-        data = request.json
-        username = data.get('username', '')
-        email = data.get('email', '')
-        full_name = data.get('full_name', '')
-        password = data.get('password')
+        data = request.get_json() or {}
+        fields = data.get("fields", {})
+        username = fields.get('username', '')
+        email = fields.get('email', '')
+        full_name = fields.get('full_name', '')
+        password = fields.get('password')
 
         with get_db() as conn:
             cursor = conn.execute("SELECT username FROM users WHERE id = ?", (user_id,))
@@ -528,6 +530,72 @@ def delete_user(user_id):
                 "status": "success",
                 "message": "User deleted successfully!",
             })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+        }), 500
+
+
+@app.route('/api/users/bulkDelete', methods=['PUT'])
+def delete_users():
+    try:
+        data = request.get_json() or {}
+        fields = data.get("fields", {})
+        id_list = fields.get("ids", [])
+
+        if not id_list:
+            return jsonify({
+                "status": "error",
+                "message": "No users selected",
+            }), 400
+
+        with get_db() as conn:
+
+            placeholders = ",".join("?" for _ in id_list)
+
+            cursor = conn.execute(
+                f"""
+                SELECT id, username
+                FROM users
+                WHERE id IN ({placeholders})
+                """,
+                id_list
+            )
+
+            users = cursor.fetchall()
+
+            if not users:
+                return jsonify({
+                    "status": "error",
+                    "message": "No users found",
+                }), 404
+
+            for user in users:
+                if user["username"] == "admin":
+                    return jsonify({
+                        "status": "error",
+                        "message": "Cannot delete admin user",
+                    }), 403
+
+            conn.execute(
+                f"""
+                DELETE FROM users
+                WHERE id IN ({placeholders})
+                """,
+                id_list
+            )
+
+            conn.commit()
+
+        return jsonify({
+            "status": "success",
+            "message": f"{len(users)} users deleted successfully",
+            "data": {
+                "ids": id_list,
+            },
+        })
+
     except Exception as e:
         return jsonify({
             "status": "error",
