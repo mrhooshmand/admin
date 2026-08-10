@@ -47,8 +47,8 @@ export const getUserColumns = ({
         id: "actions",
         header: "Actions",
         cell: ({row, table}) => {
-            const role = row.original;
-            if (role.username === "admin") return null;
+            const user = row.original;
+            if (user.username === "admin") return null;
             return (
                 <UserActions
                     user={row.original}
