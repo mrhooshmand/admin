@@ -43,6 +43,7 @@ export default function Users() {
         onView: dialogs.viewUser,
     })
     const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+    const canSelect = (user: User) => !["admin", "user_19"].includes(user.username);
 
     return (
         <Page>
@@ -62,7 +63,7 @@ export default function Users() {
                 </Button>
                 <Button variant="outline">Change Status</Button>
             </BulkActionsBar>
-            <DataTable selectable={(user) => user.username !== "admin"} onSelectionChange={setSelectedUsers}
+            <DataTable selectable={canSelect} onSelectionChange={setSelectedUsers}
                        columns={columns} data={users?.data ?? []}
                        isLoading={isLoading}
                        meta={{rowOffset, isMutating,}}
