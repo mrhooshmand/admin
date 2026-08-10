@@ -1,6 +1,5 @@
 import axios, {
 	AxiosInstance,
-	AxiosError,
 } from "axios";
 import { API_BASE_URL } from "../constants/api";
 
@@ -13,12 +12,5 @@ const api: AxiosInstance = axios.create({
 	},
 });
 
-// Interceptor برای مدیریت خطاها
-api.interceptors.response.use(
-	(response) => response,
-	(error: AxiosError) => {
-		return Promise.reject(error);
-	},
-);
 
 export default api;
