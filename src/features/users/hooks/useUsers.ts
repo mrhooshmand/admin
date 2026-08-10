@@ -62,7 +62,7 @@ export function useUsers(request: SearchRequest<UsersFilters>) {
 
     return {
         // query
-        users: usersQuery?.data ?? [],
+        users: usersQuery.data,
         error: usersQuery.error,
         refetch: usersQuery.refetch,
         isLoading: usersQuery.isLoading,

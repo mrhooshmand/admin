@@ -69,8 +69,8 @@ export default function Users() {
                        meta={{rowOffset, isMutating,}}
                        emptyMessage="User not found"
                        pagination={{
-                           page: users.pagination?.page,
-                           totalPages: users.pagination?.totalPages,
+                           page: users?.pagination?.page ?? 1,
+                           totalPages: users?.pagination?.totalPages ?? 1,
                            onPageChange: search.setPage,
                        }}
                        sorting={{
