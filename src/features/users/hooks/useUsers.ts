@@ -77,6 +77,7 @@ export function useUsers(request: SearchRequest<UsersFilters>) {
         isMutating:
             createMutation.isPending ||
             updateMutation.isPending ||
-            deleteMutation.isPending,
+            deleteMutation.isPending ||
+            deleteBulkMutation.isPending,
     };
 }

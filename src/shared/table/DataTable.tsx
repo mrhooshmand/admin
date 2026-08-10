@@ -102,7 +102,7 @@ export function DataTable<TData, TValue>({
 
     useEffect(() => {
         setRowSelection({});
-    }, [pagination?.page]);
+    }, [pagination?.page,data]);
 
     const finalColumns = selectable
         ? [
