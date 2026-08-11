@@ -48,7 +48,7 @@ export function UsersFilterForm({onSubmit}: PageFilterProps) {
                         <Input
                             {...register("username")}
                         />
-                        <p className="h-4 truncate text-[10px] text-destructive" title={errors.name?.message}>
+                        <p className="h-4 truncate text-[10px] text-destructive" title={errors.username?.message}>
                             {errors.username?.message}
                         </p>
                     </Field>
