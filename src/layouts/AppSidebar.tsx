@@ -12,8 +12,11 @@ import {SidebarClock} from '@/shared/components/sidebar/SidebarClock'
 import {navigation} from '@/shared/types/navigation.ts'
 import {SidebarItem} from "@/shared/components/sidebar/SidebarItem.tsx";
 import logoImage from "/logooo.png";
+import {filterNavigation} from "@/shared/navigation/filterNavigation.ts";
+import type {Menu} from "@/features/auth/types";
 
-export function AppSidebar() {
+export function AppSidebar({menus}: { menus: Menu[] }) {
+    const visibleNavigation = filterNavigation(navigation, menus);
     return (
         <Sidebar>
             <SidebarHeader>
@@ -28,9 +31,9 @@ export function AppSidebar() {
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {navigation.map((item) => (
+                            {visibleNavigation.map((item) => (
                                 <SidebarItem
-                                    key={item.title}
+                                    key={item.code}
                                     item={item}
                                 />
                             ))}

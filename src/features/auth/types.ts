@@ -18,9 +18,16 @@ export interface RegisterRequest {
 	full_name?: string;
 }
 
+export interface Menu {
+	id: number;
+	code: string;
+	title: string;
+}
+
 export interface LoginResponse {
+	message: string;
 	user: User;
-	message?: string;
+	menus: Menu[];
 }
 
 export interface RegisterResponse {

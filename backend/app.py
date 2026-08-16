@@ -258,6 +258,38 @@ def login():
         return jsonify({"error": str(e)}), 500
 
 
+@app.get("/api/menus")
+def menus():
+    try:
+        return jsonify({
+            "status": "success",
+            "message": "",
+            "data": [
+                {
+                    "id": 784,
+                    "code": "users",
+                    "title": "Users"
+                },
+                {
+                    "id": 785,
+                    "code": "roles",
+                    "title": "Roles"
+                },
+                {
+                    "id": 1,
+                    "code": "profile",
+                    "title": "Profile"
+                }
+            ]
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "data": []
+        }), 500
+
+
 @app.route('/api/logout', methods=['POST'])
 def logout():
     response = jsonify({"message": "Logged out successfully"})
