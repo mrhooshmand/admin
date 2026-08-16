@@ -223,7 +223,25 @@ def login():
                     "email": user['email'],
                     "full_name": user['full_name']
                 }
-                response = jsonify({"message": "Login successful", "user": user_info})
+                response = jsonify({"message": "Login successful", "user": user_info,
+                                    "menus":
+                                        [
+                                            {
+                                                "id": 783,
+                                                "code": "roles",
+                                                "title": "Roles"
+                                            },
+                                            {
+                                                "id": 784,
+                                                "code": "users",
+                                                "title": "Users"
+                                            },
+                                            {
+                                                "id": 1,
+                                                "code": "profile",
+                                                "title": "Profile"
+                                            }
+                                        ]})
                 response.set_cookie(
                     'token',
                     token,
