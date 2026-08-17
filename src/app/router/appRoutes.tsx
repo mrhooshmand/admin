@@ -1,12 +1,18 @@
 import { lazy } from "react";
+import { ReactNode } from "react";
 
 const Dashboard = lazy(() => import("@/features/dashboard/pages/DashboardPage"));
 const Users = lazy(() => import("@/features/users/pages/UsersPage"));
 const Roles = lazy(() => import("@/features/roles/pages/RolesPage"));
 
-export const appRoutes = [
+interface AppRoute {
+    code?: string;
+    path: string;
+    element: ReactNode;
+}
+
+export const appRoutes: AppRoute[] = [
     {
-        code: "dashboard",
         path: "dashboard",
         element: <Dashboard />,
     },
@@ -19,5 +25,5 @@ export const appRoutes = [
         code: "roles",
         path: "users/roles",
         element: <Roles />,
-    }
+    },
 ];

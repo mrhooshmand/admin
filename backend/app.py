@@ -274,11 +274,6 @@ def menus():
                     "id": 785,
                     "code": "roles",
                     "title": "Roles"
-                },
-                {
-                    "id": 1,
-                    "code": "profile",
-                    "title": "Profile"
                 }
             ]
         })

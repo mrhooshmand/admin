@@ -1,5 +1,5 @@
-import type { NavItem } from "@/shared/types/navigation";
-import type { Menu } from "@/features/auth/types";
+import type {NavItem} from "@/shared/types/navigation";
+import type {Menu} from "@/features/auth/types";
 
 export function filterNavigation(
     navigation: NavItem[],
@@ -12,30 +12,20 @@ export function filterNavigation(
 
     return navigation
         .map(item => {
-
-            // Parent / Group
             if (item.children) {
-                const children = item.children.filter(
-                    child =>
-                        !child.code ||
-                        allowedCodes.has(child.code)
-                );
+                const children = item.children.filter(child => {
+                    if (!child.code) return true;
+                    return allowedCodes.has(child.code);
+                });
 
-                if (children.length === 0) {
-                    return null;
-                }
+                if (children.length === 0) return null;
 
                 return {
                     ...item,
                     children,
                 };
             }
-
-            // بدون code = public
-            if (!item.code || allowedCodes.has(item.code)) {
-                return item;
-            }
-
+            if (!item.code || allowedCodes.has(item.code)) return item;
             return null;
         })
         .filter(Boolean) as NavItem[];

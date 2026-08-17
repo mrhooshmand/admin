@@ -19,7 +19,6 @@ export const navigation: NavItem[] = [
     {
         title: "Dashboard",
         to: "/dashboard",
-        code: "dashboard",
         icon: LayoutDashboard,
     },
     {
@@ -44,7 +43,6 @@ export const navigation: NavItem[] = [
     {
         title: "Profile",
         to: "/profile",
-        code: "profile",
         icon: ContactRound,
     },
 ];
