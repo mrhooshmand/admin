@@ -12,13 +12,13 @@ export default function PermissionRoute({
                                             code,
                                             children,
                                         }: PermissionRouteProps) {
-    const { hasPermission, isLoading } = usePermissions();
+    const { hasMenuPermission, isLoading } = usePermissions();
 
     if (isLoading) {
         return <Loading />;
     }
 
-    if (code && !hasPermission(code)) {
+    if (code && !hasMenuPermission(code)) {
         return <Navigate to="/404" replace />;
     }
 

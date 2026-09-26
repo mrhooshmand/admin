@@ -24,21 +24,8 @@ export interface Menu {
 	title: string;
 }
 
-export interface LoginResponse {
-	message: string;
-	user: User;
-	menus: Menu[];
-}
-
-export interface RegisterResponse {
-	user: User;
-	message?: string;
-}
-
-export interface AuthContextType {
-	user: User | null;
-	login: (user: User) => void;
-	logout: () => void;
-	isAuthenticated: boolean;
-	loading: boolean;
+export interface Permission {
+	id: number;
+	code: string;
+	title: string;
 }

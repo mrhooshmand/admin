@@ -46,7 +46,7 @@ const styles = {
     container: {
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
+        // alignItems: "center",
         minHeight: "100vh",
         padding: "20px",
     },
@@ -54,7 +54,7 @@ const styles = {
         borderRadius: "12px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
         padding: "30px",
-        maxWidth: "500px",
+        // maxWidth: "500px",
         width: "100%",
     },
     header: {

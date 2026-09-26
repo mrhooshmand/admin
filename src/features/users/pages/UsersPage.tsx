@@ -13,6 +13,7 @@ import {useState} from "react";
 import {User} from "@/features/auth/types.ts";
 import {BulkActionsBar} from "@/shared/table/BulkActionsBar.tsx";
 import {Button} from "@/shared/ui/button.tsx";
+import {usePermissions} from "@/app/providers/PermissionProvider.tsx";
 
 export default function Users() {
     const search = useSearchRequest<UsersFilters>({
@@ -44,6 +45,9 @@ export default function Users() {
     })
     const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
     const canSelect = (user: User) => !["admin", "user_19"].includes(user.username);
+
+    const { getMenuByCode } = usePermissions();
+    console.log(getMenuByCode("users"))
 
     return (
         <Page>
