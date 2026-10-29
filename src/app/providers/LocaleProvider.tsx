@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { Direction } from "radix-ui";
 import {
   applyDocumentLocale,
   DEFAULT_LOCALE,
@@ -64,7 +65,11 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
+    <LocaleContext.Provider value={value}>
+      <Direction.DirectionProvider dir={value.dir}>
+        {children}
+      </Direction.DirectionProvider>
+    </LocaleContext.Provider>
   );
 }
 

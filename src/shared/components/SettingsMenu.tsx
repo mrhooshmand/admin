@@ -7,7 +7,6 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
@@ -17,7 +16,7 @@ import type { Locale } from "@/shared/i18n";
 
 export function ThemeToggle() {
     const { setTheme } = useTheme();
-    const { locale, setLocale, t } = useLocale();
+    const { locale, dir, setLocale, t } = useLocale();
 
     const changeTheme = (mode: 'light' | 'dark' | 'system') => {
         setTheme(mode)
@@ -44,20 +43,23 @@ export function ThemeToggle() {
                     </TooltipContent>
                 </Tooltip>
 
-                <DropdownMenuContent className="w-44" align="start">
+                <DropdownMenuContent
+                    className="w-44"
+                    align={dir === "rtl" ? "end" : "start"}
+                >
                     <DropdownMenuGroup>
                         <DropdownMenuLabel>{t("settings.theme")}</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => changeTheme('light')}>
+                            <Sun />
                             {t("settings.theme.light")}
-                            <DropdownMenuShortcut><Sun /></DropdownMenuShortcut>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => changeTheme('dark')}>
+                            <Moon />
                             {t("settings.theme.dark")}
-                            <DropdownMenuShortcut><Moon /></DropdownMenuShortcut>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => changeTheme('system')}>
+                            <MonitorCog />
                             {t("settings.theme.system")}
-                            <DropdownMenuShortcut><MonitorCog /></DropdownMenuShortcut>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
 
@@ -69,15 +71,15 @@ export function ThemeToggle() {
                             onClick={() => changeLocale("fa")}
                             className={locale === "fa" ? "bg-accent" : undefined}
                         >
+                            <Languages />
                             {t("settings.language.fa")}
-                            <DropdownMenuShortcut><Languages /></DropdownMenuShortcut>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => changeLocale("en")}
                             className={locale === "en" ? "bg-accent" : undefined}
                         >
+                            <Languages />
                             {t("settings.language.en")}
-                            <DropdownMenuShortcut><Languages /></DropdownMenuShortcut>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>

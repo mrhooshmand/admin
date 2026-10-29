@@ -39,7 +39,7 @@ function getInitials(fullName?: string, username?: string) {
 export default function HeaderLayout() {
     const { logout } = useAuth();
     const { data: user, isLoading } = useUserData();
-    const { t } = useLocale();
+    const { dir, t } = useLocale();
 
     return (
         <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -78,22 +78,25 @@ export default function HeaderLayout() {
                                     </Button>
                                 </DropdownMenuTrigger>
 
-                                <DropdownMenuContent className="w-64" align="end">
+                                <DropdownMenuContent
+                                    className="w-64"
+                                    align={dir === "rtl" ? "start" : "end"}
+                                >
                                     <DropdownMenuLabel className="p-0 font-normal">
                                         <div className="flex items-center gap-3 px-2 py-2">
                                             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
                                                 {getInitials(user?.full_name, user?.username)}
                                             </span>
-                                            <div className="flex flex-col gap-0.5 text-start">
+                                            <div className="flex min-w-0 flex-col items-start gap-0.5 text-start">
                                                 <p className="text-sm font-medium leading-none">
                                                     {user?.full_name || user?.username}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    @{user?.username}
+                                                    <bdi>@{user?.username}</bdi>
                                                 </p>
                                                 {user?.email && (
                                                     <p className="text-xs text-muted-foreground">
-                                                        {user.email}
+                                                        <bdi>{user.email}</bdi>
                                                     </p>
                                                 )}
                                             </div>
