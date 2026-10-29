@@ -16,6 +16,7 @@ import {
 } from "@/shared/ui/collapsible";
 
 import { NavItem } from "@/shared/types/navigation";
+import { useLocale } from "@/app/providers/LocaleProvider";
 
 interface SidebarItemProps {
     item: NavItem;
@@ -27,16 +28,18 @@ export function SidebarItem({
                                 level = 0,
                             }: SidebarItemProps) {
     const location = useLocation();
+    const { t } = useLocale();
+    const title = t(item.titleKey);
 
     const isActive = (path?: string) =>
         !!path && location.pathname === path;
 
-    const hasActiveChild = (item: NavItem): boolean => {
-        if (!item.children?.length) {
-            return isActive(item.to);
+    const hasActiveChild = (navItem: NavItem): boolean => {
+        if (!navItem.children?.length) {
+            return isActive(navItem.to);
         }
 
-        return item.children.some(hasActiveChild);
+        return navItem.children.some(hasActiveChild);
     };
 
     const open = hasActiveChild(item);
@@ -57,9 +60,9 @@ export function SidebarItem({
                             <SidebarMenuButton isActive={open}>
                                 {item.icon && <item.icon />}
 
-                                <span>{item.title}</span>
+                                <span>{title}</span>
 
-                                <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                                <ChevronRight className="ms-auto transition-transform rtl:rotate-180 group-data-[state=open]/collapsible:rotate-90 rtl:group-data-[state=open]/collapsible:rotate-90" />
                             </SidebarMenuButton>
                         </CollapsibleTrigger>
 
@@ -67,7 +70,7 @@ export function SidebarItem({
                             <SidebarMenuSub>
                                 {item.children.map((child) => (
                                     <SidebarItem
-                                        key={child.title}
+                                        key={child.titleKey}
                                         item={child}
                                         level={level + 1}
                                     />
@@ -81,9 +84,9 @@ export function SidebarItem({
                             <SidebarMenuSubButton isActive={open}>
                                 {item.icon && <item.icon />}
 
-                                <span>{item.title}</span>
+                                <span>{title}</span>
 
-                                <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                                <ChevronRight className="ms-auto transition-transform rtl:rotate-180 group-data-[state=open]/collapsible:rotate-90 rtl:group-data-[state=open]/collapsible:rotate-90" />
                             </SidebarMenuSubButton>
                         </CollapsibleTrigger>
 
@@ -91,7 +94,7 @@ export function SidebarItem({
                             <SidebarMenuSub>
                                 {item.children.map((child) => (
                                     <SidebarItem
-                                        key={child.title}
+                                        key={child.titleKey}
                                         item={child}
                                         level={level + 1}
                                     />
@@ -117,7 +120,7 @@ export function SidebarItem({
                 >
                     <NavLink to={item.to!}>
                         {item.icon && <item.icon />}
-                        <span>{item.title}</span>
+                        <span>{title}</span>
                     </NavLink>
                 </SidebarMenuButton>
             </SidebarMenuItem>
@@ -132,7 +135,7 @@ export function SidebarItem({
             >
                 <NavLink to={item.to!}>
                     {item.icon && <item.icon />}
-                    <span>{item.title}</span>
+                    <span>{title}</span>
                 </NavLink>
             </SidebarMenuSubButton>
         </SidebarMenuSubItem>

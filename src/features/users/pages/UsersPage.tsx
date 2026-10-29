@@ -14,8 +14,10 @@ import {User} from "@/features/auth/types.ts";
 import {BulkActionsBar} from "@/shared/table/BulkActionsBar.tsx";
 import {Button} from "@/shared/ui/button.tsx";
 import {usePermissions} from "@/app/providers/PermissionProvider.tsx";
+import { useLocale } from "@/app/providers/LocaleProvider";
 
 export default function Users() {
+    const { t } = useLocale();
     const search = useSearchRequest<UsersFilters>({
         initialFilters: INITIAL_USERS_FILTERS
     });
@@ -63,15 +65,15 @@ export default function Users() {
                     variant="destructive"
                     onClick={() => dialogs.deleteUsers(selectedUsers.map(u => u.id))}
                 >
-                    Delete
+                    {t("users.bulkDelete")}
                 </Button>
-                <Button variant="outline">Change Status</Button>
+                <Button variant="outline">{t("users.changeStatus")}</Button>
             </BulkActionsBar>
             <DataTable selectable={canSelect} onSelectionChange={setSelectedUsers}
                        columns={columns} data={users?.data ?? []}
                        isLoading={isLoading}
                        meta={{rowOffset, isMutating,}}
-                       emptyMessage="User not found"
+                       emptyMessage={t("users.empty")}
                        pagination={{
                            page: users?.pagination?.page ?? 1,
                            totalPages: users?.pagination?.totalPages ?? 1,

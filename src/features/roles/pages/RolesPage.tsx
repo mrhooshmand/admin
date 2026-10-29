@@ -9,8 +9,10 @@ import {useRoleDialogs} from "@/features/roles/hooks/useRoleDialogs.tsx";
 import {getRoleColumns} from "@/features/roles/columns/roleColumns.tsx";
 import {useRoles} from "@/features/roles/hooks/useRoles.ts";
 import {DataTable} from "@/shared/table/DataTable.tsx";
+import { useLocale } from "@/app/providers/LocaleProvider";
 
 export default function Roles() {
+    const { t } = useLocale();
     const search = useSearchRequest<RolesFilters>({
         initialFilters: INITIAL_ROLES_FILTERS
     });
@@ -44,10 +46,10 @@ export default function Roles() {
             </PageFilters>
             <DataTable columns={columns} data={roles?.data ?? []} isLoading={isLoading}
                        meta={{rowOffset, isMutating,}}
-                       emptyMessage="User not found"
+                       emptyMessage={t("roles.empty")}
                        pagination={{
-                           page: roles.pagination?.page,
-                           totalPages: roles.pagination?.totalPages,
+                           page: roles?.pagination?.page ?? 1,
+                           totalPages: roles?.pagination?.totalPages ?? 1,
                            onPageChange: search.setPage,
                        }}
                        sorting={{

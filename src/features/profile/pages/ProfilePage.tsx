@@ -1,15 +1,18 @@
 import useUserData from "@/features/auth/hooks/useUserData";
 import { Button } from "@/shared/ui/button";
+import { useLocale } from "@/app/providers/LocaleProvider";
 
 export default function Profile() {
     const {
         data: user,
     } = useUserData();
+    const { t } = useLocale();
+
     return (
         <div style={styles.container}>
             <div style={styles.profileCard}>
                 <div style={styles.header}>
-                    <h2>User Profile</h2>
+                    <h2>{t("profile.title")}</h2>
                 </div>
 
                 <div style={styles.avatar}>
@@ -20,22 +23,22 @@ export default function Profile() {
 
                 <div style={styles.info}>
                     <div style={styles.infoRow}>
-                        <span style={styles.label}>Username</span>
+                        <span style={styles.label}>{t("profile.username")}</span>
                         <span style={styles.value}>{user?.username}</span>
                     </div>
 
                     <div style={styles.infoRow}>
-                        <span style={styles.label}>Name</span>
+                        <span style={styles.label}>{t("profile.name")}</span>
                         <span style={styles.value}>{user?.full_name || "—"}</span>
                     </div>
 
                     <div style={styles.infoRow}>
-                        <span style={styles.label}>Email</span>
+                        <span style={styles.label}>{t("profile.email")}</span>
                         <span style={styles.value}>{user?.email || "—"}</span>
                     </div>
                 </div>
                 <Button className="w-full" onClick={() => window.location.href = "/dashboard"}>
-                    Dashboard
+                    {t("nav.dashboard")}
                 </Button>
             </div>
         </div>

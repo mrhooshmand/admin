@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/vazirmatn";
 
 @custom-variant dark (&:is(.dark *));
 :root {
@@ -121,7 +122,7 @@ body {
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
-    text-align: center;
+    text-align: start;
     border-inline: 1px solid var(--border);
     min-height: 100svh;
     display: flex;
@@ -177,6 +178,7 @@ code {
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: 'Geist Variable', sans-serif;
+    --font-fa: 'Vazirmatn Variable', 'Geist Variable', sans-serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -262,5 +264,16 @@ code {
 
     html {
         @apply font-sans;
+    }
+
+    html[lang="fa"],
+    html[data-locale="fa"] {
+        font-family: var(--font-fa);
+    }
+
+    html[lang="fa"] body,
+    html[data-locale="fa"] body {
+        font-family: var(--font-fa);
+        letter-spacing: 0;
     }
 }
