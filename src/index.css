@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/public-sans";
 @import "@fontsource-variable/vazirmatn";
 
 @custom-variant dark (&:is(.dark *));
@@ -9,20 +10,20 @@
     --text: #6b6375;
     --text-h: #08060d;
     --bg: #fff;
-    --border: oklch(0.922 0 0);
+    --border: #dbdade;
     --code-bg: #f4f3ec;
-    --accent: oklch(0.97 0 0);
+    --accent: #f3f2f7;
     --accent-bg: rgba(170, 59, 255, 0.1);
     --accent-border: rgba(170, 59, 255, 0.5);
     --social-bg: rgba(244, 243, 236, 0.5);
     --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-    --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-    --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+    --sans: 'Public Sans Variable', 'Geist Variable', system-ui, sans-serif;
+    --heading: 'Public Sans Variable', 'Geist Variable', system-ui, sans-serif;
     --mono: ui-monospace, Consolas, monospace;
 
-    font: 18px/145% var(--sans);
-    letter-spacing: 0.18px;
+    font: 16px/1.5 var(--sans);
+    letter-spacing: 0.15px;
     color-scheme: light dark;
     color: var(--text);
     background: var(--bg);
@@ -35,74 +36,44 @@
         font-size: 16px;
     }
 
-    --background: oklch(1 0 0);
-
-    --foreground: oklch(0.145 0 0);
-
-    --card: oklch(1 0 0);
-
-    --card-foreground: oklch(0.145 0 0);
-
-    --popover: oklch(1 0 0);
-
-    --popover-foreground: oklch(0.145 0 0);
-
-    --primary: oklch(0.205 0 0);
-
-    --primary-foreground: oklch(0.985 0 0);
-
-    --secondary: oklch(0.97 0 0);
-
-    --secondary-foreground: oklch(0.205 0 0);
-
-    --muted: oklch(0.97 0 0);
-
-    --muted-foreground: oklch(0.556 0 0);
-
-    --accent-foreground: oklch(0.205 0 0);
-
-    --destructive: oklch(0.577 0.245 27.325);
-
-    --input: oklch(0.922 0 0);
-
-    --ring: oklch(0.708 0 0);
-
-    --chart-1: oklch(0.87 0 0);
-
-    --chart-2: oklch(0.556 0 0);
-
-    --chart-3: oklch(0.439 0 0);
-
-    --chart-4: oklch(0.371 0 0);
-
-    --chart-5: oklch(0.269 0 0);
-
-    --radius: 0.625rem;
-
-    --sidebar: oklch(0.985 0 0);
-
-    --sidebar-foreground: oklch(0.145 0 0);
-
-    --sidebar-primary: oklch(0.205 0 0);
-
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-
-    --sidebar-accent: oklch(0.97 0 0);
-
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-
-    --sidebar-border: oklch(0.922 0 0);
-
-    --sidebar-ring: oklch(0.708 0 0)}
+    --background: #f8f7fa;
+    --foreground: #444050;
+    --card: #ffffff;
+    --card-foreground: #444050;
+    --popover: #ffffff;
+    --popover-foreground: #444050;
+    --primary: #7367f0;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f0f5;
+    --secondary-foreground: #6d6b77;
+    --muted: #f3f2f7;
+    --muted-foreground: #6d6b77;
+    --accent-foreground: #444050;
+    --destructive: #ea5455;
+    --input: #dbdade;
+    --ring: #7367f0;
+    --chart-1: #7367f0;
+    --chart-2: #28c76f;
+    --chart-3: #ff9f43;
+    --chart-4: #00cfe8;
+    --chart-5: #ea5455;
+    --radius: 0.375rem;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #6d6b77;
+    --sidebar-primary: #7367f0;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: rgba(115, 103, 240, 0.16);
+    --sidebar-accent-foreground: #7367f0;
+    --sidebar-border: #dbdade;
+    --sidebar-ring: #7367f0;
+}
 
 @media (prefers-color-scheme: dark) {
     :root {
         --text: #9ca3af;
         --text-h: #f3f4f6;
-        --bg: #16171d;
-        --border: #2e303a;
-        --code-bg: #1f2028;
-        --accent: #c084fc;
+        --bg: #25293c;
+        --code-bg: #2f3349;
         --accent-bg: rgba(192, 132, 252, 0.15);
         --accent-border: rgba(192, 132, 252, 0.5);
         --social-bg: rgba(47, 48, 58, 0.5);
@@ -116,14 +87,14 @@
 
 body {
     margin: 0;
+    font-size: 0.9375rem;
 }
 
 #root {
     width: 100%;
     max-width: 100%;
-    margin: 0 auto;
+    margin: 0;
     text-align: start;
-    border-inline: 1px solid var(--border);
     min-height: 100svh;
     display: flex;
     flex-direction: column;
@@ -134,26 +105,6 @@ h1,
 h2 {
     font-family: var(--heading);
     font-weight: 500;
-}
-
-h1 {
-    font-size: 56px;
-    letter-spacing: -1.68px;
-    margin: 32px 0;
-    @media (max-width: 1024px) {
-        font-size: 36px;
-        margin: 20px 0;
-    }
-}
-
-h2 {
-    font-size: 24px;
-    line-height: 118%;
-    letter-spacing: -0.24px;
-    margin: 0 0 8px;
-    @media (max-width: 1024px) {
-        font-size: 20px;
-    }
 }
 
 p {
@@ -177,7 +128,7 @@ code {
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-sans: 'Public Sans Variable', 'Geist Variable', sans-serif;
     --font-fa: 'Vazirmatn Variable', 'Geist Variable', sans-serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -220,37 +171,49 @@ code {
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --background: #25293c;
+    --foreground: #e1def5;
+    --card: #2f3349;
+    --card-foreground: #e1def5;
+    --popover: #2f3349;
+    --popover-foreground: #e1def5;
+    --primary: #7367f0;
+    --primary-foreground: #ffffff;
+    --secondary: #3a3e5b;
+    --secondary-foreground: #cfd3ec;
+    --muted: #363a53;
+    --muted-foreground: #b6b3c8;
+    --accent: #3a3e5b;
+    --accent-foreground: #e1def5;
+    --destructive: #ea5455;
+    --border: rgba(225, 222, 245, 0.12);
+    --input: rgba(225, 222, 245, 0.2);
+    --ring: #7367f0;
+    --chart-1: #7367f0;
+    --chart-2: #28c76f;
+    --chart-3: #ff9f43;
+    --chart-4: #00cfe8;
+    --chart-5: #ea5455;
+    --sidebar: #2f3349;
+    --sidebar-foreground: #cfd3ec;
+    --sidebar-primary: #7367f0;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: rgba(115, 103, 240, 0.16);
+    --sidebar-accent-foreground: #a89cf7;
+    --sidebar-border: rgba(225, 222, 245, 0.12);
+    --sidebar-ring: #7367f0;
+}
+
+.semi-dark {
+    color-scheme: light;
+    --sidebar: #2f3349;
+    --sidebar-foreground: #cfd3ec;
+    --sidebar-primary: #7367f0;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: rgba(115, 103, 240, 0.16);
+    --sidebar-accent-foreground: #7367f0;
+    --sidebar-border: rgba(225, 222, 245, 0.12);
+    --sidebar-ring: #7367f0;
 }
 
 @layer base {
@@ -276,4 +239,101 @@ code {
         font-family: var(--font-fa);
         letter-spacing: 0;
     }
+}
+
+[data-slot="card"] {
+    border-radius: 0.375rem;
+    box-shadow: 0 0.25rem 1.125rem rgba(75, 70, 92, 0.1);
+}
+
+.vuexy-sheet {
+    box-shadow: 0 0.25rem 1.125rem rgba(75, 70, 92, 0.1);
+}
+
+.vuexy-sheet > [data-slot="card"],
+.vuexy-sheet > div {
+    margin-bottom: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.dark [data-slot="card"],
+.dark .vuexy-sheet {
+    box-shadow: 0 0.25rem 1.125rem rgba(15, 20, 34, 0.45);
+}
+
+[data-slot="sidebar-container"] {
+    border-color: transparent;
+}
+
+[data-sidebar="sidebar"] {
+    box-shadow: 0 0.125rem 0.375rem rgba(47, 43, 61, 0.1);
+}
+    margin-block: 1rem 0.4rem;
+    padding-inline: 0.75rem;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: color-mix(in srgb, var(--sidebar-foreground) 55%, transparent);
+}
+
+[data-slot="table-header"] {
+    background: transparent;
+}
+
+[data-slot="table-head"] {
+    letter-spacing: 0.15px;
+    font-weight: 500;
+}
+
+[data-slot="table-body"] [data-slot="table-row"]:last-child {
+    border-bottom-width: 0;
+}
+
+[data-slot="button"][data-variant="default"]:not([data-size="icon"]) {
+    box-shadow: 0 2px 4px rgba(115, 103, 240, 0.28);
+}
+
+[data-slot="button"][data-variant="default"]:not([data-size="icon"]):hover {
+    background: #675dd8;
+    box-shadow: 0 3px 8px rgba(115, 103, 240, 0.34);
+}
+
+[data-slot="pagination"] {
+    border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+[data-slot="pagination"] [data-slot="button"] {
+    box-shadow: none;
+    width: 2rem;
+    height: 2rem;
+    min-height: 2rem;
+    border-radius: 0.375rem;
+}
+
+[data-slot="input"] {
+    min-height: 2.25rem;
+    border-radius: 0.375rem;
+}
+
+[data-slot="input"]:focus-visible {
+    border-color: #7367f0;
+}
+
+[data-slot="dialog-overlay"] {
+    background: rgba(47, 43, 61, 0.48);
+}
+
+[data-slot="dialog-content"],
+[data-slot="dropdown-menu-content"] {
+    border-radius: 0.375rem;
+    box-shadow: 0 0.25rem 1.25rem rgba(47, 43, 61, 0.16);
+}
+
+[data-slot="dropdown-menu-item"]:focus,
+[data-slot="dropdown-menu-item"][data-highlighted] {
+    background: rgba(115, 103, 240, 0.12);
+    color: #7367f0;
 }

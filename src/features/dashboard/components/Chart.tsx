@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
 import {
   Card,
@@ -10,12 +10,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card"
+import { useLocale } from "@/app/providers/LocaleProvider"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/shared/ui/chart"
+
+export function getChartSummary() {
+  const desktop = chartData.reduce((sum, row) => sum + row.desktop, 0)
+  const mobile = chartData.reduce((sum, row) => sum + row.mobile, 0)
+  return {
+    desktop,
+    mobile,
+    total: desktop + mobile,
+    days: chartData.length,
+  }
+}
 
 export const description = "An interactive line chart"
 
@@ -128,6 +140,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function ChartLineInteractive() {
+  const { t } = useLocale()
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("desktop")
 
@@ -139,50 +152,58 @@ export function ChartLineInteractive() {
     []
   )
 
+  const options = [
+    { key: "desktop" as const, label: t("dashboard.desktop") },
+    { key: "mobile" as const, label: t("dashboard.mobile") },
+  ]
+
   return (
-    <Card className="py-4 sm:py-0">
-      <CardHeader className="flex flex-col items-stretch border-b p-0! sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
-          <CardTitle>Line Chart - Interactive</CardTitle>
-          <CardDescription>
-            Showing total visitors for the last 3 months
-          </CardDescription>
+    <Card className="overflow-hidden py-0">
+      <CardHeader className="flex flex-row items-center justify-between gap-4 border-b px-6 py-5">
+        <div className="grid gap-1">
+          <CardTitle className="text-base font-medium">{t("dashboard.views")}</CardTitle>
+          <CardDescription>{t("dashboard.period")}</CardDescription>
         </div>
-        <div className="flex">
-          {["desktop", "mobile"].map((key) => {
-            const chart = key as keyof typeof chartConfig
+        <div className="flex gap-2">
+          {options.map((option) => {
+            const active = activeChart === option.key
             return (
               <button
-                key={chart}
-                data-active={activeChart === chart}
-                className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-start even:border-s data-[active=true]:bg-muted/50 sm:border-t-0 sm:border-s sm:px-8 sm:py-6"
-                onClick={() => setActiveChart(chart)}
+                key={option.key}
+                type="button"
+                onClick={() => setActiveChart(option.key)}
+                className={
+                  active
+                    ? "rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-[0_2px_4px_rgba(115,103,240,0.28)]"
+                    : "rounded-md bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary"
+                }
               >
-                <span className="text-xs text-muted-foreground">
-                  {chartConfig[chart].label}
-                </span>
-                <span className="text-lg leading-none font-bold sm:text-3xl">
-                  {total[key as keyof typeof total].toLocaleString()}
+                <span className="block text-[0.6875rem] font-normal opacity-80">{option.label}</span>
+                <span className="block text-base leading-tight">
+                  {total[option.key].toLocaleString()}
                 </span>
               </button>
             )
           })}
         </div>
       </CardHeader>
-      <CardContent className="px-2 sm:p-6">
+      <CardContent className="px-4 py-6 sm:px-6">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
+          className="aspect-auto h-[280px] w-full"
         >
-          <LineChart
+          <AreaChart
             accessibilityLayer
             data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
+            margin={{ left: 12, right: 12 }}
           >
-            <CartesianGrid vertical={false} />
+            <defs>
+              <linearGradient id="vuexy-area" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={`var(--color-${activeChart})`} stopOpacity={0.28} />
+                <stop offset="100%" stopColor={`var(--color-${activeChart})`} stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} strokeDasharray="4 6" />
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -212,14 +233,15 @@ export function ChartLineInteractive() {
                 />
               }
             />
-            <Line
+            <Area
               dataKey={activeChart}
               type="monotone"
               stroke={`var(--color-${activeChart})`}
               strokeWidth={2}
+              fill="url(#vuexy-area)"
               dot={false}
             />
-          </LineChart>
+          </AreaChart>
         </ChartContainer>
       </CardContent>
     </Card>

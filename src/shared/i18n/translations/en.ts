@@ -24,6 +24,7 @@ export const en = {
   "settings.theme.light": "Light",
   "settings.theme.dark": "Dark",
   "settings.theme.system": "System",
+  "settings.theme.semiDark": "Semi dark",
   "settings.language": "Language",
   "settings.language.fa": "Persian",
   "settings.language.en": "English",
@@ -45,7 +46,12 @@ export const en = {
   "nav.profile": "Profile",
 
   // Dashboard
-  "dashboard.title": "Everything you need to deploy your app",
+  "dashboard.title": "Dashboard",
+  "dashboard.desktop": "Desktop",
+  "dashboard.mobile": "Mobile",
+  "dashboard.views": "Page views",
+  "dashboard.days": "Days",
+  "dashboard.period": "Last 3 months",
   "dashboard.alertTitle": "New feature available",
   "dashboard.alertDesc":
     "We've added dark mode and language support. You can enable them in header settings.",

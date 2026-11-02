@@ -26,6 +26,7 @@ export const fa: Translations = {
   "settings.theme.light": "روشن",
   "settings.theme.dark": "تاریک",
   "settings.theme.system": "سیستم",
+  "settings.theme.semiDark": "سایدبار تیره",
   "settings.language": "زبان",
   "settings.language.fa": "فارسی",
   "settings.language.en": "انگلیسی",
@@ -47,7 +48,12 @@ export const fa: Translations = {
   "nav.profile": "پروفایل",
 
   // Dashboard
-  "dashboard.title": "همه‌چیز برای استقرار اپلیکیشن شما",
+  "dashboard.title": "داشبورد",
+  "dashboard.desktop": "دسکتاپ",
+  "dashboard.mobile": "موبایل",
+  "dashboard.views": "بازدید",
+  "dashboard.days": "روز",
+  "dashboard.period": "سه ماه اخیر",
   "dashboard.alertTitle": "قابلیت جدید",
   "dashboard.alertDesc":
     "حالت تاریک و پشتیبانی زبان اضافه شده است. از تنظیمات هدر می‌توانید فعال کنید.",

@@ -29,12 +29,14 @@ export function Pagination({page, totalPages, onPageChange}: PaginationProps) {
         return null;
     }
     return (
-        <ShadcnPagination className="mt-5">
-            <PaginationContent>
+        <ShadcnPagination className="justify-end px-3 py-2.5">
+            <PaginationContent className="gap-1">
                 <PaginationItem>
                     <PaginationPrevious
+                        text=""
+                        size="icon"
                         aria-disabled={!hasPrevious}
-                        className={!hasPrevious ? "pointer-events-none opacity-50" : ""}
+                        className={!hasPrevious ? "pointer-events-none opacity-40 shadow-none" : "shadow-none"}
                         onClick={(e) => {
                             e.preventDefault();
                             handlePageClick(page - 1);
@@ -62,8 +64,10 @@ export function Pagination({page, totalPages, onPageChange}: PaginationProps) {
                 )}
                 <PaginationItem>
                     <PaginationNext
+                        text=""
+                        size="icon"
                         aria-disabled={!hasNext}
-                        className={!hasNext ? "pointer-events-none opacity-50" : ""}
+                        className={!hasNext ? "pointer-events-none opacity-40 shadow-none" : "shadow-none"}
                         onClick={(e) => {
                             e.preventDefault();
                             handlePageClick(page + 1)

@@ -18,10 +18,11 @@ export function UserActions({
                                 onView,
                             }: UserActionsProps) {
     return (
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center justify-start gap-0.5">
             <Button
                 variant="ghost"
                 size="icon"
+                className="size-8 rounded-md text-muted-foreground shadow-none hover:bg-primary/10 hover:text-primary"
                 disabled={isMutating}
                 onClick={() => onEdit(user)}
             >
@@ -31,6 +32,7 @@ export function UserActions({
             <Button
                 variant="ghost"
                 size="icon"
+                className="size-8 rounded-md text-muted-foreground shadow-none hover:bg-primary/10 hover:text-primary"
                 onClick={() => onView(user)}
             >
                 <InfoIcon className="h-4 w-4"/>
@@ -39,7 +41,7 @@ export function UserActions({
             <Button
                 variant="ghost"
                 size="icon"
-                className="text-rose-500"
+                className="size-8 rounded-md text-destructive shadow-none hover:bg-destructive/10 hover:text-destructive"
                 disabled={isMutating}
                 onClick={() => onDelete(user)}
             >

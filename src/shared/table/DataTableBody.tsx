@@ -28,7 +28,7 @@ export function DataTableBody<TData>({
                     >
                         {row.getVisibleCells().map((cell) => (
                             <TableCell key={cell.id} className={cn(
-                                'text-center',
+                                "text-start",
                                 cell.column.columnDef.meta?.cellClassName,
                             )}>
                                 {flexRender(

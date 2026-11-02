@@ -16,7 +16,7 @@ export default function MainLayout() {
                 <AppSidebar menus={menus}/>
                 <SidebarInset>
                     <HeaderLayout />
-                    <div className="flex-1 overflow-auto bg-muted/30 p-6">
+                    <div className="flex-1 overflow-auto p-6">
                         <Outlet />
                     </div>
                 </SidebarInset>

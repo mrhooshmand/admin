@@ -38,7 +38,7 @@ export default function Roles() {
         onView: dialogs.viewRole,
     })
     return (
-        <Page>
+        <Page title={t("roles.title")}>
             <PageFilters actions={
                 <RolesToolbar onAdd={dialogs.addRole}/>}
             >

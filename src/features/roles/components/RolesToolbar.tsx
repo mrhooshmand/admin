@@ -9,8 +9,9 @@ export function RolesToolbar({onAdd}: PageActionProps) {
     return (
         <>
             <Button
-                variant="secondary"
+                variant="outline"
                 size="icon"
+                className="size-9 rounded-md border-border bg-card text-muted-foreground shadow-none hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
                 onClick={onAdd}
             >
                 <Plus/>

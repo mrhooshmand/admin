@@ -57,7 +57,7 @@ export function SidebarItem({
                 {level === 0 ? (
                     <SidebarMenuItem>
                         <CollapsibleTrigger asChild>
-                            <SidebarMenuButton isActive={open}>
+                            <SidebarMenuButton>
                                 {item.icon && <item.icon />}
 
                                 <span>{title}</span>
@@ -81,7 +81,7 @@ export function SidebarItem({
                 ) : (
                     <SidebarMenuSubItem>
                         <CollapsibleTrigger asChild>
-                            <SidebarMenuSubButton isActive={open}>
+                            <SidebarMenuSubButton>
                                 {item.icon && <item.icon />}
 
                                 <span>{title}</span>

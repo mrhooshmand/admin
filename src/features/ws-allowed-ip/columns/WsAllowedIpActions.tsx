@@ -16,11 +16,11 @@ export function WsAllowedIpActions({
     onCheck,
 }: WsAllowedIpActionsProps) {
     return (
-        <div className="flex items-center justify-center gap-1">
-            <Button variant="ghost" size="icon" disabled={isMutating} onClick={() => onEdit(row)}>
+        <div className="flex items-center justify-start gap-0.5">
+            <Button variant="ghost" size="icon" className="size-8 rounded-md text-muted-foreground shadow-none hover:bg-primary/10 hover:text-primary" disabled={isMutating} onClick={() => onEdit(row)}>
                 <Pencil className="size-4" />
             </Button>
-            <Button variant="ghost" size="icon" disabled={isMutating} onClick={() => onCheck(row)}>
+            <Button variant="ghost" size="icon" className="size-8 rounded-md text-muted-foreground shadow-none hover:bg-primary/10 hover:text-primary" disabled={isMutating} onClick={() => onCheck(row)}>
                 <UserCheck className="size-4" />
             </Button>
         </div>

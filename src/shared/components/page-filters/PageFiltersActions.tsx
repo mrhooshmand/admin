@@ -6,7 +6,7 @@ interface PageFiltersActionsProps {
 
 export function PageFiltersActions({children}: PageFiltersActionsProps) {
     return (
-        <div className="PageFiltersActions flex flex-row-reverse gap-1 px-1">
+        <div className="PageFiltersActions flex items-center gap-2">
             {children}
         </div>
     )

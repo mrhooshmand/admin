@@ -42,7 +42,7 @@ export default function WsAllowedIpsPage() {
     );
 
     return (
-        <Page>
+        <Page title={t("nav.wsAllowedIp")}>
             <DataTable
                 columns={columns}
                 data={rows?.data ?? []}

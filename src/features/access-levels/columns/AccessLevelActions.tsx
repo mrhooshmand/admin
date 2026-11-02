@@ -18,17 +18,17 @@ export function AccessLevelActions({
     onUsers,
 }: AccessLevelActionsProps) {
     return (
-        <div className="flex items-center justify-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => onUsers(level)}>
+        <div className="flex items-center justify-start gap-0.5">
+            <Button variant="ghost" size="icon" className="size-8 rounded-md text-muted-foreground shadow-none hover:bg-primary/10 hover:text-primary" onClick={() => onUsers(level)}>
                 <Users className="size-4" />
             </Button>
-            <Button variant="ghost" size="icon" disabled={isMutating} onClick={() => onEdit(level)}>
+            <Button variant="ghost" size="icon" className="size-8 rounded-md text-muted-foreground shadow-none hover:bg-primary/10 hover:text-primary" disabled={isMutating} onClick={() => onEdit(level)}>
                 <Pencil className="size-4" />
             </Button>
             <Button
                 variant="ghost"
                 size="icon"
-                className="text-rose-500"
+                className="size-8 rounded-md text-destructive shadow-none hover:bg-destructive/10 hover:text-destructive"
                 disabled={isMutating}
                 onClick={() => onDelete(level)}
             >

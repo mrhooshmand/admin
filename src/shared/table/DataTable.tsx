@@ -139,7 +139,7 @@ export function DataTable<TData, TValue>({
 
     if (isLoading) return <TableSkeleton/>
     return (
-        <div>
+        <div className="overflow-hidden rounded-md bg-card shadow-[0_2px_10px_rgba(47,43,61,0.06)]">
             <div
                 className={cn(
                     "overflow-hidden",

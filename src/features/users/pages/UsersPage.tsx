@@ -13,8 +13,7 @@ import {useState} from "react";
 import {User} from "@/features/auth/types.ts";
 import {BulkActionsBar} from "@/shared/table/BulkActionsBar.tsx";
 import {Button} from "@/shared/ui/button.tsx";
-import {usePermissions} from "@/app/providers/PermissionProvider.tsx";
-import { useLocale } from "@/app/providers/LocaleProvider";
+import {useLocale} from "@/app/providers/LocaleProvider";
 
 export default function Users() {
     const { t } = useLocale();
@@ -48,11 +47,8 @@ export default function Users() {
     const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
     const canSelect = (user: User) => !["admin", "user_19"].includes(user.username);
 
-    const { getMenuByCode } = usePermissions();
-    console.log(getMenuByCode("users"))
-
     return (
-        <Page>
+        <Page title={t("users.title")}>
             <PageFilters actions={
                 <UsersToolbar onAdd={dialogs.addUser} onExport={() => console.log('123')}/>}
             >

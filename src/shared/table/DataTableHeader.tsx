@@ -21,7 +21,7 @@ export function DataTableHeader<TData>({
     return (
         <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow key={headerGroup.id} className="hover:bg-transparent">
                     {headerGroup.headers.map((header) => {
                         const sort = header.column.getIsSorted();
 
@@ -34,14 +34,14 @@ export function DataTableHeader<TData>({
                                         : undefined
                                 }
                                 className={cn(
-                                    "text-center",
+                                    "text-start",
                                     header.column.columnDef.meta?.headerClassName,
                                     header.column.getCanSort() && "cursor-pointer select-none",
                                 )
                                 }
                             >
                                 <div className={cn(
-                                    "flex items-center gap-2 justify-center",
+                                    "flex items-center gap-1.5 justify-start",
                                     header.column.columnDef.meta?.headerClassName
                                 )}>
                                     {flexRender(

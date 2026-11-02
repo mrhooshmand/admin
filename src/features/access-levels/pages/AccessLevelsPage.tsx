@@ -43,7 +43,7 @@ export default function AccessLevelsPage() {
     );
 
     return (
-        <Page>
+        <Page title={t("nav.accessLevels")}>
             <PageFilters
                 title={t("common.search")}
                 actions={<AccessLevelsToolbar onAdd={dialogs.addLevel} />}
