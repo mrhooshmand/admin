@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 import sqlite3
 from contextlib import contextmanager
+import copy
 import random
 
 app = Flask(__name__)
@@ -866,6 +867,550 @@ def delete_role(role_id):
             "status": "error",
             "message": str(e),
         }), 500
+
+
+# ============ سطوح دسترسی و IP مجاز (داده فیک) ============
+
+ACCESS_MODULES = [
+    {"id": "gds", "title": "GDS"},
+    {"id": "inventory", "title": "موجودی"},
+    {"id": "finance", "title": "مالی"},
+    {"id": "report", "title": "گزارش‌ها"},
+]
+
+PERMISSION_CATALOG = {
+    "gds": {
+        "id": "gds",
+        "title": "GDS",
+        "childs": [
+            {
+                "id": "gds-search",
+                "title": "جستجوی پرواز",
+                "operations": [
+                    {"id": "gds.search.view", "title": "مشاهده"},
+                    {"id": "gds.search.create", "title": "ثبت"},
+                ],
+            },
+            {
+                "id": "gds-book",
+                "title": "رزرو",
+                "operations": [
+                    {"id": "gds.book.view", "title": "مشاهده"},
+                    {"id": "gds.book.edit", "title": "ویرایش"},
+                    {"id": "gds.book.cancel", "title": "لغو"},
+                ],
+            },
+        ],
+    },
+    "inventory": {
+        "id": "inventory",
+        "title": "موجودی",
+        "childs": [
+            {
+                "id": "inventory-flight",
+                "title": "پرواز",
+                "operations": [
+                    {"id": "inventory.flight.view", "title": "مشاهده"},
+                    {"id": "inventory.flight.edit", "title": "ویرایش"},
+                ],
+            },
+            {
+                "id": "inventory-class",
+                "title": "کلاس نرخی",
+                "operations": [
+                    {"id": "inventory.class.view", "title": "مشاهده"},
+                    {"id": "inventory.class.edit", "title": "ویرایش"},
+                ],
+            },
+        ],
+    },
+    "finance": {
+        "id": "finance",
+        "title": "مالی",
+        "childs": [
+            {
+                "id": "finance-invoice",
+                "title": "فاکتور",
+                "operations": [
+                    {"id": "finance.invoice.view", "title": "مشاهده"},
+                    {"id": "finance.invoice.create", "title": "ثبت"},
+                ],
+            },
+        ],
+    },
+    "report": {
+        "id": "report",
+        "title": "گزارش‌ها",
+        "childs": [
+            {
+                "id": "report-sales",
+                "title": "فروش",
+                "operations": [
+                    {"id": "report.sales.view", "title": "مشاهده"},
+                    {"id": "report.sales.export", "title": "خروجی"},
+                ],
+            },
+        ],
+    },
+}
+
+ACCESS_LEVELS = [
+    {
+        "id": 1,
+        "title": "مدیر آژانس",
+        "role": "agency-admin",
+        "module": "gds,inventory",
+        "status": 1,
+        "customer": "ادمین",
+        "permissions": ["gds.search.view", "gds.search.create", "gds.book.view", "inventory.flight.view"],
+    },
+    {
+        "id": 2,
+        "title": "اپراتور رزرو",
+        "role": "booking-operator",
+        "module": "gds",
+        "status": 1,
+        "customer": "ادمین",
+        "permissions": ["gds.search.view", "gds.book.view", "gds.book.edit"],
+    },
+    {
+        "id": 3,
+        "title": "حسابدار",
+        "role": "accountant",
+        "module": "finance,report",
+        "status": 1,
+        "customer": "مالی",
+        "permissions": ["finance.invoice.view", "finance.invoice.create", "report.sales.view"],
+    },
+    {
+        "id": 4,
+        "title": "پشتیبان",
+        "role": "support",
+        "module": "gds,report",
+        "status": 0,
+        "customer": "پشتیبانی",
+        "permissions": ["gds.search.view", "report.sales.view"],
+    },
+    {
+        "id": 5,
+        "title": "ناظر موجودی",
+        "role": "inventory-viewer",
+        "module": "inventory",
+        "status": 1,
+        "customer": "ادمین",
+        "permissions": ["inventory.flight.view", "inventory.class.view"],
+    },
+    {
+        "id": 6,
+        "title": "مدیر فروش",
+        "role": "sales-manager",
+        "module": "gds,finance,report",
+        "status": 1,
+        "customer": "فروش",
+        "permissions": ["gds.search.view", "gds.book.view", "report.sales.view", "report.sales.export"],
+    },
+]
+
+ROLE_USERS = {
+    1: [
+        {"name": "ali.rezaei", "status": "enable"},
+        {"name": "sara.karimi", "status": "enable"},
+        {"name": "office.user", "status": "block"},
+    ],
+    2: [
+        {"name": "reza.operator", "status": "enable"},
+        {"name": "mina.salehi", "status": "disable"},
+    ],
+    3: [
+        {"name": "hesabdar", "status": "enable"},
+    ],
+    5: [
+        {"name": "inventory.viewer", "status": "enable"},
+    ],
+    6: [
+        {"name": "sales.lead", "status": "enable"},
+        {"name": "sales.agent", "status": "disable"},
+    ],
+}
+
+WS_ALLOWED_IPS = [
+    {
+        "id": 1,
+        "customer": "آژانس سپهر",
+        "ip": "185.12.14.20,185.12.14.21",
+        "user": "sepehr_ws",
+        "pass": "Sepehr#1404",
+        "software_name": "Amadeus",
+        "status": 1,
+        "en": "فعال",
+        "block_status": "آزاد",
+    },
+    {
+        "id": 2,
+        "customer": "آژانس پارسیان",
+        "ip": "91.99.101.14",
+        "user": "parsian_ws",
+        "pass": "Parsian#1404",
+        "software_name": "Sabre",
+        "status": 1,
+        "en": "فعال",
+        "block_status": "آزاد",
+    },
+    {
+        "id": 3,
+        "customer": "چارتر آسمان",
+        "ip": "5.160.22.80,5.160.22.81",
+        "user": "aseman_ws",
+        "pass": "Aseman#1404",
+        "software_name": "Charter",
+        "status": 0,
+        "en": "غیرفعال",
+        "block_status": "مسدود",
+    },
+    {
+        "id": 4,
+        "customer": "آژانس نیک‌پرواز",
+        "ip": "178.22.120.9",
+        "user": "nikparvaz_ws",
+        "pass": "Nik#1404",
+        "software_name": "Galileo",
+        "status": 1,
+        "en": "فعال",
+        "block_status": "آزاد",
+    },
+    {
+        "id": 5,
+        "customer": "دفتر مشهد",
+        "ip": "79.175.140.33",
+        "user": "mashhad_ws",
+        "pass": "Mashhad#1404",
+        "software_name": "Amadeus",
+        "status": 1,
+        "en": "فعال",
+        "block_status": "محدود",
+    },
+    {
+        "id": 6,
+        "customer": "آژانس کیش",
+        "ip": "188.121.44.10",
+        "user": "kish_ws",
+        "pass": "Kish#1404",
+        "software_name": "",
+        "status": 0,
+        "en": "غیرفعال",
+        "block_status": "آزاد",
+    },
+]
+
+SOFTWARE_NAMES = [
+    {"id": "amadeus", "title": "Amadeus"},
+    {"id": "sabre", "title": "Sabre"},
+    {"id": "galileo", "title": "Galileo"},
+    {"id": "charter", "title": "Charter"},
+]
+
+FLIGHT_ROUTES = [
+    {"id": "THR", "title": "تهران (THR)"},
+    {"id": "MHD", "title": "مشهد (MHD)"},
+    {"id": "IFN", "title": "اصفهان (IFN)"},
+    {"id": "SYZ", "title": "شیراز (SYZ)"},
+    {"id": "KIH", "title": "کیش (KIH)"},
+    {"id": "TBZ", "title": "تبریز (TBZ)"},
+    {"id": "AWZ", "title": "اهواز (AWZ)"},
+]
+
+_next_access_level_id = max(row["id"] for row in ACCESS_LEVELS) + 1
+
+
+def trex_ok(message="", data=None, extra=None):
+    body = {"err": 0, "msg": message, "data": data}
+    if extra:
+        body.update(extra)
+    return body
+
+
+def trex_error(message, status=400):
+    return jsonify({"err": 1, "msg": message, "data": None}), status
+
+
+def paginate_rows(rows, start, page_size):
+    try:
+        start = max(int(start), 0)
+    except (TypeError, ValueError):
+        start = 0
+    try:
+        page_size = max(int(page_size), 1)
+    except (TypeError, ValueError):
+        page_size = 20
+
+    total = len(rows)
+    last_page = max((total + page_size - 1) // page_size, 1)
+    return {
+        "err": 0,
+        "msg": "",
+        "data": rows[start:start + page_size],
+        "pagination": {
+            "currentPage": (start // page_size) + 1,
+            "lastPage": last_page,
+            "total": total,
+        },
+    }
+
+
+def sort_rows(rows, order, order_type, allowed):
+    key = order if order in allowed else "id"
+    reverse = str(order_type or "desc").lower() != "asc"
+
+    def sort_key(row):
+        value = row.get(key)
+        if isinstance(value, (int, float)):
+            return (0, value)
+        return (1, str(value or "").lower())
+
+    return sorted(rows, key=sort_key, reverse=reverse)
+
+
+def public_access_level(row):
+    return {
+        "id": row["id"],
+        "title": row["title"],
+        "role": row["role"],
+        "module": row["module"],
+        "status": row["status"],
+        "customer": row["customer"],
+    }
+
+
+def public_allowed_ip(row):
+    return {
+        "id": row["id"],
+        "customer": row["customer"],
+        "ip": row["ip"],
+        "user": row["user"],
+        "pass": row["pass"],
+        "software_name": row["software_name"],
+        "status": row["status"],
+        "en": row["en"],
+        "block_status": row["block_status"],
+    }
+
+
+def permission_tree(module_ids, checked_ids):
+    checked = set(checked_ids or [])
+    nodes = []
+    for module_id in module_ids:
+        source = PERMISSION_CATALOG.get(module_id)
+        if not source:
+            continue
+        node = copy.deepcopy(source)
+        for child in node.get("childs", []):
+            for operation in child.get("operations", []):
+                operation["checked"] = 1 if operation["id"] in checked else 0
+        nodes.append(node)
+    return nodes
+
+
+def find_access_level(level_id):
+    return next((row for row in ACCESS_LEVELS if row["id"] == level_id), None)
+
+
+def find_allowed_ip(row_id):
+    return next((row for row in WS_ALLOWED_IPS if row["id"] == row_id), None)
+
+
+def software_title(value):
+    match = next(
+        (item for item in SOFTWARE_NAMES if item["id"] == value or item["title"] == value),
+        None,
+    )
+    return match["title"] if match else value
+
+
+@app.route("/api/GDS/access/level/search", methods=["POST"])
+def search_access_levels():
+    data = request.get_json(silent=True) or {}
+    fields = data.get("fields") or {}
+    title = str(fields.get("title") or "").strip().lower()
+    status = str(fields.get("status", "-1"))
+
+    rows = ACCESS_LEVELS
+    if title:
+        rows = [row for row in rows if title in row["title"].lower() or title in row["role"].lower()]
+    if status in ("0", "1"):
+        rows = [row for row in rows if str(row["status"]) == status]
+
+    rows = sort_rows(
+        rows,
+        data.get("order", "id"),
+        data.get("orderType", "desc"),
+        {"id", "title", "role", "module", "status", "customer"},
+    )
+    return jsonify(paginate_rows(
+        [public_access_level(row) for row in rows],
+        data.get("start", 0),
+        data.get("pageSize", 20),
+    ))
+
+
+@app.route("/api/GDS/access/level/getModules", methods=["POST"])
+def get_access_modules():
+    return jsonify(trex_ok(data=ACCESS_MODULES))
+
+
+@app.route("/api/GDS/access/level/getLevelInfo/<int:level_id>", methods=["POST"])
+def get_access_level_info(level_id):
+    data = request.get_json(silent=True) or {}
+    fields = data.get("fields") or {}
+    modules = fields.get("module") or []
+    if isinstance(modules, str):
+        modules = [item for item in modules.split(",") if item]
+
+    level = find_access_level(level_id)
+    checked = level["permissions"] if level else []
+    if not modules and level:
+        modules = [item for item in level["module"].split(",") if item]
+
+    return jsonify(trex_ok(extra={
+        "title": level["title"] if level else "",
+        "status": level["status"] if level else 1,
+        "permissions": permission_tree(modules, checked),
+    }))
+
+
+@app.route("/api/GDS/access/level/update/<int:level_id>", methods=["POST"])
+def save_access_level(level_id):
+    global _next_access_level_id
+    data = request.get_json(silent=True) or {}
+    fields = data.get("fields") or {}
+    title = str(fields.get("title") or "").strip()
+    roles = fields.get("roles") or []
+    if isinstance(roles, str):
+        roles = [item for item in roles.split(",") if item]
+    status = 1 if str(fields.get("status", "1")) == "1" else 0
+    permissions = fields.get("permissions") or []
+
+    if not title:
+        return trex_error("Title is required")
+    if not roles:
+        return trex_error("Select a module")
+
+    if level_id == 0:
+        row = {
+            "id": _next_access_level_id,
+            "title": title,
+            "role": title,
+            "module": ",".join(roles),
+            "status": status,
+            "customer": "ادمین",
+            "permissions": list(permissions),
+        }
+        _next_access_level_id += 1
+        ACCESS_LEVELS.insert(0, row)
+        ROLE_USERS[row["id"]] = []
+        return jsonify(trex_ok("Access level created"))
+
+    row = find_access_level(level_id)
+    if not row:
+        return trex_error("Access level not found", 404)
+
+    row["title"] = title
+    row["role"] = title
+    row["module"] = ",".join(roles)
+    row["status"] = status
+    row["permissions"] = list(permissions)
+    return jsonify(trex_ok("Access level updated"))
+
+
+@app.route("/api/GDS/access/level/delete/<int:level_id>", methods=["POST"])
+def delete_access_level(level_id):
+    row = find_access_level(level_id)
+    if not row:
+        return trex_error("Access level not found", 404)
+    ACCESS_LEVELS.remove(row)
+    ROLE_USERS.pop(level_id, None)
+    return jsonify(trex_ok("Access level deleted"))
+
+
+@app.route("/api/GDS/access/account/getRoleUsersList/<int:level_id>", methods=["POST"])
+def get_role_users(level_id):
+    if not find_access_level(level_id):
+        return jsonify(trex_ok(data=[]))
+    return jsonify(trex_ok(data=ROLE_USERS.get(level_id, [])))
+
+
+@app.route("/api/GDS/access/WSAllowedIP/search", methods=["POST"])
+def search_ws_allowed_ips():
+    data = request.get_json(silent=True) or {}
+    fields = data.get("fields") or {}
+    keyword = str(fields.get("keyword") or "").strip().lower()
+
+    rows = WS_ALLOWED_IPS
+    if keyword:
+        rows = [
+            row for row in rows
+            if keyword in row["customer"].lower()
+            or keyword in row["ip"].lower()
+            or keyword in row["user"].lower()
+            or keyword in row["software_name"].lower()
+        ]
+
+    rows = sort_rows(rows, "id", "desc", {"id"})
+    return jsonify(paginate_rows(
+        [public_allowed_ip(row) for row in rows],
+        data.get("start", 0),
+        data.get("pageSize", 20),
+    ))
+
+
+@app.route("/api/GDS/access/WSAllowedIP/getSoftwareNames", methods=["POST"])
+def get_software_names():
+    return jsonify(trex_ok(data=SOFTWARE_NAMES))
+
+
+@app.route("/api/GDS/access/WSAllowedIP/save", methods=["POST"])
+def save_ws_software():
+    data = request.get_json(silent=True) or {}
+    fields = data.get("fields") or {}
+    try:
+        row_id = int(fields.get("id"))
+    except (TypeError, ValueError):
+        return trex_error("Invalid id")
+
+    row = find_allowed_ip(row_id)
+    if not row:
+        return trex_error("Allowed IP not found", 404)
+
+    software_name = str(fields.get("software_name") or "").strip()
+    if not software_name:
+        return trex_error("Software is required")
+
+    row["software_name"] = software_title(software_name)
+    return jsonify(trex_ok("Software updated"))
+
+
+@app.route("/api/GDS/access/WSAllowedIP/checkWSUser", methods=["POST"])
+def check_ws_user():
+    data = request.get_json(silent=True) or {}
+    fields = data.get("fields") or {}
+    try:
+        row_id = int(fields.get("id"))
+    except (TypeError, ValueError):
+        return trex_error("Invalid id")
+
+    row = find_allowed_ip(row_id)
+    if not row:
+        return trex_error("Allowed IP not found", 404)
+    if row["status"] != 1:
+        return trex_error("User is inactive")
+
+    departure = fields.get("search_flight_departure") or ""
+    arrival = fields.get("search_flight_arrival") or ""
+    return jsonify(trex_ok(f"User {row['user']} is allowed for {departure}-{arrival}"))
+
+
+@app.route("/api/GDS/inventory/priceClass/get_routes_by_airline", methods=["POST"])
+def get_routes_by_airline():
+    return jsonify(trex_ok(data=FLIGHT_ROUTES))
 
 
 if __name__ == '__main__':

@@ -4,7 +4,9 @@ import {
     Users,
     ContactRound,
     UserStar,
-    UserKey
+    UserKey,
+    Shield,
+    Globe,
 } from "lucide-react";
 import type { TranslationKey } from "@/shared/i18n";
 
@@ -38,7 +40,17 @@ export const navigation: NavItem[] = [
                 code: "roles",
                 icon: UserStar,
                 to: "/users/roles",
-            }
+            },
+            {
+                titleKey: "nav.accessLevels",
+                icon: Shield,
+                to: "/access/levels",
+            },
+            {
+                titleKey: "nav.wsAllowedIp",
+                icon: Globe,
+                to: "/access/ws-allowed-ip",
+            },
         ],
     },
     {

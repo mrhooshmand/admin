@@ -16,6 +16,7 @@ export const en = {
   "common.yes": "Yes",
   "common.no": "No",
   "common.noResults": "No results found",
+  "common.select": "Select",
 
   // Settings
   "settings.title": "Settings",
@@ -39,6 +40,8 @@ export const en = {
   "nav.access": "Access",
   "nav.accounts": "Accounts",
   "nav.roles": "Roles",
+  "nav.accessLevels": "Access levels",
+  "nav.wsAllowedIp": "Allowed IPs",
   "nav.profile": "Profile",
 
   // Dashboard
@@ -56,6 +59,43 @@ export const en = {
   // Roles
   "roles.title": "Roles",
   "roles.empty": "Role not found",
+
+  // Access levels (GDS/access/level)
+  "accessLevels.empty": "No access level found",
+  "accessLevels.emptyUsers": "No user found",
+  "accessLevels.role": "Role",
+  "accessLevels.creator": "Creator",
+  "accessLevels.status": "Status",
+  "accessLevels.all": "All",
+  "accessLevels.active": "Active",
+  "accessLevels.inactive": "Inactive",
+  "accessLevels.users": "Users",
+  "accessLevels.newRole": "New role",
+  "accessLevels.editRole": "Edit role",
+  "accessLevels.deleteTitle": "Delete this role?",
+  "accessLevels.module": "Module",
+  "accessLevels.permissions": "Permissions",
+  "accessLevels.userList": "User list",
+  "accessLevels.name": "Name",
+  "accessLevels.openAll": "Open all",
+  "accessLevels.closeAll": "Close all",
+
+  // WS allowed IP (GDS/access/WSAllowedIP)
+  "wsAllowed.empty": "No IP found",
+  "wsAllowed.name": "Name",
+  "wsAllowed.ip": "IP",
+  "wsAllowed.user": "User",
+  "wsAllowed.software": "Software",
+  "wsAllowed.status": "Status",
+  "wsAllowed.blockStatus": "Block status",
+  "wsAllowed.active": "Active",
+  "wsAllowed.inactive": "Inactive",
+  "wsAllowed.editSoftware": "Edit software",
+  "wsAllowed.checkUser": "Check WS user",
+  "wsAllowed.departure": "Departure",
+  "wsAllowed.arrival": "Arrival",
+  "wsAllowed.date": "Date",
+  "wsAllowed.softwareName": "Software name",
 
   // Profile
   "profile.title": "Profile",
