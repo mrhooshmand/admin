@@ -34,7 +34,7 @@ export function DataTableHeader<TData>({
                                         : undefined
                                 }
                                 className={cn(
-                                    "text-center",
+                                    "text-center bg-primary/5",
                                     header.column.columnDef.meta?.headerClassName,
                                     header.column.getCanSort() && "cursor-pointer select-none",
                                 )

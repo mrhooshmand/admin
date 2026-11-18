@@ -62,7 +62,7 @@ export function UsersFilterForm({onSubmit}: PageFilterProps) {
                         </p>
                     </Field>
                     <div className="flex items-center justify-start">
-                        <Button type="submit">
+                        <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90 px-4">
                             Search
                         </Button>
                     </div>
