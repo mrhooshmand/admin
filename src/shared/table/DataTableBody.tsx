@@ -19,7 +19,7 @@ export function DataTableBody<TData>({
                                      }: DataTableBodyProps<TData>) {
     const colSpan = table.getAllLeafColumns().length;
     return (
-        <TableBody>
+        <TableBody className="border">
             {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                     <TableRow

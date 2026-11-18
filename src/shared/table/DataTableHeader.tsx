@@ -23,7 +23,7 @@ export function DataTableHeader<TData>({
             {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                     key={headerGroup.id}
-                    className="bg-secondary"
+                    className="bg-secondary border"
                 >
                     {headerGroup.headers.map((header) => {
                         const sort = header.column.getIsSorted();
