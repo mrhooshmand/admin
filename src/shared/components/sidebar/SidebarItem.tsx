@@ -67,7 +67,7 @@ export function SidebarItem({
                         </CollapsibleTrigger>
 
                         <CollapsibleContent>
-                            <SidebarMenuSub>
+                            <SidebarMenuSub className="me-0 pe-0">
                                 {item.children.map((child) => (
                                     <SidebarItem
                                         key={child.titleKey}
@@ -91,7 +91,7 @@ export function SidebarItem({
                         </CollapsibleTrigger>
 
                         <CollapsibleContent>
-                            <SidebarMenuSub>
+                            <SidebarMenuSub className="me-0 pe-0">
                                 {item.children.map((child) => (
                                     <SidebarItem
                                         key={child.titleKey}
@@ -128,10 +128,11 @@ export function SidebarItem({
     }
 
     return (
-        <SidebarMenuSubItem>
+        <SidebarMenuSubItem className="w-full">
             <SidebarMenuSubButton
                 asChild
                 isActive={isActive(item.to)}
+                className="w-full"
             >
                 <NavLink to={item.to!}>
                     {item.icon && <item.icon />}

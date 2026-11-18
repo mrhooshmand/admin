@@ -7,6 +7,7 @@ import { LoadingProvider } from '@/app/providers/LoadingProvider'
 import { LocaleProvider, useLocale } from '@/app/providers/LocaleProvider'
 import { QueryProvider } from '@/app/providers/QueryProvider'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
+import { ColorThemeProvider } from '@/app/providers/ColorThemeProvider'
 import { Toaster } from 'sonner'
 import { BrowserRouter } from 'react-router-dom'
 
@@ -33,14 +34,16 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
             <LocaleProvider>
                 <ThemeProvider>
-                    <QueryProvider>
-                        <LoadingProvider>
-                            <AuthProvider>
-                                <AppToaster />
-                                <App />
-                            </AuthProvider>
-                        </LoadingProvider>
-                    </QueryProvider>
+                    <ColorThemeProvider>
+                        <QueryProvider>
+                            <LoadingProvider>
+                                <AuthProvider>
+                                    <AppToaster />
+                                    <App />
+                                </AuthProvider>
+                            </LoadingProvider>
+                        </QueryProvider>
+                    </ColorThemeProvider>
                 </ThemeProvider>
             </LocaleProvider>
         </BrowserRouter>

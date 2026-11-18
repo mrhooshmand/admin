@@ -31,7 +31,7 @@ export function AppSidebar({ menus }: { menus: Menu[] }) {
                     <img
                         src={logoImage}
                         alt="Logo"
-                        className="max-h-10 w-auto object-contain"
+                        className="w-auto object-contain"
                     />
                 </div>
             </SidebarHeader>

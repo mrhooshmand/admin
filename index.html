@@ -14,6 +14,10 @@
           document.documentElement.lang = locale;
           document.documentElement.dir = dir;
           document.documentElement.dataset.locale = locale;
+
+          var color = localStorage.getItem("app-color-theme") || "neutral";
+          var allowed = ["neutral", "blue", "green", "orange", "rose", "violet", "red", "yellow"];
+          document.documentElement.dataset.color = allowed.indexOf(color) >= 0 ? color : "neutral";
         } catch (e) {}
       })();
     </script>

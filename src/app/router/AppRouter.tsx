@@ -29,7 +29,7 @@ export default function AppRouter() {
                         <Route index element={<PageNotFound/>}/>
                         {appRoutes.map((route) => (
                             <Route
-                                key={route.code}
+                                key={route.path}
                                 path={route.path}
                                 element={
                                     <PermissionRoute code={route.code}>
