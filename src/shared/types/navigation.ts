@@ -6,9 +6,10 @@ import {
     UserStar,
     UserKey
 } from "lucide-react";
+import type { TranslationKey } from "@/shared/i18n";
 
 export interface NavItem {
-    title: string;
+    titleKey: TranslationKey;
     to?: string;
     code?: string;
     icon?: LucideIcon;
@@ -17,23 +18,23 @@ export interface NavItem {
 
 export const navigation: NavItem[] = [
     {
-        title: "Dashboard",
+        titleKey: "nav.dashboard",
         to: "/dashboard",
         icon: LayoutDashboard,
     },
     {
-        title: "Access",
+        titleKey: "nav.access",
         icon: UserKey,
         code: 'access',
         children: [
             {
-                title: "Accounts",
+                titleKey: "nav.accounts",
                 code: "users",
                 icon: Users,
                 to: "/users/accounts",
             },
             {
-                title: "Roles",
+                titleKey: "nav.roles",
                 code: "roles",
                 icon: UserStar,
                 to: "/users/roles",
@@ -41,7 +42,7 @@ export const navigation: NavItem[] = [
         ],
     },
     {
-        title: "Profile",
+        titleKey: "nav.profile",
         to: "/profile",
         icon: ContactRound,
     },

@@ -14,11 +14,13 @@ import {SidebarItem} from "@/shared/components/sidebar/SidebarItem.tsx";
 import logoImage from "/logooo.png";
 import {filterNavigation} from "@/shared/navigation/filterNavigation.ts";
 import type {Menu} from "@/features/auth/types";
+import { useLocale } from "@/app/providers/LocaleProvider";
 
 export function AppSidebar({menus}: { menus: Menu[] }) {
+    const { t, dir } = useLocale();
     const visibleNavigation = filterNavigation(navigation, menus);
     return (
-        <Sidebar>
+        <Sidebar side={dir === "rtl" ? "right" : "left"}>
             <SidebarHeader>
                 <div style={{height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img src={logoImage} alt="Logo"/>
@@ -27,7 +29,7 @@ export function AppSidebar({menus}: { menus: Menu[] }) {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupLabel>
-                        Menu
+                        {t("nav.menu")}
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>

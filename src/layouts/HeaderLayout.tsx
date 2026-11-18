@@ -23,6 +23,7 @@ import {
     TooltipTrigger,
 } from "@/shared/ui/tooltip";
 import { ThemeToggle } from "@/shared/components/SettingsMenu";
+import { useLocale } from "@/app/providers/LocaleProvider";
 
 function getInitials(fullName?: string, username?: string) {
     const source = fullName?.trim() || username?.trim() || "?";
@@ -38,6 +39,7 @@ function getInitials(fullName?: string, username?: string) {
 export default function HeaderLayout() {
     const { logout } = useAuth();
     const { data: user, isLoading } = useUserData();
+    const { dir, t } = useLocale();
 
     return (
         <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -64,7 +66,7 @@ export default function HeaderLayout() {
                                         <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                                             {getInitials(user?.full_name, user?.username)}
                                         </span>
-                                        <div className="hidden flex-col items-start text-left sm:flex">
+                                        <div className="hidden flex-col items-start text-start sm:flex">
                                             <span className="text-sm font-medium pb-1 leading-none">
                                                 {user?.full_name || user?.username}
                                             </span>
@@ -76,22 +78,25 @@ export default function HeaderLayout() {
                                     </Button>
                                 </DropdownMenuTrigger>
 
-                                <DropdownMenuContent className="w-64" align="end">
+                                <DropdownMenuContent
+                                    className="w-64"
+                                    align={dir === "rtl" ? "start" : "end"}
+                                >
                                     <DropdownMenuLabel className="p-0 font-normal">
                                         <div className="flex items-center gap-3 px-2 py-2">
                                             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
                                                 {getInitials(user?.full_name, user?.username)}
                                             </span>
-                                            <div className="flex flex-col gap-0.5">
+                                            <div className="flex min-w-0 flex-col items-start gap-0.5 text-start">
                                                 <p className="text-sm font-medium leading-none">
                                                     {user?.full_name || user?.username}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    @{user?.username}
+                                                    <bdi>@{user?.username}</bdi>
                                                 </p>
                                                 {user?.email && (
                                                     <p className="text-xs text-muted-foreground">
-                                                        {user.email}
+                                                        <bdi>{user.email}</bdi>
                                                     </p>
                                                 )}
                                             </div>
@@ -105,7 +110,7 @@ export default function HeaderLayout() {
                                         >
                                             <Link to={ROUTES.PROFILE}>
                                                 <UserCircle />
-                                                Profile
+                                                {t("auth.profile")}
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
@@ -114,7 +119,7 @@ export default function HeaderLayout() {
                                             className="flex items-center gap-2 cursor-pointer"
                                         >
                                             <LogOut />
-                                            <span>Logout</span>
+                                            <span>{t("auth.logout")}</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
 
