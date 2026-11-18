@@ -16,12 +16,6 @@ import {
 import { Separator } from "@/shared/ui/separator";
 import { SidebarTrigger } from "@/shared/ui/sidebar";
 import { Skeleton } from "@/shared/ui/skeleton";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/shared/ui/tooltip";
 import { ThemeToggle } from "@/shared/components/SettingsMenu";
 import { useLocale } from "@/app/providers/LocaleProvider";
 
@@ -42,14 +36,14 @@ export default function HeaderLayout() {
     const { dir, t } = useLocale();
 
     return (
-        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <SidebarTrigger />
-            <div className="flex flex-1 items-center justify-between gap-2">
-                <span className="text-sm font-medium text-muted-foreground">
-
-                </span>
-
-                <div className="flex items-center gap-1">
+        <header className="sticky top-0 z-10 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+            <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+                <SidebarTrigger className="-ms-1" />
+                <Separator
+                    orientation="vertical"
+                    className="mx-2 data-[orientation=vertical]:h-4"
+                />
+                <div className="ms-auto flex items-center gap-1">
                     {isLoading ? (
                         <>
                             <Skeleton className="h-9 w-32 rounded-lg" />
@@ -125,7 +119,10 @@ export default function HeaderLayout() {
 
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Separator orientation="vertical" className="mx-3 bg-accent" />
+                            <Separator
+                                orientation="vertical"
+                                className="mx-2 data-[orientation=vertical]:h-4"
+                            />
                             <ThemeToggle />
                         </>
                     )}

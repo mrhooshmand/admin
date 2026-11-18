@@ -14,9 +14,9 @@ export function SidebarClock() {
     }, []);
 
     return (
-        <div className="flex items-center justify-evenly gap-2 px-4 py-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-lg bg-sidebar-accent/50 px-3 py-2.5 text-xs text-sidebar-foreground/70">
             <CalendarDays className="size-4 shrink-0" />
-            <div className="text-start">
+            <div className="min-w-0 flex-1 truncate text-start">
                 {date.toLocaleDateString(intlLocale, {
                     weekday: "long",
                     year: "numeric",
@@ -25,7 +25,7 @@ export function SidebarClock() {
                     numberingSystem: "latn",
                 })}
             </div>
-            <div className="font-extrabold tabular-nums">
+            <div className="shrink-0 font-semibold tabular-nums text-sidebar-foreground">
                 {date.toLocaleTimeString(intlLocale, {
                     hour: "2-digit",
                     minute: "2-digit",

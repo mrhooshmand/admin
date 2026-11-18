@@ -7,14 +7,16 @@ export default function Dashboard() {
     const { t } = useLocale();
 
     return (
-        <div className="text-start">
-            <div className="mx-auto mt-2 mb-10 text-center text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-                {t("dashboard.title")}
+        <div className="flex flex-col gap-4 text-start md:gap-6">
+            <div className="px-1">
+                <h1 className="text-2xl font-semibold tracking-tight">
+                    {t("dashboard.title")}
+                </h1>
             </div>
 
             <ChartLineInteractive />
 
-            <Alert className="mt-5">
+            <Alert>
                 <InfoIcon />
                 <AlertTitle>{t("dashboard.alertTitle")}</AlertTitle>
                 <AlertDescription>
