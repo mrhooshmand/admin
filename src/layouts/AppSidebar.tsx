@@ -11,7 +11,7 @@ import {
 import { SidebarClock } from "@/shared/components/sidebar/SidebarClock"
 import { navigation } from "@/shared/types/navigation.ts"
 import { SidebarItem } from "@/shared/components/sidebar/SidebarItem.tsx"
-import logoImage from "/logooo.png"
+import logoImage from "/logo.png"
 import { filterNavigation } from "@/shared/navigation/filterNavigation.ts"
 import type { Menu } from "@/features/auth/types"
 import { useLocale } from "@/app/providers/LocaleProvider"
