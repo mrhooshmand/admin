@@ -18,9 +18,9 @@ export function SidebarClock() {
             <CalendarDays className="size-4 shrink-0" />
             <div className="min-w-0 flex-1 truncate text-start">
                 {date.toLocaleDateString(intlLocale, {
-                    weekday: "long",
+                    weekday: "short",
                     year: "numeric",
-                    month: "long",
+                    month: "short",
                     day: "numeric",
                     numberingSystem: "latn",
                 })}
