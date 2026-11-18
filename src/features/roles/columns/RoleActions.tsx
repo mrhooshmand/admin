@@ -20,7 +20,7 @@ export function RoleActions({
     return (
         <div className="flex items-center justify-center gap-1">
             <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 disabled={isMutating}
                 onClick={() => onEdit(role)}
@@ -29,7 +29,7 @@ export function RoleActions({
             </Button>
 
             <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 onClick={() => onView(role)}
             >
@@ -37,7 +37,7 @@ export function RoleActions({
             </Button>
 
             <Button
-                variant="ghost"
+                variant="destructive"
                 size="icon"
                 className="text-rose-500"
                 disabled={isMutating}
