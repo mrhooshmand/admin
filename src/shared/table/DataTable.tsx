@@ -142,7 +142,7 @@ export function DataTable<TData, TValue>({
         <div>
             <div
                 className={cn(
-                    "overflow-hidden rounded-md border",
+                    "overflow-hidden",
                     className
                 )}
             >

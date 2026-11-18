@@ -21,7 +21,10 @@ export function DataTableHeader<TData>({
     return (
         <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow
+                    key={headerGroup.id}
+                    className="bg-secondary"
+                >
                     {headerGroup.headers.map((header) => {
                         const sort = header.column.getIsSorted();
 
@@ -34,7 +37,7 @@ export function DataTableHeader<TData>({
                                         : undefined
                                 }
                                 className={cn(
-                                    "text-center bg-primary/5",
+                                    "text-center",
                                     header.column.columnDef.meta?.headerClassName,
                                     header.column.getCanSort() && "cursor-pointer select-none",
                                 )
