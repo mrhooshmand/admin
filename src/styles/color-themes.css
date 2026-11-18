@@ -1,12 +1,12 @@
 /* Color palettes — override accent tokens; surfaces stay neutral */
 
 html[data-color="blue"] {
-  --primary: oklch(0.546 0.245 262.881);
+  --primary: oklch(0.46 0.16 264.48);
   --primary-foreground: oklch(0.985 0 0);
-  --ring: oklch(0.546 0.245 262.881);
-  --sidebar-primary: oklch(0.546 0.245 262.881);
+  --ring: oklch(0.46 0.16 264.48);
+  --sidebar-primary: oklch(0.46 0.16 264.48);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --chart-1: oklch(0.546 0.245 262.881);
+  --chart-1: oklch(0.46 0.16 264.48);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);

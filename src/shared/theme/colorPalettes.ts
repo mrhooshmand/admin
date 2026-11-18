@@ -10,7 +10,7 @@ export const COLOR_PALETTES = [
   {
     id: "blue",
     labelKey: "settings.color.blue",
-    swatch: "oklch(0.546 0.245 262.881)",
+    swatch: "oklch(0.46 0.16 264.48)",
     swatchDark: "oklch(0.623 0.214 259.815)",
   },
   {
