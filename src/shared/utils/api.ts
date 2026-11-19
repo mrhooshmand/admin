@@ -2,6 +2,7 @@ import axios, {
 	AxiosInstance,
 } from "axios";
 import { API_BASE_URL } from "../constants/api";
+import { isMockEnabled, mockAdapter } from "../mock";
 
 const api: AxiosInstance = axios.create({
 	baseURL: API_BASE_URL,
@@ -10,7 +11,11 @@ const api: AxiosInstance = axios.create({
 	headers: {
 		"Content-Type": "application/json",
 	},
+	...(isMockEnabled ? { adapter: mockAdapter } : {}),
 });
 
+if (isMockEnabled && import.meta.env.DEV) {
+	console.info("[mock] API mock mode enabled — backend is not required");
+}
 
 export default api;
