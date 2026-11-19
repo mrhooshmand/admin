@@ -36,11 +36,42 @@ export const en = {
   "settings.language.fa": "Persian",
   "settings.language.en": "English",
 
+  // Brand
+  "auth.brand.short": "Sepehran Airline",
+  "auth.brand.expanded": "Airline Operations Center",
+  "auth.brand.dashboard": "Sepehran operations dashboard",
+
   // Auth / Header
   "auth.profile": "Profile",
   "auth.logout": "Logout",
   "auth.login": "Login",
   "auth.register": "Register",
+  "auth.aside.tagline":
+    "Sepehran OCC dashboard — Core, catering, pricing, reports and integrated systems in one workspace.",
+  "auth.aside.description":
+    "Built for airline operations teams who keep every flight on schedule.",
+  "auth.aside.footer.rights":
+    "© 2026 Sepehran Airline. All rights reserved.",
+  "auth.aside.tiles.schedule": "Flight schedule",
+  "auth.aside.tiles.catering": "Catering ops",
+  "auth.aside.tiles.reports": "Operations reports",
+  "auth.aside.tiles.access": "Roles & access",
+  "auth.login.title": "Operations, made simpler",
+  "auth.login.subtitle": "Continue by signing in to your workspace.",
+  "auth.login.newUser": "New user?",
+  "auth.login.createAccount": "Create an account",
+  "auth.register.title": "Create your account",
+  "auth.register.subtitle": "Set up access to your airline operations workspace.",
+  "auth.register.hasAccount": "Already have an account?",
+  "auth.register.signIn": "Sign in",
+  "auth.form.or": "Or",
+  "auth.form.sso": "Single sign-on (SSO)",
+  "auth.form.username": "Username",
+  "auth.form.usernamePlaceholder": "Enter username",
+  "auth.form.password": "Password",
+  "auth.form.passwordPlaceholder": "Enter password",
+  "auth.form.signIn": "Sign in",
+  "auth.form.signInPending": "Signing in...",
 
   // Navigation
   "nav.menu": "Menu",

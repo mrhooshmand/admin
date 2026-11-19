@@ -38,11 +38,42 @@ export const fa: Translations = {
   "settings.language.fa": "فارسی",
   "settings.language.en": "انگلیسی",
 
+  // Brand
+  "auth.brand.short": "Sepehran Airline",
+  "auth.brand.expanded": "مرکز عملیات هواپیمایی",
+  "auth.brand.dashboard": "داشبورد عملیات سپهران",
+
   // Auth / Header
   "auth.profile": "پروفایل",
   "auth.logout": "خروج",
   "auth.login": "ورود",
   "auth.register": "ثبت‌نام",
+  "auth.aside.tagline":
+    "پنل OCC سپهران — Core، کترینگ، پرایسینگ، گزارش و سامانه‌های یکپارچه در یک فضای کاری.",
+  "auth.aside.description":
+    "برای تیم‌های عملیات هواپیمایی که هر پرواز را به‌موقع نگه می‌دارند.",
+  "auth.aside.footer.rights":
+    "© ۱۴۰۵ سپهران ایرلاین. تمامی حقوق محفوظ است.",
+  "auth.aside.tiles.schedule": "زمان‌بندی پرواز",
+  "auth.aside.tiles.catering": "عملیات کترینگ",
+  "auth.aside.tiles.reports": "گزارش عملیات",
+  "auth.aside.tiles.access": "نقش و دسترسی",
+  "auth.login.title": "عملیات، ساده‌تر",
+  "auth.login.subtitle": "برای ادامه وارد فضای کاری خود شوید.",
+  "auth.login.newUser": "کاربر جدید هستید؟",
+  "auth.login.createAccount": "ساخت حساب",
+  "auth.register.title": "ساخت حساب کاربری",
+  "auth.register.subtitle": "دسترسی به پنل عملیات هواپیمایی را فعال کنید.",
+  "auth.register.hasAccount": "قبلاً حساب دارید؟",
+  "auth.register.signIn": "ورود",
+  "auth.form.or": "یا",
+  "auth.form.sso": "ورود یکپارچه (SSO)",
+  "auth.form.username": "نام کاربری",
+  "auth.form.usernamePlaceholder": "نام کاربری را وارد کنید",
+  "auth.form.password": "رمز عبور",
+  "auth.form.passwordPlaceholder": "رمز عبور را وارد کنید",
+  "auth.form.signIn": "ورود",
+  "auth.form.signInPending": "در حال ورود...",
 
   // Navigation
   "nav.menu": "منو",

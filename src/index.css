@@ -150,3 +150,136 @@
         letter-spacing: 0;
     }
 }
+
+/* Auth hero — darkened video loop */
+@layer utilities {
+    .auth-hero-media {
+        transform: scale(1.05);
+        transform-origin: center center;
+    }
+
+    .auth-hero-media :is(img, video),
+    .auth-hero-video-dark {
+        filter: blur(2px) brightness(0.52) saturate(0.82) contrast(1.05);
+    }
+
+    .auth-hero-dark-scrim {
+        background: linear-gradient(
+            180deg,
+            rgba(10, 24, 40, 0.35) 0%,
+            rgba(15, 41, 64, 0.22) 45%,
+            rgba(8, 18, 30, 0.4) 100%
+        );
+        mix-blend-mode: multiply;
+    }
+
+    .auth-hero-overlay-drift {
+        animation: auth-hero-overlay-drift 14s ease-in-out infinite alternate;
+    }
+
+    .auth-hero-glint {
+        animation: auth-hero-glint 11s ease-in-out infinite;
+    }
+
+    @keyframes auth-hero-overlay-drift {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0.9;
+        }
+    }
+
+    @keyframes auth-hero-glint {
+        0%,
+        100% {
+            opacity: 0.82;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .auth-hero-overlay-drift,
+        .auth-hero-glint {
+            animation: none;
+        }
+    }
+}
+
+/* Auth aside — glass tiles */
+@layer utilities {
+    .auth-aside-tile {
+        animation: auth-aside-tile-in 0.55s ease-out both;
+        transition:
+            transform 0.3s ease,
+            background-color 0.3s ease,
+            box-shadow 0.3s ease,
+            backdrop-filter 0.3s ease;
+    }
+
+    .auth-aside-tile:hover {
+        transform: translateY(-3px);
+        background-color: rgba(255, 255, 255, 0.07);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+        backdrop-filter: blur(10px);
+    }
+
+    @supports (backdrop-filter: blur(1px)) {
+        .auth-aside-tile:hover {
+            background-color: transparent;
+        }
+    }
+
+    @keyframes auth-aside-tile-in {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .auth-aside-tile {
+            animation: none;
+        }
+
+        .auth-aside-tile:hover {
+            transform: none;
+        }
+    }
+}
+
+/* Auth mobile form sheet — inputs must stay visible on glass card */
+@layer utilities {
+    @media (max-width: 1023px) {
+        .auth-mobile-form {
+            --input: oklch(0.72 0.01 264);
+            --border: oklch(0.72 0.01 264);
+        }
+
+        .dark .auth-mobile-form {
+            --input: oklch(1 0 0 / 32%);
+            --border: oklch(1 0 0 / 26%);
+        }
+
+        .auth-mobile-form [data-slot="input"] {
+            border-color: var(--input);
+            background-color: color-mix(in oklch, var(--background) 92%, var(--foreground) 8%);
+            box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
+        }
+
+        .dark .auth-mobile-form [data-slot="input"] {
+            background-color: color-mix(in oklch, var(--card) 88%, var(--foreground) 12%);
+            box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.06);
+        }
+
+        .auth-mobile-form [data-slot="input"]:focus-visible {
+            border-color: var(--ring);
+        }
+    }
+}
