@@ -31,8 +31,9 @@ export function AppSidebar({ menus }: { menus: Menu[] }) {
           <img
             src={logoImage}
             alt="Logo"
-            className="w-auto object-contain"
-            style={{ width: "100%", maxWidth: "150px" }}
+            width={150}
+            height={100}
+            className="h-auto w-full max-w-[150px] object-contain"
           />
         </div>
       </SidebarHeader>
@@ -42,7 +43,10 @@ export function AppSidebar({ menus }: { menus: Menu[] }) {
           <SidebarGroupContent>
             <SidebarMenu>
               {visibleNavigation.map((item) => (
-                <SidebarItem key={item.code} item={item} />
+                <SidebarItem
+                  key={item.code ?? item.to ?? item.titleKey}
+                  item={item}
+                />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>

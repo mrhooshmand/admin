@@ -23,10 +23,14 @@ interface SidebarItemProps {
     level?: number;
 }
 
+function itemKey(item: NavItem) {
+    return item.code ?? item.to ?? item.titleKey;
+}
+
 export function SidebarItem({
-                                item,
-                                level = 0,
-                            }: SidebarItemProps) {
+    item,
+    level = 0,
+}: SidebarItemProps) {
     const location = useLocation();
     const { t } = useLocale();
     const title = t(item.titleKey);
@@ -49,12 +53,21 @@ export function SidebarItem({
     // ===========================
 
     if (item.children?.length) {
-        return (
-            <Collapsible
-                defaultOpen={open}
-                className="group/collapsible"
-            >
-                {level === 0 ? (
+        const children = item.children.map((child) => (
+            <SidebarItem
+                key={itemKey(child)}
+                item={child}
+                level={level + 1}
+            />
+        ));
+
+        if (level === 0) {
+            return (
+                <Collapsible
+                    asChild
+                    defaultOpen={open}
+                    className="group/collapsible"
+                >
                     <SidebarMenuItem>
                         <CollapsibleTrigger asChild>
                             <SidebarMenuButton isActive={open}>
@@ -68,41 +81,37 @@ export function SidebarItem({
 
                         <CollapsibleContent>
                             <SidebarMenuSub className="me-0 pe-0">
-                                {item.children.map((child) => (
-                                    <SidebarItem
-                                        key={child.titleKey}
-                                        item={child}
-                                        level={level + 1}
-                                    />
-                                ))}
+                                {children}
                             </SidebarMenuSub>
                         </CollapsibleContent>
                     </SidebarMenuItem>
-                ) : (
-                    <SidebarMenuSubItem>
-                        <CollapsibleTrigger asChild>
-                            <SidebarMenuSubButton isActive={open}>
-                                {item.icon && <item.icon />}
+                </Collapsible>
+            );
+        }
 
-                                <span>{title}</span>
+        return (
+            <Collapsible
+                asChild
+                defaultOpen={open}
+                className="group/collapsible"
+            >
+                <SidebarMenuSubItem>
+                    <CollapsibleTrigger asChild>
+                        <SidebarMenuSubButton isActive={open}>
+                            {item.icon && <item.icon />}
 
-                                <ChevronRight className="ms-auto transition-transform rtl:rotate-180 group-data-[state=open]/collapsible:rotate-90 rtl:group-data-[state=open]/collapsible:rotate-90" />
-                            </SidebarMenuSubButton>
-                        </CollapsibleTrigger>
+                            <span>{title}</span>
 
-                        <CollapsibleContent>
-                            <SidebarMenuSub className="me-0 pe-0">
-                                {item.children.map((child) => (
-                                    <SidebarItem
-                                        key={child.titleKey}
-                                        item={child}
-                                        level={level + 1}
-                                    />
-                                ))}
-                            </SidebarMenuSub>
-                        </CollapsibleContent>
-                    </SidebarMenuSubItem>
-                )}
+                            <ChevronRight className="ms-auto transition-transform rtl:rotate-180 group-data-[state=open]/collapsible:rotate-90 rtl:group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuSubButton>
+                    </CollapsibleTrigger>
+
+                    <CollapsibleContent>
+                        <SidebarMenuSub className="me-0 pe-0">
+                            {children}
+                        </SidebarMenuSub>
+                    </CollapsibleContent>
+                </SidebarMenuSubItem>
             </Collapsible>
         );
     }

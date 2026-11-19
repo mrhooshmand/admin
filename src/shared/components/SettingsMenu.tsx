@@ -46,7 +46,12 @@ export function ThemeToggle() {
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={t("settings.title")}
+                                title={t("settings.title")}
+                            >
                                 <Settings2 />
                             </Button>
                         </DropdownMenuTrigger>
